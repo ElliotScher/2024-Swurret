@@ -550,7 +550,7 @@ public final class AutoRoutines {
       List.of(
           "NONE",
           "SOURCE SIDE TWO PIECE",
-          "SOURCES SIDE FULL WING AUTO",
+          "SOURCE SIDE FULL WING AUTO",
           "URI AUTO",
           "URI + 1",
           "MIDLINE 5, 4, 3",

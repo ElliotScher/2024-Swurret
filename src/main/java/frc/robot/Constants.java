@@ -32,7 +32,7 @@ import frc.robot.FieldConstants.Subwoofer;
 public final class Constants {
   public static final boolean TUNING_MODE = false;
   public static final double LOOP_PERIOD_SECS = 0.02;
-  public static final RobotType ROBOT = RobotType.SNAPBACK;
+  public static final RobotType ROBOT = RobotType.ROBOT_SIM;
 
   public static Mode getMode() {
     switch (ROBOT) {
@@ -69,7 +69,7 @@ public final class Constants {
     public static final Transform2d ROBOT_FRONT_LEFT_CORNER_TO_CENTER =
         new Transform2d(-ROBOT_X_LENGTH / 2, -ROBOT_Y_LENGTH / 2, Rotation2d.fromDegrees(0.0));
     public static final Transform2d ROBOT_FRONT_TO_CENTER =
-        new Transform2d(-ROBOT_X_LENGTH / 2, 0, Rotation2d.fromDegrees(0.0));
+        new Transform2d(-ROBOT_X_LENGTH / 2, 0.0, Rotation2d.fromDegrees(0.0));
 
     // Starting poses
     public static final Pose2d SOURCE_SIDE_SUBWOOFER =
