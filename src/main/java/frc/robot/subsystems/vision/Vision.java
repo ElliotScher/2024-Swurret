@@ -110,8 +110,8 @@ public class Vision extends VirtualSubsystem {
     io.disableLEDs();
   }
 
-  public Command setPipeline(double pipeline) {
-    return Commands.runOnce(() -> io.setPipeline(pipeline));
+  public Command setPipeline(VisionNoteTrackingPipeline noteTrackingPipeline) {
+    return Commands.runOnce(() -> io.setPipeline(noteTrackingPipeline.pipeline));
   }
 
   public Command blinkLEDs() {

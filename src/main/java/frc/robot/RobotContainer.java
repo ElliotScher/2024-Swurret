@@ -64,6 +64,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.subsystems.vision.VisionMode;
+import frc.robot.subsystems.vision.VisionNoteTrackingPipeline;
 import frc.robot.util.SnapbackMechanism3d;
 import java.util.Map;
 import org.littletonrobotics.junction.Logger;
@@ -321,7 +322,7 @@ public class RobotContainer {
   }
 
   public void resetVisionPipelines() {
-    noteVision.setPipeline(0);
+    noteVision.setPipeline(VisionNoteTrackingPipeline.Center);
   }
 
   public Command getAutonomousCommand() {

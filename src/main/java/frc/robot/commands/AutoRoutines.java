@@ -11,6 +11,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.serializer.Serializer;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionNoteTrackingPipeline;
 import frc.robot.util.AllianceFlipUtil;
 import java.util.HashMap;
 import java.util.List;
@@ -20,9 +21,9 @@ public final class AutoRoutines {
   public static final double MAX_SPEED_SPIKE_NOTE_TRACKING = 0.5;
   public static final PathConstraints SLOW_PATH_CONSTRAINTS = new PathConstraints(1, 1, 2, 2);
 
-  private static final Command leaveAuto(Drive drive) {
+  private static final Command leaveAuto(Drive drive, Vision noteVision) {
     return CompositeCommands.getPath(
-        drive, AutoPathPoints.OPPONENT_SOURCE_AGAINST_ALLIANCE_WALL, AutoPathPoints.OUT_OF_THE_WAY);
+        drive, noteVision, VisionNoteTrackingPipeline.Center, AutoPathPoints.OPPONENT_SOURCE_AGAINST_ALLIANCE_WALL, AutoPathPoints.OUT_OF_THE_WAY);
   }
 
   private static final Command gtfootw(
@@ -34,7 +35,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-            drive, AutoPathPoints.SOURCE_SIDE_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_SHOT),
+            drive, noteVision, VisionNoteTrackingPipeline.Center, AutoPathPoints.SOURCE_SIDE_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getPath(AutoPathPoints.OUT_OF_THE_WAY));
@@ -49,7 +50,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-            drive, AutoPathPoints.SOURCE_SIDE_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_PODIUM_SHOT),
+            drive, noteVision, VisionNoteTrackingPipeline.SourceSide, AutoPathPoints.SOURCE_SIDE_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_PODIUM_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
@@ -67,7 +68,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-            drive, AutoPathPoints.AMP_SIDE_SUBWOOFER, AutoPathPoints.AMP_SIDE_SHOT),
+            drive, noteVision, VisionNoteTrackingPipeline.AmpSide, AutoPathPoints.AMP_SIDE_SUBWOOFER, AutoPathPoints.AMP_SIDE_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
@@ -85,7 +86,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-            drive, AutoPathPoints.CENTER_SUBWOOFER, AutoPathPoints.CENTER_SHOT),
+            drive, noteVision, VisionNoteTrackingPipeline.Center, AutoPathPoints.CENTER_SUBWOOFER, AutoPathPoints.CENTER_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
@@ -103,7 +104,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-            drive, AutoPathPoints.SOURCE_SIDE_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_PODIUM_SHOT),
+            drive, noteVision, VisionNoteTrackingPipeline.SourceSide, AutoPathPoints.SOURCE_SIDE_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_PODIUM_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
@@ -135,7 +136,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-            drive, AutoPathPoints.AMP_SIDE_SUBWOOFER, AutoPathPoints.AMP_SIDE_SHOT),
+            drive, noteVision, VisionNoteTrackingPipeline.AmpSide, AutoPathPoints.AMP_SIDE_SUBWOOFER, AutoPathPoints.AMP_SIDE_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
@@ -167,7 +168,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-            drive, AutoPathPoints.CENTER_SUBWOOFER, AutoPathPoints.AMP_SIDE_SHOT),
+            drive, noteVision, VisionNoteTrackingPipeline.Center, AutoPathPoints.CENTER_SUBWOOFER, AutoPathPoints.AMP_SIDE_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
@@ -199,7 +200,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-            drive, AutoPathPoints.CENTER_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_PODIUM_SHOT),
+            drive, noteVision, VisionNoteTrackingPipeline.Center, AutoPathPoints.CENTER_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_PODIUM_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
@@ -231,7 +232,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-            drive, AutoPathPoints.SOURCE_SIDE_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_PODIUM_SHOT),
+            drive, noteVision, VisionNoteTrackingPipeline.SourceSide, AutoPathPoints.SOURCE_SIDE_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_PODIUM_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
@@ -254,7 +255,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-            drive, AutoPathPoints.SOURCE_SIDE_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_PODIUM_SHOT),
+            drive, noteVision, VisionNoteTrackingPipeline.SourceSide, AutoPathPoints.SOURCE_SIDE_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_PODIUM_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
@@ -282,7 +283,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-            drive, AutoPathPoints.SOURCE_SIDE_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_SHOT),
+            drive, noteVision, VisionNoteTrackingPipeline.SourceSide, AutoPathPoints.SOURCE_SIDE_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
@@ -308,7 +309,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-            drive, AutoPathPoints.SOURCE_SIDE_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_SHOT),
+            drive, noteVision, VisionNoteTrackingPipeline.SourceSide, AutoPathPoints.SOURCE_SIDE_SUBWOOFER, AutoPathPoints.SOURCE_SIDE_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
@@ -333,6 +334,7 @@ public final class AutoRoutines {
       Vision aprilTagVision,
       Vision noteVision) {
     return Commands.sequence(
+        Commands.runOnce(() -> noteVision.setPipeline(VisionNoteTrackingPipeline.Center)),
         Commands.runOnce(
             () ->
                 drive.setPose(
@@ -368,6 +370,8 @@ public final class AutoRoutines {
       Vision aprilTagVision,
       Vision noteVision) {
     return Commands.sequence(
+              Commands.runOnce(() -> noteVision.setPipeline(VisionNoteTrackingPipeline.Center)),
+
         Commands.runOnce(
             () ->
                 drive.setPose(
@@ -400,7 +404,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-            drive, AutoPathPoints.AMP_SIDE_SUBWOOFER, AutoPathPoints.AMP_SIDE_SHOT),
+            drive, noteVision, VisionNoteTrackingPipeline.AmpSide, AutoPathPoints.AMP_SIDE_SUBWOOFER, AutoPathPoints.AMP_SIDE_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
@@ -423,7 +427,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-            drive, AutoPathPoints.AMP_SIDE_SUBWOOFER, AutoPathPoints.AMP_SIDE_SHOT),
+            drive, noteVision, VisionNoteTrackingPipeline.AmpSide, AutoPathPoints.AMP_SIDE_SUBWOOFER, AutoPathPoints.AMP_SIDE_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
@@ -451,7 +455,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-                drive, AutoPathPoints.OPPONENT_SOURCE_AGAINST_STARTING_LINE, AutoPathPoints.NOTE_4)
+                drive, noteVision, VisionNoteTrackingPipeline.SourceSide, AutoPathPoints.OPPONENT_SOURCE_AGAINST_STARTING_LINE, AutoPathPoints.NOTE_4)
             .alongWith(CompositeCommands.getCollectCommand(intake, serializer)),
         CompositeCommands.getPath(AutoPathPoints.SOURCE_SIDE_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
@@ -476,7 +480,7 @@ public final class AutoRoutines {
       Vision noteVision) {
     return Commands.sequence(
         CompositeCommands.getPath(
-                drive, AutoPathPoints.OPPONENT_SOURCE_AGAINST_STARTING_LINE, AutoPathPoints.NOTE_5)
+                drive, noteVision, VisionNoteTrackingPipeline.SourceSide, AutoPathPoints.OPPONENT_SOURCE_AGAINST_STARTING_LINE, AutoPathPoints.NOTE_5)
             .alongWith(CompositeCommands.getCollectCommand(intake, serializer)),
         CompositeCommands.getPath(AutoPathPoints.SOURCE_SIDE_SHOT),
         CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
@@ -503,7 +507,7 @@ public final class AutoRoutines {
     map.put(
         "SOURCE SIDE FULL WING AUTO",
         sourceSideWingAuto(drive, intake, serializer, kicker, aprilTagVision, noteVision));
-    map.put("URI Auto", uriAuto(drive, intake, serializer, kicker, aprilTagVision, noteVision));
+    map.put("URI AUTO", uriAuto(drive, intake, serializer, kicker, aprilTagVision, noteVision));
     map.put("URI + 1", uriPlus1Auto(drive, intake, serializer, kicker, aprilTagVision, noteVision));
     map.put(
         "MIDLINE 5, 4, 3",
@@ -542,7 +546,7 @@ public final class AutoRoutines {
         "ROBOTEER'S COMPLIMENT - 1",
         roboteersComplimentMinus1(drive, intake, serializer, kicker, aprilTagVision, noteVision));
     map.put("GTFOOTW", gtfootw(drive, intake, serializer, kicker, aprilTagVision, noteVision));
-    map.put("LEAVE", leaveAuto(drive));
+    map.put("LEAVE", leaveAuto(drive, noteVision));
     return map;
   }
 
@@ -568,6 +572,4 @@ public final class AutoRoutines {
           "ROBOTEER'S COMPLIMENT - 1",
           "GTFOOTW",
           "LEAVE");
-
-  // TODO: FIX OPTIONAL RUNTIME ERROR
 }

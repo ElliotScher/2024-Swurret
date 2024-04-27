@@ -20,6 +20,7 @@ import frc.robot.subsystems.serializer.Serializer;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionMode;
+import frc.robot.subsystems.vision.VisionNoteTrackingPipeline;
 import frc.robot.util.AllianceFlipUtil;
 import java.util.Optional;
 
@@ -185,10 +186,11 @@ public class CompositeCommands {
         pathConstraints);
   }
 
-  public static final Command getPath(Drive drive, Pose2d startingPose, Pose2d endingPose) {
+  public static final Command getPath(Drive drive, Vision noteVision, VisionNoteTrackingPipeline noteTrackingPipeline, Pose2d startingPose, Pose2d endingPose) {
     return Commands.sequence(
         Commands.runOnce(
             () -> {
+              noteVision.setPipeline(noteTrackingPipeline);
               drive.setPose(
                   DriverStation.getAlliance().get().equals(Alliance.Blue)
                       ? startingPose
@@ -202,10 +204,11 @@ public class CompositeCommands {
   }
 
   public static final Command getPath(
-      Drive drive, Pose2d startingPose, Pose2d endingPose, PathConstraints pathConstraints) {
+      Drive drive, Vision noteVision, VisionNoteTrackingPipeline noteTrackingPipeline, Pose2d startingPose, Pose2d endingPose, PathConstraints pathConstraints) {
     return Commands.sequence(
         Commands.runOnce(
             () -> {
+              noteVision.setPipeline(noteTrackingPipeline);
               drive.setPose(
                   DriverStation.getAlliance().get().equals(Alliance.Blue)
                       ? startingPose
