@@ -94,7 +94,7 @@ public class RobotState extends VirtualSubsystem {
       lastValidRobotPose = visionPoseSupplier.get().toPose2d();
     }
     robotPoseBuffer.addSample(Timer.getFPGATimestamp(), drivePoseSupplier.get());
-    
+
     poseEstimator.update(robotHeadingSupplier.get(), modulePositionSupplier.get());
   }
 
