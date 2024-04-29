@@ -26,8 +26,6 @@ import frc.robot.subsystems.accelerator.Accelerator;
 import frc.robot.subsystems.accelerator.AcceleratorIO;
 import frc.robot.subsystems.accelerator.AcceleratorIOSim;
 import frc.robot.subsystems.accelerator.AcceleratorIOTalonFX;
-import frc.robot.subsystems.amp.Amp;
-import frc.robot.subsystems.amp.AmpIO;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberIOSim;
@@ -80,7 +78,6 @@ public class RobotContainer {
   private Serializer serializer;
   private Kicker kicker;
   private Accelerator accelerator;
-  private Amp amp;
   private Climber climber;
   private Vision aprilTagVision;
   private Vision noteVision;
@@ -119,7 +116,6 @@ public class RobotContainer {
           serializer = new Serializer(new SerializerIOTalonFX());
           kicker = new Kicker(new KickerIOTalonFX());
           accelerator = new Accelerator(new AcceleratorIOTalonFX());
-          // amp = new Amp(new AmpIOTalonFX());
           climber = new Climber(new ClimberIOTalonFX());
           aprilTagVision =
               new Vision("AprilTagVision", new VisionIOLimelight(VisionMode.AprilTags));
@@ -186,9 +182,6 @@ public class RobotContainer {
     }
     if (accelerator == null) {
       accelerator = new Accelerator(new AcceleratorIO() {});
-    }
-    if (amp == null) {
-      amp = new Amp(new AmpIO() {});
     }
     if (climber == null) {
       climber = new Climber(new ClimberIO() {});
@@ -263,8 +256,7 @@ public class RobotContainer {
     driver.start().onTrue(DriveCommands.resetHeading(drive));
     driver
         .rightTrigger()
-        .whileTrue(CompositeCommands.getSourceFeedCommand(shooter, hood, amp, accelerator, kicker))
-        .onFalse(amp.retractAmp());
+        .whileTrue(CompositeCommands.getSourceFeedCommand(shooter, hood, accelerator, kicker));
     driver.leftTrigger().whileTrue(CompositeCommands.getOuttakeCommand(intake, serializer, kicker));
     driver
         .leftBumper()
@@ -278,7 +270,7 @@ public class RobotContainer {
                 drive, hood, shooter, accelerator, aprilTagVision));
     driver
         .rightBumper()
-        .and(() -> ShotCalculator.shooterReady(hood, shooter))
+        .and(() -> RobotState.shooterReady(hood, shooter))
         .whileTrue(
             Commands.waitSeconds(0.25)
                 .andThen(CompositeCommands.getShootCommand(intake, serializer, kicker))
@@ -288,13 +280,9 @@ public class RobotContainer {
 
     operator
         .rightBumper()
-        .whileTrue(CompositeCommands.getAmpFeedCommand(shooter, hood, amp, accelerator, kicker));
+        .whileTrue(CompositeCommands.getAmpFeedCommand(shooter, hood, accelerator, kicker));
     operator.y().whileTrue(shooter.increaseVelocity());
     operator.a().whileTrue(shooter.decreaseVelocity());
-    operator
-        .rightTrigger()
-        .whileTrue(CompositeCommands.getAmpCommand(shooter, hood, amp, accelerator, kicker))
-        .onFalse(amp.retractAmp());
     operator.povUp().onTrue(climber.preClimb());
     operator.povDown().onTrue(climber.climbAutomatic());
     operator.back().onTrue(climber.zero());
@@ -315,9 +303,9 @@ public class RobotContainer {
 
   public void updatePoseCalculation() {
     if (aprilTagVision.getRobotPose().isPresent()) {
-      ShotCalculator.poseCalculation(
+      RobotState.poseCalculation(
           aprilTagVision.getRobotPose().get().getTranslation(), drive.getFieldRelativeVelocity());
-      Logger.recordOutput("Shooter Ready", ShotCalculator.shooterReady(hood, shooter));
+      Logger.recordOutput("Shooter Ready", RobotState.shooterReady(hood, shooter));
     }
   }
 

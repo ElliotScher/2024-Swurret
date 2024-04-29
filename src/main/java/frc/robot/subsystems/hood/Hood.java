@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.ShotCalculator;
-import frc.robot.ShotCalculator.AimingParameters;
+import frc.robot.RobotState;
+import frc.robot.RobotState.AimingParameters;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -172,19 +172,10 @@ public class Hood extends SubsystemBase {
         () -> {
           if (robotPoseSupplier.get().isPresent()) {
             AimingParameters aimingParameters =
-                ShotCalculator.poseCalculation(
+                RobotState.poseCalculation(
                     robotPoseSupplier.get().get(), velocitySupplier.get());
             setPosition(aimingParameters.shooterAngle().getRadians());
           }
-        },
-        () -> setPosition(STOWED_POSITION.get()));
-  }
-
-  public Command setAnglePosition() {
-    return runEnd(
-        () -> {
-          AimingParameters aimingParameters = ShotCalculator.angleCalculation();
-          setPosition(aimingParameters.shooterAngle().getRadians());
         },
         () -> setPosition(STOWED_POSITION.get()));
   }

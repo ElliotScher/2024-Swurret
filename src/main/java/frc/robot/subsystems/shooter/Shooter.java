@@ -15,8 +15,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
-import frc.robot.ShotCalculator;
-import frc.robot.ShotCalculator.AimingParameters;
+import frc.robot.RobotState;
+import frc.robot.RobotState.AimingParameters;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.LinearProfile;
 import frc.robot.util.LoggedTunableNumber;
@@ -296,7 +296,7 @@ public class Shooter extends SubsystemBase {
         () -> {
           if (robotPoseSupplier.get().isPresent()) {
             AimingParameters aimingParameters =
-                ShotCalculator.poseCalculation(
+                RobotState.poseCalculation(
                     robotPoseSupplier.get().get(), velocitySupplier.get());
             if (spinDirection.equals(SpinDirection.YEET)) {
               spinDirection = SpinDirection.CLOCKWISE;
@@ -321,7 +321,7 @@ public class Shooter extends SubsystemBase {
             }
 
             setSpinVelocity(
-                ShotCalculator.poseCalculation(
+                RobotState.poseCalculation(
                         robotPoseSupplier.get().get(), velocitySupplier.get())
                     .shooterSpeed());
           } else {
@@ -329,16 +329,6 @@ public class Shooter extends SubsystemBase {
               setSpinVelocity(DEFAULT_SPEED.get());
             }
           }
-        },
-        () -> {
-          stop();
-        });
-  }
-
-  public Command runAngleDistance() {
-    return runEnd(
-        () -> {
-          setSpinVelocity(ShotCalculator.angleCalculation().shooterSpeed());
         },
         () -> {
           stop();

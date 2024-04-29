@@ -30,8 +30,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
-import frc.robot.ShotCalculator;
-import frc.robot.ShotCalculator.AimingParameters;
+import frc.robot.RobotState;
+import frc.robot.RobotState.AimingParameters;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionMode;
@@ -143,7 +143,7 @@ public class DriveCommands {
                     ? new Translation2d(0, 0)
                     : drive.getFieldRelativeVelocity();
             AimingParameters calculatedAim =
-                ShotCalculator.poseCalculation(
+                RobotState.poseCalculation(
                     visionPose.getTranslation(), deadbandFieldRelativeVelocity);
             targetGyroAngle = Optional.of(calculatedAim.robotAngle());
             feedForwardRadialVelocity = calculatedAim.radialVelocity();
@@ -212,7 +212,7 @@ public class DriveCommands {
                         ? new Translation2d(0, 0)
                         : drive.getFieldRelativeVelocity();
                 AimingParameters calculatedAim =
-                    ShotCalculator.poseCalculation(
+                    RobotState.poseCalculation(
                         visionPose.getTranslation(), deadbandFieldRelativeVelocity);
                 targetGyroAngle = Optional.of(calculatedAim.robotAngle());
                 feedForwardRadialVelocity = calculatedAim.radialVelocity();

@@ -9,9 +9,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.FieldConstants;
-import frc.robot.ShotCalculator;
+import frc.robot.RobotState;
 import frc.robot.subsystems.accelerator.Accelerator;
-import frc.robot.subsystems.amp.Amp;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
@@ -55,12 +54,12 @@ public class CompositeCommands {
   }
 
   public static final Command getSourceFeedCommand(
-      Shooter shooter, Hood hood, Amp amp, Accelerator accelerator, Kicker kicker) {
+      Shooter shooter, Hood hood, Accelerator accelerator, Kicker kicker) {
     return shooter.runSourceFeed().alongWith(hood.setSourceFeed(), accelerator.runAccelerator());
   }
 
   public static final Command getAmpFeedCommand(
-      Shooter shooter, Hood hood, Amp amp, Accelerator accelerator, Kicker kicker) {
+      Shooter shooter, Hood hood, Accelerator accelerator, Kicker kicker) {
     return shooter.runAmpFeed().alongWith(hood.setAmpFeed(), accelerator.runAccelerator());
   }
 
@@ -83,14 +82,6 @@ public class CompositeCommands {
         .alongWith(accelerator.runAccelerator());
   }
 
-  public static final Command getAnglePrepShooterCommand(
-      Drive drive, Hood hood, Shooter shooter, Accelerator accelerator, Vision aprilTagVision) {
-    return shooter
-        .runAngleDistance()
-        .alongWith(hood.setAnglePosition())
-        .alongWith(accelerator.runAccelerator());
-  }
-
   public static final Command getShootCommand(Intake intake, Serializer serializer, Kicker kicker) {
     return serializer.shoot().alongWith(intake.runVoltage(), kicker.shoot()).withTimeout(0.25);
   }
@@ -99,14 +90,6 @@ public class CompositeCommands {
     return Commands.sequence(
         intake.deployIntake(),
         Commands.parallel(intake.runVoltage(), serializer.intake(), kicker.shoot()));
-  }
-
-  public static final Command getAmpCommand(
-      Shooter shooter, Hood hood, Amp amp, Accelerator accelerator, Kicker kicker) {
-    return shooter
-        .runAmp()
-        .alongWith(hood.setAmp())
-        .alongWith(amp.deployAmp().alongWith(accelerator.runAccelerator()));
   }
 
   public static final Command getTrackNoteCenterCommand(
@@ -161,7 +144,7 @@ public class CompositeCommands {
                 PPHolonomicDriveController.setRotationTargetOverride(
                     () ->
                         Optional.of(
-                            ShotCalculator.poseCalculation(
+                            RobotState.poseCalculation(
                                     vision.getRobotPose().get().getTranslation(),
                                     drive.getFieldRelativeVelocity())
                                 .robotAngle()));
@@ -230,35 +213,4 @@ public class CompositeCommands {
                 : AllianceFlipUtil.apply(endingPose),
             pathConstraints));
   }
-
-  // public static final Command getDynamicAuto(
-  //     Drive drive,
-  //     Intake intake,
-  //     Serializer serializer,
-  //     Kicker kicker,
-  //     Vision aprilTagVision,
-  //     Pose2d startingPose,
-  //     boolean scorePreload,
-  //     int[] notes) {
-  //   IntegerWrapper currentNoteIndex = new IntegerWrapper(0);
-  //   return Commands.sequence(
-  //       Commands.runOnce(
-  //           () ->
-  //               drive.setPose(
-  //                   DriverStation.getAlliance().get().equals(Alliance.Blue)
-  //                       ? startingPose
-  //                       : AllianceFlipUtil.apply(startingPose))),
-  //       CompositeCommands.getPath(drive.getPose().nearest(AutoPathPoints.SHOTS)),
-  //       CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
-  //       CompositeCommands.getShootCommand(intake, serializer, kicker).withTimeout(0.25),
-  //       Commands.repeatingSequence(
-  //               CompositeCommands.getPath(
-  //                       AutoPathPoints.NOTES.get(notes[currentNoteIndex.getNumber()]))
-  //                   .alongWith(CompositeCommands.getCollectCommand(intake, serializer)),
-  //               CompositeCommands.getPath(drive.getPose().nearest(AutoPathPoints.SHOTS)),
-  //               CompositeCommands.getAimSpeakerCommand(drive, aprilTagVision),
-  //               CompositeCommands.getShootCommand(intake, serializer, kicker).withTimeout(0.25),
-  //               currentNoteIndex.increment(),
-  //               Commands.print("" + currentNoteIndex.getNumber()))
-  //           .until(() -> currentNoteIndex.getNumber() > notes.length));
 }
