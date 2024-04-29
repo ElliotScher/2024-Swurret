@@ -142,19 +142,11 @@ public class CompositeCommands {
   }
 
   public static final Command getPath(Pose2d endingPose) {
-    return AutoBuilder.pathfindToPose(
-        DriverStation.getAlliance().get().equals(Alliance.Blue)
-            ? endingPose
-            : AllianceFlipUtil.apply(endingPose),
-        DEFAULT_PATH_CONSTRAINTS);
+    return AutoBuilder.pathfindToPose(AllianceFlipUtil.apply(endingPose), DEFAULT_PATH_CONSTRAINTS);
   }
 
   public static final Command getPath(Pose2d endingPose, PathConstraints pathConstraints) {
-    return AutoBuilder.pathfindToPose(
-        DriverStation.getAlliance().get().equals(Alliance.Blue)
-            ? endingPose
-            : AllianceFlipUtil.apply(endingPose),
-        pathConstraints);
+    return AutoBuilder.pathfindToPose(AllianceFlipUtil.apply(endingPose), pathConstraints);
   }
 
   public static final Command getPath(
@@ -167,10 +159,7 @@ public class CompositeCommands {
         Commands.runOnce(
             () -> {
               noteVision.setPipeline(noteTrackingPipeline);
-              drive.setPose(
-                  DriverStation.getAlliance().get().equals(Alliance.Blue)
-                      ? startingPose
-                      : AllianceFlipUtil.apply(startingPose));
+              RobotState.resetRobotPose(AllianceFlipUtil.apply(startingPose));
             }),
         AutoBuilder.pathfindToPose(
             DriverStation.getAlliance().get().equals(Alliance.Blue)
@@ -190,10 +179,7 @@ public class CompositeCommands {
         Commands.runOnce(
             () -> {
               noteVision.setPipeline(noteTrackingPipeline);
-              drive.setPose(
-                  DriverStation.getAlliance().get().equals(Alliance.Blue)
-                      ? startingPose
-                      : AllianceFlipUtil.apply(startingPose));
+              RobotState.resetRobotPose(AllianceFlipUtil.apply(startingPose));
             }),
         AutoBuilder.pathfindToPose(
             DriverStation.getAlliance().get().equals(Alliance.Blue)

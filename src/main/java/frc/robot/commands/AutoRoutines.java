@@ -1,11 +1,10 @@
 package frc.robot.commands;
 
 import com.pathplanner.lib.path.PathConstraints;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.AutoPathPoints;
+import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.kicker.Kicker;
@@ -389,10 +388,7 @@ public final class AutoRoutines {
         Commands.runOnce(() -> noteVision.setPipeline(VisionPipeline.Center)),
         Commands.runOnce(
             () ->
-                drive.setPose(
-                    DriverStation.getAlliance().get().equals(Alliance.Blue)
-                        ? AutoPathPoints.CENTER_SUBWOOFER
-                        : AllianceFlipUtil.apply(AutoPathPoints.CENTER_SUBWOOFER))),
+                RobotState.resetRobotPose(AllianceFlipUtil.apply(AutoPathPoints.CENTER_SUBWOOFER))),
         CompositeCommands.getTrackNoteSpikeCommand(
             drive, intake, serializer, noteVision, aprilTagVision),
         CompositeCommands.getAimSpeakerCommand(drive),
@@ -424,11 +420,7 @@ public final class AutoRoutines {
     return Commands.sequence(
         Commands.runOnce(() -> noteVision.setPipeline(VisionPipeline.Center)),
         Commands.runOnce(
-            () ->
-                drive.setPose(
-                    DriverStation.getAlliance().get().equals(Alliance.Blue)
-                        ? AutoPathPoints.CENTER_SUBWOOFER
-                        : AllianceFlipUtil.apply(AutoPathPoints.CENTER_SUBWOOFER))),
+            () -> RobotState.setRobotPose(AllianceFlipUtil.apply(AutoPathPoints.CENTER_SUBWOOFER))),
         CompositeCommands.getTrackNoteSpikeCommand(
             drive, intake, serializer, noteVision, aprilTagVision),
         CompositeCommands.getAimSpeakerCommand(drive),

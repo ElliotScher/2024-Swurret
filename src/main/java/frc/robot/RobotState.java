@@ -104,9 +104,10 @@ public class RobotState extends VirtualSubsystem {
   public void periodic() {
     robotPoseBuffer.addSample(Timer.getFPGATimestamp(), drivePoseSupplier.get());
 
-    poseEstimator.update(robotHeadingSupplier.get(), modulePositionSupplier.get());
-    // poseEstimator.addVisionMeasurement(
-    //     visionPoseSupplier.get().toPose2d(), Timer.getFPGATimestamp());
+    poseEstimator.updateWithTime(
+        Timer.getFPGATimestamp(), robotHeadingSupplier.get(), modulePositionSupplier.get());
+    poseEstimator.addVisionMeasurement(
+        visionPoseSupplier.get().toPose2d(), visionTimestampSupplier.getAsDouble());
 
     Logger.recordOutput("RobotState/Estimated Pose", poseEstimator.getEstimatedPosition());
   }
