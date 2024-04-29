@@ -17,18 +17,6 @@ public interface VisionIO {
 
   public default void updateInputs(VisionIOInputs inputs) {}
 
-  public default boolean getTv() {
-    return false;
-  }
-
-  public default Rotation2d getTx() {
-    return new Rotation2d();
-  }
-
-  public default Rotation2d getTy() {
-    return new Rotation2d();
-  }
-
   public default void enableLEDs() {}
 
   public default void disableLEDs() {}

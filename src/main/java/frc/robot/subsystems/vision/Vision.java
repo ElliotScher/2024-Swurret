@@ -28,15 +28,15 @@ public class Vision extends VirtualSubsystem {
   }
 
   public boolean getTv() {
-    return io.getTv();
+    return inputs.tv;
   }
 
   public Rotation2d getTx() {
-    return io.getTx();
+    return inputs.tx;
   }
 
   public Rotation2d getTy() {
-    return io.getTy();
+    return inputs.ty;
   }
 
   public Pose3d getRobotPose() {

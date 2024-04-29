@@ -96,6 +96,7 @@ public class RobotState extends VirtualSubsystem {
     robotPoseBuffer.addSample(Timer.getFPGATimestamp(), drivePoseSupplier.get());
 
     poseEstimator.update(robotHeadingSupplier.get(), modulePositionSupplier.get());
+    poseEstimator.addVisionMeasurement(visionPoseSupplier.get().toPose2d(), Timer.getFPGATimestamp());
   }
 
   public static Optional<Rotation2d> getTargetGyroAngle() {
