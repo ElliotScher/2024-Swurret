@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -7,10 +8,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.util.AllianceFlipUtil;
@@ -19,8 +19,6 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-import lombok.Getter;
-import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 
 public class RobotState extends VirtualSubsystem {
@@ -35,17 +33,15 @@ public class RobotState extends VirtualSubsystem {
   private static final TimeInterpolatableBuffer<Pose2d> robotPoseBuffer =
       TimeInterpolatableBuffer.createBuffer(BUFFER_SECONDS);
 
-  @Getter private static SwerveDriveKinematics driveKinematics;
   private static SwerveDrivePoseEstimator poseEstimator;
 
-  @Setter private static Supplier<Rotation2d> robotHeadingSupplier;
-  @Setter private static Supplier<SwerveModulePosition[]> modulePositionSupplier;
-  @Setter private static Supplier<Pose3d> visionPoseSupplier;
-  @Setter private static Supplier<Pose2d> drivePoseSupplier;
-  @Setter private static BooleanSupplier visionValidTargetSupplier;
-  @Setter private static DoubleSupplier visionTimestampSupplier;
-  @Setter private static Supplier<Rotation2d> visionXSupplier;
-  @Setter private static Supplier<Rotation2d> visionYSupplier;
+  private static Supplier<Rotation2d> robotHeadingSupplier;
+  private static Supplier<SwerveModulePosition[]> modulePositionSupplier;
+  private static Supplier<Pose3d> visionPoseSupplier;
+  private static Supplier<Pose2d> drivePoseSupplier;
+  private static BooleanSupplier visionValidTargetSupplier;
+  private static DoubleSupplier visionTimestampSupplier;
+  private static Supplier<Rotation2d> visionXSupplier;
 
   static {
     // Units: radians per second
@@ -77,14 +73,31 @@ public class RobotState extends VirtualSubsystem {
     timeOfFlightMap.put(4.0, (2.60 - 2.32));
   }
 
-  private RobotState() {
-    driveKinematics = new SwerveDriveKinematics(Drive.getModuleTranslations());
+  public RobotState(
+      Supplier<Rotation2d> robotHeadingSupplier,
+      Supplier<SwerveModulePosition[]> modulePositionSupplier,
+      Supplier<Pose3d> visionPoseSupplier,
+      Supplier<Pose2d> drivePoseSupplier,
+      BooleanSupplier visionValidTargetSupplier,
+      DoubleSupplier visionTimestampSupplier,
+      Supplier<Rotation2d> visionXSupplier) {
+
+    RobotState.robotHeadingSupplier = robotHeadingSupplier;
+    RobotState.modulePositionSupplier = modulePositionSupplier;
+    RobotState.visionPoseSupplier = visionPoseSupplier;
+    RobotState.drivePoseSupplier = drivePoseSupplier;
+    RobotState.visionValidTargetSupplier = visionValidTargetSupplier;
+    RobotState.visionTimestampSupplier = visionTimestampSupplier;
+    RobotState.visionXSupplier = visionXSupplier;
+
     poseEstimator =
         new SwerveDrivePoseEstimator(
-            driveKinematics,
+            DriveConstants.driveConfig.kinematics(),
             robotHeadingSupplier.get(),
             modulePositionSupplier.get(),
-            new Pose2d());
+            new Pose2d(),
+            VecBuilder.fill(0.1, 0.1, 0.1),
+            VecBuilder.fill(99999999, 99999999, 99999999));
   }
 
   @Override
@@ -92,8 +105,8 @@ public class RobotState extends VirtualSubsystem {
     robotPoseBuffer.addSample(Timer.getFPGATimestamp(), drivePoseSupplier.get());
 
     poseEstimator.update(robotHeadingSupplier.get(), modulePositionSupplier.get());
-    poseEstimator.addVisionMeasurement(
-        visionPoseSupplier.get().toPose2d(), Timer.getFPGATimestamp());
+    // poseEstimator.addVisionMeasurement(
+    //     visionPoseSupplier.get().toPose2d(), Timer.getFPGATimestamp());
 
     Logger.recordOutput("RobotState/Estimated Pose", poseEstimator.getEstimatedPosition());
   }

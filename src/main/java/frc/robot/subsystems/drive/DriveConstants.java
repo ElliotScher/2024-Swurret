@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drive;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import lombok.Builder;
@@ -26,6 +28,16 @@ public final class DriveConstants {
 
     public double maxAngularVelocity() {
       return maxLinearVelocity / driveBaseRadius();
+    }
+
+    public SwerveDriveKinematics kinematics() {
+      return new SwerveDriveKinematics(
+          new Translation2d[] {
+            new Translation2d(trackWidthX / 2.0, trackWidthY / 2.0),
+            new Translation2d(trackWidthX / 2.0, -trackWidthY / 2.0),
+            new Translation2d(-trackWidthX / 2.0, trackWidthY / 2.0),
+            new Translation2d(-trackWidthX / 2.0, -trackWidthY / 2.0)
+          });
     }
   }
 }

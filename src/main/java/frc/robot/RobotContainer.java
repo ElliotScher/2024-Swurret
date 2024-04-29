@@ -199,21 +199,21 @@ public class RobotContainer {
       noteVision = new Vision("NoteVision", new VisionIO() {});
     }
 
-    // Set up suppliers
-    RobotState.setRobotHeadingSupplier(drive::getRotation);
-    RobotState.setModulePositionSupplier(drive::getModulePositions);
-    RobotState.setVisionPoseSupplier(aprilTagVision::getRobotPose);
-    RobotState.setVisionValidTargetSupplier(aprilTagVision::getTv);
-    RobotState.setVisionTimestampSupplier(aprilTagVision::getTimestamp);
-    RobotState.setDrivePoseSupplier(drive::getPose);
-    RobotState.setVisionXSupplier(aprilTagVision::getTx);
-    RobotState.setVisionYSupplier(aprilTagVision::getTy);
+    // set up robot
+    new RobotState(
+        drive::getRotation,
+        drive::getModulePositions,
+        aprilTagVision::getRobotPose,
+        drive::getPose,
+        aprilTagVision::getTv,
+        aprilTagVision::getTimestamp,
+        aprilTagVision::getTx);
 
     // Configure autobuilder
     AutoBuilder.configureHolonomic(
         RobotState::getRobotPose,
         RobotState::resetRobotPose,
-        () -> drive.getKinematics().toChassisSpeeds(drive.getModuleStates()),
+        () -> DriveConstants.driveConfig.kinematics().toChassisSpeeds(drive.getModuleStates()),
         drive::runVelocity,
         new HolonomicPathFollowerConfig(
             DriveConstants.driveConfig.maxLinearVelocity(),
