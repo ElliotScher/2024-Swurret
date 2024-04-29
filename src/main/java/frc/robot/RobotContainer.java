@@ -13,7 +13,15 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PathPlannerLogging;
+import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -31,6 +39,7 @@ import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberIOSim;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -62,7 +71,9 @@ import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.subsystems.vision.VisionMode;
 import frc.robot.subsystems.vision.VisionPipeline;
+import frc.robot.util.LocalADStarAK;
 import java.util.Map;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
@@ -197,6 +208,31 @@ public class RobotContainer {
     RobotState.setDrivePoseSupplier(drive::getPose);
     RobotState.setVisionXSupplier(aprilTagVision::getTx);
     RobotState.setVisionYSupplier(aprilTagVision::getTy);
+
+    // Configure autobuilder
+    AutoBuilder.configureHolonomic(
+        RobotState::getRobotPose,
+        RobotState::resetRobotPose,
+        () -> drive.getKinematics().toChassisSpeeds(drive.getModuleStates()),
+        drive::runVelocity,
+        new HolonomicPathFollowerConfig(
+            DriveConstants.driveConfig.maxLinearVelocity(),
+            DriveConstants.driveConfig.driveBaseRadius(),
+            new ReplanningConfig()),
+        () ->
+            DriverStation.getAlliance().isPresent()
+                && DriverStation.getAlliance().get() == Alliance.Red,
+        drive);
+    Pathfinding.setPathfinder(new LocalADStarAK());
+    PathPlannerLogging.setLogActivePathCallback(
+        (activePath) -> {
+          Logger.recordOutput(
+              "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
+        });
+    PathPlannerLogging.setLogTargetPoseCallback(
+        (targetPose) -> {
+          Logger.recordOutput("Odometry/Trajectory Setpoint", targetPose);
+        });
 
     autoChooser = new LoggedDashboardChooser<>("Auto Routines");
     for (String routine : AutoRoutines.autoList) {

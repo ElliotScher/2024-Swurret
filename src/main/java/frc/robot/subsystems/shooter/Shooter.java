@@ -20,7 +20,6 @@ import frc.robot.RobotState.AimingParameters;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.LinearProfile;
 import frc.robot.util.LoggedTunableNumber;
-import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -277,40 +276,32 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command runPoseDistance(
-      Supplier<Optional<Translation2d>> robotPoseSupplier,
-      Supplier<Translation2d> velocitySupplier) {
+      Supplier<Translation2d> robotPoseSupplier, Supplier<Translation2d> velocitySupplier) {
     return runEnd(
         () -> {
-          if (robotPoseSupplier.get().isPresent()) {
-            AimingParameters aimingParameters = RobotState.poseCalculation(velocitySupplier.get());
-            if (spinDirection.equals(SpinDirection.YEET)) {
+          AimingParameters aimingParameters = RobotState.poseCalculation(velocitySupplier.get());
+          if (spinDirection.equals(SpinDirection.YEET)) {
+            spinDirection = SpinDirection.CLOCKWISE;
+          }
+          Rotation2d effectiveRobotAngle = aimingParameters.robotAngle();
+
+          Translation2d speakerPose =
+              AllianceFlipUtil.apply(FieldConstants.Speaker.centerSpeakerOpening.toTranslation2d());
+          double distanceToSpeaker = robotPoseSupplier.get().getDistance(speakerPose);
+
+          if (distanceToSpeaker > 1.5) {
+            if (DriverStation.getAlliance().isPresent()
+                && DriverStation.getAlliance().get().equals(Alliance.Blue)) {
+              effectiveRobotAngle = effectiveRobotAngle.minus(Rotation2d.fromDegrees(180));
+            }
+            if (effectiveRobotAngle.getDegrees() > 15) {
+              spinDirection = SpinDirection.COUNTERCLOCKWISE;
+            } else if (effectiveRobotAngle.getDegrees() < -15) {
               spinDirection = SpinDirection.CLOCKWISE;
             }
-            Rotation2d effectiveRobotAngle = aimingParameters.robotAngle();
-
-            Translation2d speakerPose =
-                AllianceFlipUtil.apply(
-                    FieldConstants.Speaker.centerSpeakerOpening.toTranslation2d());
-            double distanceToSpeaker = robotPoseSupplier.get().get().getDistance(speakerPose);
-
-            if (distanceToSpeaker > 1.5) {
-              if (DriverStation.getAlliance().isPresent()
-                  && DriverStation.getAlliance().get().equals(Alliance.Blue)) {
-                effectiveRobotAngle = effectiveRobotAngle.minus(Rotation2d.fromDegrees(180));
-              }
-              if (effectiveRobotAngle.getDegrees() > 15) {
-                spinDirection = SpinDirection.COUNTERCLOCKWISE;
-              } else if (effectiveRobotAngle.getDegrees() < -15) {
-                spinDirection = SpinDirection.CLOCKWISE;
-              }
-            }
-
-            setSpinVelocity(RobotState.poseCalculation(velocitySupplier.get()).shooterSpeed());
-          } else {
-            if (DriverStation.isAutonomous()) {
-              setSpinVelocity(DEFAULT_SPEED.get());
-            }
           }
+
+          setSpinVelocity(RobotState.poseCalculation(velocitySupplier.get()).shooterSpeed());
         },
         () -> {
           stop();

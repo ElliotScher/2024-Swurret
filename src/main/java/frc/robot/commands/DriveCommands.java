@@ -33,6 +33,7 @@ import frc.robot.FieldConstants;
 import frc.robot.RobotState;
 import frc.robot.RobotState.AimingParameters;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionMode;
 import frc.robot.util.LoggedTunableNumber;
@@ -130,23 +131,24 @@ public class DriveCommands {
           Rotation2d measuredGyroAngle = drive.getRotation();
           double feedForwardRadialVelocity = 0.0;
 
-          double robotRelativeXVel = linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec();
-          double robotRelativeYVel = linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec();
+          double robotRelativeXVel =
+              linearVelocity.getX() * DriveConstants.driveConfig.maxLinearVelocity();
+          double robotRelativeYVel =
+              linearVelocity.getY() * DriveConstants.driveConfig.maxAngularVelocity();
 
           if (noteTracking.getAsBoolean()) {
             targetGyroAngle = RobotState.getTargetGyroAngle();
-          } else if (RobotState.getRobotPose().isPresent()) {
-            Pose2d visionPose = RobotState.getRobotPose().get();
-            measuredGyroAngle = visionPose.getRotation();
-            Translation2d deadbandFieldRelativeVelocity =
-                (drive.getFieldRelativeVelocity().getNorm() < autoAimFieldVelocityDeadband.get())
-                    ? new Translation2d(0, 0)
-                    : drive.getFieldRelativeVelocity();
-            AimingParameters calculatedAim =
-                RobotState.poseCalculation(deadbandFieldRelativeVelocity);
-            targetGyroAngle = Optional.of(calculatedAim.robotAngle());
-            feedForwardRadialVelocity = calculatedAim.radialVelocity();
           }
+          Pose2d visionPose = RobotState.getRobotPose();
+          measuredGyroAngle = visionPose.getRotation();
+          Translation2d deadbandFieldRelativeVelocity =
+              (drive.getFieldRelativeVelocity().getNorm() < autoAimFieldVelocityDeadband.get())
+                  ? new Translation2d(0, 0)
+                  : drive.getFieldRelativeVelocity();
+          AimingParameters calculatedAim =
+              RobotState.poseCalculation(deadbandFieldRelativeVelocity);
+          targetGyroAngle = Optional.of(calculatedAim.robotAngle());
+          feedForwardRadialVelocity = calculatedAim.radialVelocity();
           ChassisSpeeds chassisSpeeds =
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   robotRelativeXVel,
@@ -156,7 +158,7 @@ public class DriveCommands {
                       ? feedForwardRadialVelocity
                           + aimController.calculate(
                               measuredGyroAngle.getRadians(), targetGyroAngle.get().getRadians())
-                      : omega * drive.getMaxAngularSpeedRadPerSec(),
+                      : omega * DriveConstants.driveConfig.maxAngularVelocity(),
                   isFlipped
                       ? drive.getRotation().plus(new Rotation2d(Math.PI))
                       : drive.getRotation());
@@ -201,19 +203,16 @@ public class DriveCommands {
               Rotation2d measuredGyroAngle = drive.getRotation();
               double feedForwardRadialVelocity = 0.0;
 
-              if (RobotState.getRobotPose().isPresent()) {
-                Pose2d visionPose = RobotState.getRobotPose().get();
-                measuredGyroAngle = visionPose.getRotation();
-                Translation2d deadbandFieldRelativeVelocity =
-                    (drive.getFieldRelativeVelocity().getNorm()
-                            < autoAimFieldVelocityDeadband.get())
-                        ? new Translation2d(0, 0)
-                        : drive.getFieldRelativeVelocity();
-                AimingParameters calculatedAim =
-                    RobotState.poseCalculation(deadbandFieldRelativeVelocity);
-                targetGyroAngle = Optional.of(calculatedAim.robotAngle());
-                feedForwardRadialVelocity = calculatedAim.radialVelocity();
-              }
+              Pose2d visionPose = RobotState.getRobotPose();
+              measuredGyroAngle = visionPose.getRotation();
+              Translation2d deadbandFieldRelativeVelocity =
+                  (drive.getFieldRelativeVelocity().getNorm() < autoAimFieldVelocityDeadband.get())
+                      ? new Translation2d(0, 0)
+                      : drive.getFieldRelativeVelocity();
+              AimingParameters calculatedAim =
+                  RobotState.poseCalculation(deadbandFieldRelativeVelocity);
+              targetGyroAngle = Optional.of(calculatedAim.robotAngle());
+              feedForwardRadialVelocity = calculatedAim.radialVelocity();
               ChassisSpeeds chassisSpeeds =
                   ChassisSpeeds.fromFieldRelativeSpeeds(
                       0,

@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 
@@ -31,12 +32,10 @@ public class RobotState extends VirtualSubsystem {
   private static final InterpolatingDoubleTreeMap timeOfFlightMap =
       new InterpolatingDoubleTreeMap();
 
-  private static double lastValidTimeStamp = Double.NEGATIVE_INFINITY;
-  private static Pose2d lastValidRobotPose = new Pose2d();
-
   private static final TimeInterpolatableBuffer<Pose2d> robotPoseBuffer =
       TimeInterpolatableBuffer.createBuffer(BUFFER_SECONDS);
 
+  @Getter private static SwerveDriveKinematics driveKinematics;
   private static SwerveDrivePoseEstimator poseEstimator;
 
   @Setter private static Supplier<Rotation2d> robotHeadingSupplier;
@@ -79,9 +78,10 @@ public class RobotState extends VirtualSubsystem {
   }
 
   private RobotState() {
+    driveKinematics = new SwerveDriveKinematics(Drive.getModuleTranslations());
     poseEstimator =
         new SwerveDrivePoseEstimator(
-            new SwerveDriveKinematics(Drive.getModuleTranslations()),
+            driveKinematics,
             robotHeadingSupplier.get(),
             modulePositionSupplier.get(),
             new Pose2d());
@@ -89,14 +89,13 @@ public class RobotState extends VirtualSubsystem {
 
   @Override
   public void periodic() {
-    if (visionValidTargetSupplier.getAsBoolean()) {
-      lastValidTimeStamp = visionTimestampSupplier.getAsDouble();
-      lastValidRobotPose = visionPoseSupplier.get().toPose2d();
-    }
     robotPoseBuffer.addSample(Timer.getFPGATimestamp(), drivePoseSupplier.get());
 
     poseEstimator.update(robotHeadingSupplier.get(), modulePositionSupplier.get());
-    poseEstimator.addVisionMeasurement(visionPoseSupplier.get().toPose2d(), Timer.getFPGATimestamp());
+    poseEstimator.addVisionMeasurement(
+        visionPoseSupplier.get().toPose2d(), Timer.getFPGATimestamp());
+
+    Logger.recordOutput("RobotState/Estimated Pose", poseEstimator.getEstimatedPosition());
   }
 
   public static Optional<Rotation2d> getTargetGyroAngle() {
@@ -108,18 +107,16 @@ public class RobotState extends VirtualSubsystem {
     }
   }
 
-  public static Optional<Pose2d> getRobotPose() {
-    if ((Timer.getFPGATimestamp() - lastValidTimeStamp) <= BUFFER_SECONDS
-        && robotPoseBuffer.getSample(lastValidTimeStamp).isPresent()) {
-      Pose2d currentPoseFromDrive = drivePoseSupplier.get();
-      Pose2d capturePoseFromDrive = robotPoseBuffer.getSample(lastValidTimeStamp).get();
-      Pose2d capturePoseFromCam = lastValidRobotPose;
+  public static Pose2d getRobotPose() {
+    return poseEstimator.getEstimatedPosition();
+  }
 
-      Pose2d currentPoseFromCam =
-          capturePoseFromCam.plus(currentPoseFromDrive.minus(capturePoseFromDrive));
-      return Optional.of(currentPoseFromCam);
-    }
-    return Optional.empty();
+  public static void setRobotPose(Pose2d pose) {
+    poseEstimator.resetPosition(robotHeadingSupplier.get(), modulePositionSupplier.get(), pose);
+  }
+
+  public static void resetRobotPose(Pose2d pose) {
+    poseEstimator.resetPosition(robotHeadingSupplier.get(), modulePositionSupplier.get(), pose);
   }
 
   public static AimingParameters poseCalculation(Translation2d fieldRelativeVelocity) {

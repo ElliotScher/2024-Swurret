@@ -14,7 +14,6 @@ import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.RobotState.AimingParameters;
 import frc.robot.util.LoggedTunableNumber;
-import java.util.Optional;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -166,14 +165,11 @@ public class Hood extends SubsystemBase {
   }
 
   public Command setPosePosition(
-      Supplier<Optional<Translation2d>> robotPoseSupplier,
-      Supplier<Translation2d> velocitySupplier) {
+      Supplier<Translation2d> robotPoseSupplier, Supplier<Translation2d> velocitySupplier) {
     return runEnd(
         () -> {
-          if (robotPoseSupplier.get().isPresent()) {
-            AimingParameters aimingParameters = RobotState.poseCalculation(velocitySupplier.get());
-            setPosition(aimingParameters.shooterAngle().getRadians());
-          }
+          AimingParameters aimingParameters = RobotState.poseCalculation(velocitySupplier.get());
+          setPosition(aimingParameters.shooterAngle().getRadians());
         },
         () -> setPosition(STOWED_POSITION.get()));
   }

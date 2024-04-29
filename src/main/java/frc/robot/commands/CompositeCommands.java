@@ -67,18 +67,10 @@ public class CompositeCommands {
       Drive drive, Hood hood, Shooter shooter, Accelerator accelerator, Vision aprilTagVision) {
     return shooter
         .runPoseDistance(
-            () ->
-                RobotState.getRobotPose().isPresent()
-                    ? Optional.of(RobotState.getRobotPose().get().getTranslation())
-                    : Optional.empty(),
-            drive::getFieldRelativeVelocity)
+            () -> RobotState.getRobotPose().getTranslation(), drive::getFieldRelativeVelocity)
         .alongWith(
             hood.setPosePosition(
-                () ->
-                    RobotState.getRobotPose().isPresent()
-                        ? Optional.of(RobotState.getRobotPose().get().getTranslation())
-                        : Optional.empty(),
-                drive::getFieldRelativeVelocity))
+                () -> RobotState.getRobotPose().getTranslation(), drive::getFieldRelativeVelocity))
         .alongWith(accelerator.runAccelerator());
   }
 
@@ -140,13 +132,11 @@ public class CompositeCommands {
       Drive drive, Intake intake, Serializer serializer, Kicker kicker, Vision vision) {
     return Commands.run(
             () -> {
-              if (RobotState.getRobotPose().isPresent()) {
-                PPHolonomicDriveController.setRotationTargetOverride(
-                    () ->
-                        Optional.of(
-                            RobotState.poseCalculation(drive.getFieldRelativeVelocity())
-                                .robotAngle()));
-              }
+              PPHolonomicDriveController.setRotationTargetOverride(
+                  () ->
+                      Optional.of(
+                          RobotState.poseCalculation(drive.getFieldRelativeVelocity())
+                              .robotAngle()));
             })
         .alongWith(getShootCommand(intake, serializer, kicker));
   }
