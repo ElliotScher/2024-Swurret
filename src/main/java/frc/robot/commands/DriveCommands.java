@@ -181,8 +181,7 @@ public class DriveCommands {
         .ignoringDisable(true);
   }
 
-  public static final Command aimTowardsTarget(
-      Drive drive, Vision aprilTagVision, VisionMode targetType) {
+  public static final Command aimTowardsTarget(Drive drive) {
     @SuppressWarnings({"resource"})
     PIDController aimController =
         new PIDController(autoAimKP.get(), 0, autoAimKD.get(), Constants.LOOP_PERIOD_SECS);

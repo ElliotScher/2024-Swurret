@@ -132,8 +132,8 @@ public class CompositeCommands {
         drive, aprilTagVision, FieldConstants.startingLineX + 0.05, VisionMode.AprilTags);
   }
 
-  public static final Command getAimSpeakerCommand(Drive drive, Vision aprilTagVision) {
-    return DriveCommands.aimTowardsTarget(drive, aprilTagVision, VisionMode.AprilTags);
+  public static final Command getAimSpeakerCommand(Drive drive) {
+    return DriveCommands.aimTowardsTarget(drive);
   }
 
   public static final Command shootOnTheMove(
