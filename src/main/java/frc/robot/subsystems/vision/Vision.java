@@ -2,10 +2,8 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.VirtualSubsystem;
 import org.littletonrobotics.junction.Logger;
 
@@ -17,13 +15,10 @@ public class Vision extends VirtualSubsystem {
   private final VisionIO io;
   private final VisionIOInputsAutoLogged inputs;
 
-  private final LoggedTunableNumber CAMERA_ANGLE = new LoggedTunableNumber("Vision/Camera Angle");
-
   public Vision(String name, VisionIO io) {
     this.name = name;
     this.io = io;
     inputs = new VisionIOInputsAutoLogged();
-    CAMERA_ANGLE.initDefault(Units.degreesToRadians(33.0));
   }
 
   @Override
