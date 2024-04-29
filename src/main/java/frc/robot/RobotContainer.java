@@ -48,7 +48,6 @@ import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.kicker.KickerIO;
 import frc.robot.subsystems.kicker.KickerIOSim;
 import frc.robot.subsystems.kicker.KickerIOTalonFX;
-import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.serializer.Serializer;
 import frc.robot.subsystems.serializer.SerializerIO;
 import frc.robot.subsystems.serializer.SerializerIOSim;
@@ -62,10 +61,8 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.subsystems.vision.VisionMode;
-import frc.robot.subsystems.vision.VisionNoteTrackingPipeline;
-import frc.robot.util.SnapbackMechanism3d;
+import frc.robot.subsystems.vision.VisionPipeline;
 import java.util.Map;
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
@@ -81,7 +78,6 @@ public class RobotContainer {
   private Climber climber;
   private Vision aprilTagVision;
   private Vision noteVision;
-  private Leds leds;
 
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
@@ -98,7 +94,6 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    leds = Leds.getInstance();
     if (Constants.getMode() != Mode.REPLAY) {
       switch (Constants.ROBOT) {
         case SNAPBACK:
@@ -194,11 +189,14 @@ public class RobotContainer {
     }
 
     // Set up suppliers
-    aprilTagVision.setDrivePoseSupplier(drive::getPose);
-    noteVision.setDrivePoseSupplier(drive::getPose);
-    leds.setNoteSupplier(serializer::hasNote);
-    leds.setPrepSupplier(shooter::isShooting);
-    leds.setShootSupplier(kicker::isShooting);
+    RobotState.setRobotHeadingSupplier(drive::getRotation);
+    RobotState.setModulePositionSupplier(drive::getModulePositions);
+    RobotState.setVisionPoseSupplier(aprilTagVision::getRobotPose);
+    RobotState.setVisionValidTargetSupplier(aprilTagVision::getTv);
+    RobotState.setVisionTimestampSupplier(aprilTagVision::getTimestamp);
+    RobotState.setDrivePoseSupplier(drive::getPose);
+    RobotState.setVisionXSupplier(aprilTagVision::getTx);
+    RobotState.setVisionYSupplier(aprilTagVision::getTy);
 
     autoChooser = new LoggedDashboardChooser<>("Auto Routines");
     for (String routine : AutoRoutines.autoList) {
@@ -291,31 +289,13 @@ public class RobotContainer {
     operator.start().onTrue(Commands.runOnce(() -> isNoteTracking = !isNoteTracking));
   }
 
-  public void updateSnapbackMechanism3d() {
-    Logger.recordOutput(
-        "Mechanism3d",
-        SnapbackMechanism3d.getPoses(
-            intake.isDeployed(),
-            hood.getPosition(),
-            climber.getLeftPositionMeters(),
-            climber.getRightPositionMeters()));
-  }
-
-  public void updatePoseCalculation() {
-    if (aprilTagVision.getRobotPose().isPresent()) {
-      RobotState.poseCalculation(
-          aprilTagVision.getRobotPose().get().getTranslation(), drive.getFieldRelativeVelocity());
-      Logger.recordOutput("Shooter Ready", RobotState.shooterReady(hood, shooter));
-    }
-  }
-
   public void resetVisionPipelines() {
-    noteVision.setPipeline(VisionNoteTrackingPipeline.Center);
+    noteVision.setPipeline(VisionPipeline.Center);
   }
 
   public Command getAutonomousCommand() {
     Map<String, Command> autoMap =
-        AutoRoutines.autoList(drive, intake, serializer, kicker, aprilTagVision, noteVision);
+        AutoRoutines.getAutoList(drive, intake, serializer, kicker, aprilTagVision, noteVision);
     return Commands.parallel(
         Commands.waitSeconds(autoDelay.get()).andThen(autoMap.get(autoChooser.get())),
         CompositeCommands.getPosePrepShooterCommand(

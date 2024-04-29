@@ -146,9 +146,6 @@ public class Robot extends LoggedRobot {
         && disabledTimer.hasElapsed(lowBatteryDisabledTime)) {
       lowBatteryAlert.set(true);
     }
-
-    robotContainer.updateSnapbackMechanism3d();
-    robotContainer.updatePoseCalculation();
   }
 
   /** This function is called once when the robot is disabled. */

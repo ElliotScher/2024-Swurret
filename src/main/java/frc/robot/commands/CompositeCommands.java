@@ -19,7 +19,7 @@ import frc.robot.subsystems.serializer.Serializer;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionMode;
-import frc.robot.subsystems.vision.VisionNoteTrackingPipeline;
+import frc.robot.subsystems.vision.VisionPipeline;
 import frc.robot.util.AllianceFlipUtil;
 import java.util.Optional;
 
@@ -68,15 +68,15 @@ public class CompositeCommands {
     return shooter
         .runPoseDistance(
             () ->
-                aprilTagVision.getRobotPose().isPresent()
-                    ? Optional.of(aprilTagVision.getRobotPose().get().getTranslation())
+                RobotState.getRobotPose().isPresent()
+                    ? Optional.of(RobotState.getRobotPose().get().getTranslation())
                     : Optional.empty(),
             drive::getFieldRelativeVelocity)
         .alongWith(
             hood.setPosePosition(
                 () ->
-                    aprilTagVision.getRobotPose().isPresent()
-                        ? Optional.of(aprilTagVision.getRobotPose().get().getTranslation())
+                    RobotState.getRobotPose().isPresent()
+                        ? Optional.of(RobotState.getRobotPose().get().getTranslation())
                         : Optional.empty(),
                 drive::getFieldRelativeVelocity))
         .alongWith(accelerator.runAccelerator());
@@ -140,13 +140,11 @@ public class CompositeCommands {
       Drive drive, Intake intake, Serializer serializer, Kicker kicker, Vision vision) {
     return Commands.run(
             () -> {
-              if (vision.getRobotPose().isPresent()) {
+              if (RobotState.getRobotPose().isPresent()) {
                 PPHolonomicDriveController.setRotationTargetOverride(
                     () ->
                         Optional.of(
-                            RobotState.poseCalculation(
-                                    vision.getRobotPose().get().getTranslation(),
-                                    drive.getFieldRelativeVelocity())
+                            RobotState.poseCalculation(drive.getFieldRelativeVelocity())
                                 .robotAngle()));
               }
             })
@@ -172,7 +170,7 @@ public class CompositeCommands {
   public static final Command getPath(
       Drive drive,
       Vision noteVision,
-      VisionNoteTrackingPipeline noteTrackingPipeline,
+      VisionPipeline noteTrackingPipeline,
       Pose2d startingPose,
       Pose2d endingPose) {
     return Commands.sequence(
@@ -194,7 +192,7 @@ public class CompositeCommands {
   public static final Command getPath(
       Drive drive,
       Vision noteVision,
-      VisionNoteTrackingPipeline noteTrackingPipeline,
+      VisionPipeline noteTrackingPipeline,
       Pose2d startingPose,
       Pose2d endingPose,
       PathConstraints pathConstraints) {

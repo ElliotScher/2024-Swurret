@@ -171,9 +171,7 @@ public class Hood extends SubsystemBase {
     return runEnd(
         () -> {
           if (robotPoseSupplier.get().isPresent()) {
-            AimingParameters aimingParameters =
-                RobotState.poseCalculation(
-                    robotPoseSupplier.get().get(), velocitySupplier.get());
+            AimingParameters aimingParameters = RobotState.poseCalculation(velocitySupplier.get());
             setPosition(aimingParameters.shooterAngle().getRadians());
           }
         },

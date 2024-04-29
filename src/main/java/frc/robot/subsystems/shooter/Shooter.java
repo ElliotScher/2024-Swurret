@@ -22,6 +22,7 @@ import frc.robot.util.LinearProfile;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.Optional;
 import java.util.function.Supplier;
+import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -88,10 +89,8 @@ public class Shooter extends SubsystemBase {
 
   @AutoLogOutput private SpinDirection spinDirection = SpinDirection.CLOCKWISE;
 
-  private double flywheelOffset = 0;
-  private double spinOffset = 0;
-
-  private boolean isShooting = false;
+  @Getter private double flywheelOffset = 0;
+  @Getter private double spinOffset = 0;
 
   static {
     GOAL_TOLERANCE.initDefault(10);
@@ -232,18 +231,6 @@ public class Shooter extends SubsystemBase {
     return Math.max(inputs.leftVelocityRadPerSec, inputs.rightVelocityRadPerSec);
   }
 
-  public double getFlywheelOffset() {
-    return flywheelOffset;
-  }
-
-  public double getSpinOffset() {
-    return spinOffset;
-  }
-
-  public boolean isShooting() {
-    return isShooting;
-  }
-
   public boolean atGoal() {
     return (Math.abs(leftProfile.getGoal() - leftFeedback.getSetpoint()) <= GOAL_TOLERANCE.get())
         && (Math.abs(rightProfile.getGoal() - rightFeedback.getSetpoint()) <= GOAL_TOLERANCE.get());
@@ -295,9 +282,7 @@ public class Shooter extends SubsystemBase {
     return runEnd(
         () -> {
           if (robotPoseSupplier.get().isPresent()) {
-            AimingParameters aimingParameters =
-                RobotState.poseCalculation(
-                    robotPoseSupplier.get().get(), velocitySupplier.get());
+            AimingParameters aimingParameters = RobotState.poseCalculation(velocitySupplier.get());
             if (spinDirection.equals(SpinDirection.YEET)) {
               spinDirection = SpinDirection.CLOCKWISE;
             }
@@ -320,10 +305,7 @@ public class Shooter extends SubsystemBase {
               }
             }
 
-            setSpinVelocity(
-                RobotState.poseCalculation(
-                        robotPoseSupplier.get().get(), velocitySupplier.get())
-                    .shooterSpeed());
+            setSpinVelocity(RobotState.poseCalculation(velocitySupplier.get()).shooterSpeed());
           } else {
             if (DriverStation.isAutonomous()) {
               setSpinVelocity(DEFAULT_SPEED.get());

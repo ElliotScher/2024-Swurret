@@ -59,6 +59,16 @@ public class VisionIOLimelight implements VisionIO {
   }
 
   @Override
+  public Rotation2d getTx() {
+    return Rotation2d.fromDegrees(tx.get());
+  }
+
+  @Override
+  public Rotation2d getTy() {
+    return Rotation2d.fromDegrees(ty.get());
+  }
+
+  @Override
   public void enableLEDs() {
     table.getEntry("ledMode").setNumber(3);
   }
