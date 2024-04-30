@@ -155,8 +155,11 @@ public class RobotContainer {
           accelerator = new Accelerator(new AcceleratorIOSim());
           climber = new Climber(new ClimberIOSim());
           aprilTagVision =
-              new Vision("AprilTagVision", new VisionIOSim(VisionMode.AprilTags, drive::getPose));
-          noteVision = new Vision("NoteVision", new VisionIOSim(VisionMode.Notes, drive::getPose));
+              new Vision(
+                  "AprilTagVision",
+                  new VisionIOSim(VisionMode.AprilTags, RobotState::getRobotPose));
+          noteVision =
+              new Vision("NoteVision", new VisionIOSim(VisionMode.Notes, RobotState::getRobotPose));
           break;
       }
     }

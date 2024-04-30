@@ -79,13 +79,7 @@ public class Shooter extends SubsystemBase {
               (state) -> Logger.recordOutput("Shooter/sysID State", state.toString())),
           new SysIdRoutine.Mechanism((volts) -> setVoltage(volts.in(Volts)), null, this));
 
-  private static enum SpinDirection {
-    COUNTERCLOCKWISE,
-    CLOCKWISE,
-    YEET
-  }
-
-  @AutoLogOutput private SpinDirection spinDirection = SpinDirection.CLOCKWISE;
+  @AutoLogOutput(key = "Shooter/Spin Direction") private SpinDirection spinDirection = SpinDirection.CLOCKWISE;
 
   static {
     GOAL_TOLERANCE.initDefault(10);
