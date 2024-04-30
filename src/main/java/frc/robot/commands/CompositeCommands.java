@@ -160,6 +160,7 @@ public class CompositeCommands {
             () -> {
               noteVision.setPipeline(noteTrackingPipeline);
               RobotState.resetRobotPose(AllianceFlipUtil.apply(startingPose));
+              drive.setPose(AllianceFlipUtil.apply(startingPose));
             }),
         AutoBuilder.pathfindToPose(
             DriverStation.getAlliance().get().equals(Alliance.Blue)
@@ -180,6 +181,7 @@ public class CompositeCommands {
             () -> {
               noteVision.setPipeline(noteTrackingPipeline);
               RobotState.resetRobotPose(AllianceFlipUtil.apply(startingPose));
+              drive.setPose(AllianceFlipUtil.apply(startingPose));
             }),
         AutoBuilder.pathfindToPose(
             DriverStation.getAlliance().get().equals(Alliance.Blue)
