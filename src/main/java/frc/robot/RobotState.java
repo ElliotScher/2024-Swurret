@@ -126,7 +126,6 @@ public class RobotState extends VirtualSubsystem {
     poseEstimator.resetPosition(robotHeadingSupplier.get(), modulePositionSupplier.get(), pose);
   }
 
-  
   public static Optional<Rotation2d> getTargetGyroAngle() {
     Optional<Pose2d> robotPose = robotPoseBuffer.getSample(visionTimestampSupplier.getAsDouble());
     if (robotPose.isPresent() && visionValidTargetSupplier.getAsBoolean()) {

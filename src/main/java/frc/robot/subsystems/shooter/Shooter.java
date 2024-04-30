@@ -194,13 +194,11 @@ public class Shooter extends SubsystemBase {
   private void setSpinVelocity(double velocityRadPerSec) {
     isOpenLoop = false;
     if (spinDirection.equals(SpinDirection.COUNTERCLOCKWISE)) {
-      leftProfile
-          .setGoal((velocityRadPerSec + RobotState.getFlywheelOffset()) * (RATIO.get()));
+      leftProfile.setGoal((velocityRadPerSec + RobotState.getFlywheelOffset()) * (RATIO.get()));
       rightProfile.setGoal(velocityRadPerSec + RobotState.getFlywheelOffset());
     } else if (spinDirection.equals(SpinDirection.CLOCKWISE)) {
       leftProfile.setGoal(velocityRadPerSec + RobotState.getFlywheelOffset());
-      rightProfile
-          .setGoal((velocityRadPerSec + RobotState.getFlywheelOffset()) * (RATIO.get()));
+      rightProfile.setGoal((velocityRadPerSec + RobotState.getFlywheelOffset()) * (RATIO.get()));
     } else {
       // YEET MODE :)
       leftProfile.setGoal(velocityRadPerSec + RobotState.getFlywheelOffset());

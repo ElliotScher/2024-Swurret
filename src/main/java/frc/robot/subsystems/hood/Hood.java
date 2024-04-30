@@ -130,7 +130,8 @@ public class Hood extends SubsystemBase {
 
   private void setPosition(double positionRad) {
     double position =
-        MathUtil.clamp(positionRad + RobotState.getHoodOffset(), MIN_POSITION.get(), MAX_POSITION.get());
+        MathUtil.clamp(
+            positionRad + RobotState.getHoodOffset(), MIN_POSITION.get(), MAX_POSITION.get());
     profiledFeedback.setGoal(position);
   }
 

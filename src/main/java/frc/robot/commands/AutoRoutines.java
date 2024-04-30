@@ -420,7 +420,8 @@ public final class AutoRoutines {
     return Commands.sequence(
         Commands.runOnce(() -> noteVision.setPipeline(VisionPipeline.Center)),
         Commands.runOnce(
-            () -> RobotState.resetRobotPose(AllianceFlipUtil.apply(AutoPathPoints.CENTER_SUBWOOFER))),
+            () ->
+                RobotState.resetRobotPose(AllianceFlipUtil.apply(AutoPathPoints.CENTER_SUBWOOFER))),
         CompositeCommands.getTrackNoteSpikeCommand(
             drive, intake, serializer, noteVision, aprilTagVision),
         CompositeCommands.getAimSpeakerCommand(drive),
