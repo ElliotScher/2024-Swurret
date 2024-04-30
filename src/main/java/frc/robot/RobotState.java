@@ -9,7 +9,10 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.shooter.Shooter;
@@ -19,6 +22,7 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class RobotState extends VirtualSubsystem {
@@ -42,6 +46,9 @@ public class RobotState extends VirtualSubsystem {
   private static BooleanSupplier visionValidTargetSupplier;
   private static DoubleSupplier visionTimestampSupplier;
   private static Supplier<Rotation2d> visionXSupplier;
+
+  @Getter private static double flywheelOffset = 0.0;
+  @Getter private static double hoodOffset = 0.0;
 
   static {
     // Units: radians per second
@@ -81,7 +88,6 @@ public class RobotState extends VirtualSubsystem {
       BooleanSupplier visionValidTargetSupplier,
       DoubleSupplier visionTimestampSupplier,
       Supplier<Rotation2d> visionXSupplier) {
-
     RobotState.robotHeadingSupplier = robotHeadingSupplier;
     RobotState.modulePositionSupplier = modulePositionSupplier;
     RobotState.visionPoseSupplier = visionPoseSupplier;
@@ -112,6 +118,15 @@ public class RobotState extends VirtualSubsystem {
     Logger.recordOutput("RobotState/Estimated Pose", poseEstimator.getEstimatedPosition());
   }
 
+  public static Pose2d getRobotPose() {
+    return poseEstimator.getEstimatedPosition();
+  }
+
+  public static void resetRobotPose(Pose2d pose) {
+    poseEstimator.resetPosition(robotHeadingSupplier.get(), modulePositionSupplier.get(), pose);
+  }
+
+  
   public static Optional<Rotation2d> getTargetGyroAngle() {
     Optional<Pose2d> robotPose = robotPoseBuffer.getSample(visionTimestampSupplier.getAsDouble());
     if (robotPose.isPresent() && visionValidTargetSupplier.getAsBoolean()) {
@@ -119,18 +134,6 @@ public class RobotState extends VirtualSubsystem {
     } else {
       return Optional.empty();
     }
-  }
-
-  public static Pose2d getRobotPose() {
-    return poseEstimator.getEstimatedPosition();
-  }
-
-  public static void setRobotPose(Pose2d pose) {
-    poseEstimator.resetPosition(robotHeadingSupplier.get(), modulePositionSupplier.get(), pose);
-  }
-
-  public static void resetRobotPose(Pose2d pose) {
-    poseEstimator.resetPosition(robotHeadingSupplier.get(), modulePositionSupplier.get(), pose);
   }
 
   public static AimingParameters poseCalculation(Translation2d fieldRelativeVelocity) {
@@ -161,6 +164,22 @@ public class RobotState extends VirtualSubsystem {
 
   public static boolean shooterReady(Hood hood, Shooter shooter) {
     return shooter.atGoal() && hood.atGoal();
+  }
+
+  public static Command increaseFlywheelVelocity() {
+    return Commands.runOnce(() -> flywheelOffset += 10);
+  }
+
+  public static Command decreaseFlywheelVelocity() {
+    return Commands.runOnce(() -> flywheelOffset -= 10);
+  }
+
+  public static Command increaseHoodAngle() {
+    return Commands.runOnce(() -> hoodOffset += Units.degreesToRadians(0.25));
+  }
+
+  public static Command decreaseHoodAngle() {
+    return Commands.runOnce(() -> hoodOffset -= Units.degreesToRadians(0.25));
   }
 
   public static record AimingParameters(

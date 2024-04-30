@@ -50,8 +50,6 @@ public class Hood extends SubsystemBase {
 
   private final ProfiledPIDController profiledFeedback;
 
-  private double angleOffset = Units.degreesToRadians(0);
-
   static {
     GOAL_TOLERANCE.initDefault(0.017);
     switch (Constants.ROBOT) {
@@ -132,16 +130,12 @@ public class Hood extends SubsystemBase {
 
   private void setPosition(double positionRad) {
     double position =
-        MathUtil.clamp(positionRad + angleOffset, MIN_POSITION.get(), MAX_POSITION.get());
+        MathUtil.clamp(positionRad + RobotState.getHoodOffset(), MIN_POSITION.get(), MAX_POSITION.get());
     profiledFeedback.setGoal(position);
   }
 
   public Rotation2d getPosition() {
     return inputs.position;
-  }
-
-  public double getOffset() {
-    return (double) Math.round(Units.radiansToDegrees(angleOffset) * 100) / 100;
   }
 
   public boolean atGoal() {
@@ -183,13 +177,5 @@ public class Hood extends SubsystemBase {
               io.resetPosition();
               profiledFeedback.reset(0.0, inputs.velocityRadPerSec);
             }));
-  }
-
-  public Command increaseAngle() {
-    return Commands.runOnce(() -> angleOffset += Units.degreesToRadians(0.25));
-  }
-
-  public Command decreaseAngle() {
-    return Commands.runOnce(() -> angleOffset -= Units.degreesToRadians(0.25));
   }
 }

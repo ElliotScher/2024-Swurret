@@ -21,7 +21,6 @@ import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.LinearProfile;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.Supplier;
-import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -87,9 +86,6 @@ public class Shooter extends SubsystemBase {
   }
 
   @AutoLogOutput private SpinDirection spinDirection = SpinDirection.CLOCKWISE;
-
-  @Getter private double flywheelOffset = 0;
-  @Getter private double spinOffset = 0;
 
   static {
     GOAL_TOLERANCE.initDefault(10);
@@ -198,23 +194,19 @@ public class Shooter extends SubsystemBase {
   private void setSpinVelocity(double velocityRadPerSec) {
     isOpenLoop = false;
     if (spinDirection.equals(SpinDirection.COUNTERCLOCKWISE)) {
-      leftProfile.setGoal((velocityRadPerSec + flywheelOffset) * (RATIO.get() + spinOffset));
-      rightProfile.setGoal(velocityRadPerSec + flywheelOffset);
+      leftProfile
+          .setGoal((velocityRadPerSec + RobotState.getFlywheelOffset()) * (RATIO.get()));
+      rightProfile.setGoal(velocityRadPerSec + RobotState.getFlywheelOffset());
     } else if (spinDirection.equals(SpinDirection.CLOCKWISE)) {
-      leftProfile.setGoal(velocityRadPerSec + flywheelOffset);
-      rightProfile.setGoal((velocityRadPerSec + flywheelOffset) * (RATIO.get() + spinOffset));
+      leftProfile.setGoal(velocityRadPerSec + RobotState.getFlywheelOffset());
+      rightProfile
+          .setGoal((velocityRadPerSec + RobotState.getFlywheelOffset()) * (RATIO.get()));
     } else {
       // YEET MODE :)
-      leftProfile.setGoal(velocityRadPerSec + flywheelOffset);
-      rightProfile.setGoal(velocityRadPerSec + flywheelOffset);
+      leftProfile.setGoal(velocityRadPerSec + RobotState.getFlywheelOffset());
+      rightProfile.setGoal(velocityRadPerSec + RobotState.getFlywheelOffset());
     }
   }
-
-  // private void setYeetVelocity(double velocityRadPerSec) {
-  //   isOpenLoop = false;
-  //     leftProfile.setGoal(velocityRadPerSec + flywheelOffset);
-  //     rightProfile.setGoal(velocityRadPerSec + flywheelOffset);
-  // }
 
   private void stop() {
     isOpenLoop = true;
@@ -317,27 +309,5 @@ public class Shooter extends SubsystemBase {
         sysIdRoutine.dynamic(Direction.kForward),
         Commands.waitSeconds(4),
         sysIdRoutine.dynamic(Direction.kReverse));
-  }
-
-  public Command increaseVelocity() {
-    return Commands.runOnce(() -> flywheelOffset += 10);
-  }
-
-  public Command decreaseVelocity() {
-    return Commands.runOnce(() -> flywheelOffset -= 10);
-  }
-
-  public Command increaseSpin() {
-    return Commands.runOnce(
-        () -> {
-          if (RATIO.get() + spinOffset < 0.9) spinOffset += 0.1;
-        });
-  }
-
-  public Command decreaseSpin() {
-    return Commands.runOnce(
-        () -> {
-          if (RATIO.get() + spinOffset > 0.1) spinOffset -= 0.1;
-        });
   }
 }

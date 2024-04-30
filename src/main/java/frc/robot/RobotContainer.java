@@ -252,16 +252,12 @@ public class RobotContainer {
         .withPosition(0, 0)
         .withSize(2, 2);
     Shuffleboard.getTab("Teleoperated")
-        .addNumber("Hood Offset", hood::getOffset)
+        .addNumber("Hood Offset", RobotState::getHoodOffset)
         .withPosition(0, 0)
         .withSize(1, 1);
     Shuffleboard.getTab("Teleoperated")
-        .addNumber("Flywheel Offset", shooter::getFlywheelOffset)
+        .addNumber("Flywheel Offset", RobotState::getFlywheelOffset)
         .withPosition(0, 1)
-        .withSize(1, 1);
-    Shuffleboard.getTab("Teleoperated")
-        .addNumber("Spin Offset", shooter::getSpinOffset)
-        .withPosition(0, 2)
         .withSize(1, 1);
     Shuffleboard.getTab("Teleoperated")
         .add("Shooter View", CameraServer.addSwitchedCamera("limelight-shooter").getSource())
@@ -315,13 +311,13 @@ public class RobotContainer {
     operator
         .rightBumper()
         .whileTrue(CompositeCommands.getAmpFeedCommand(shooter, hood, accelerator, kicker));
-    operator.y().whileTrue(shooter.increaseVelocity());
-    operator.a().whileTrue(shooter.decreaseVelocity());
+    operator.y().whileTrue(RobotState.increaseFlywheelVelocity());
+    operator.a().whileTrue(RobotState.decreaseFlywheelVelocity());
     operator.povUp().onTrue(climber.preClimb());
     operator.povDown().onTrue(climber.climbAutomatic());
     operator.back().onTrue(climber.zero());
-    operator.leftBumper().onTrue(hood.decreaseAngle());
-    operator.leftTrigger().onTrue(hood.increaseAngle());
+    operator.leftBumper().onTrue(RobotState.decreaseHoodAngle());
+    operator.leftTrigger().onTrue(RobotState.increaseHoodAngle());
     operator.start().onTrue(Commands.runOnce(() -> isNoteTracking = !isNoteTracking));
   }
 
