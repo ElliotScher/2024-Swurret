@@ -16,8 +16,6 @@ public class VisionIOSim implements VisionIO {
 
   private final Transform3d cameraTransform;
   private final Pose3d[] targetPoses;
-  private static final Rotation2d fieldOfViewHorizontal = Rotation2d.fromDegrees(63.3);
-  private static final Rotation2d fieldOfViewVertical = Rotation2d.fromDegrees(49.7);
 
   public VisionIOSim(VisionMode llMode, Supplier<Pose2d> poseSupplier) {
     this.poseSupplier = poseSupplier;
@@ -78,8 +76,8 @@ public class VisionIOSim implements VisionIO {
       double xzAngle = Math.atan(targetRelativePose.getZ() / targetRelativePose.getX());
 
       boolean isValid =
-          (Math.abs(xyAngle) < fieldOfViewHorizontal.getRadians() / 2.0)
-              && (Math.abs(xzAngle) < fieldOfViewVertical.getRadians() / 2.0);
+          (Math.abs(xyAngle) < VisionConstants.LIMELIGHT_HORIZONTAL_FOV.getRadians() / 2.0)
+              && (Math.abs(xzAngle) < VisionConstants.LIMELIGHT_VERTICAL_FOV.getRadians() / 2.0);
 
       if (isValid && (closestNorm == null || currentNorm < closestNorm)) {
         tx = new Rotation2d(-xyAngle);

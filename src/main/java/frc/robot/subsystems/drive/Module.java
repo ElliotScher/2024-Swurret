@@ -18,25 +18,12 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
-import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
-  static final double ODOMETRY_FREQUENCY = 250.0;
-  private static final LoggedTunableNumber WHEEL_RADIUS =
-      new LoggedTunableNumber("Drive/Wheel Radius");
-  private static final LoggedTunableNumber DRIVE_KS = new LoggedTunableNumber("Drive/Drive Ks");
-  private static final LoggedTunableNumber DRIVE_KV = new LoggedTunableNumber("Drive/Drive Kv");
-  private static final LoggedTunableNumber DRIVE_KP = new LoggedTunableNumber("Drive/Drive Kp");
-  private static final LoggedTunableNumber DRIVE_KD = new LoggedTunableNumber("Drive/Drive Kd");
-  private static final LoggedTunableNumber TURN_KP = new LoggedTunableNumber("Drive/Turn Kp");
-  private static final LoggedTunableNumber TURN_KD = new LoggedTunableNumber("Drive/Turn Kd");
-  private static final double OUT_OF_SYNC_THRESHOLD = Units.degreesToRadians(30.0);
-
   private final ModuleIO io;
   private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
   private final int index;
@@ -53,48 +40,24 @@ public class Module {
   private final Alert unitializedAlert;
   private final Alert outOfSyncAlert;
 
-  static {
-    switch (Constants.ROBOT) {
-      case SNAPBACK:
-        WHEEL_RADIUS.initDefault(Units.inchesToMeters(2.0));
-        DRIVE_KS.initDefault(0.063566);
-        DRIVE_KV.initDefault(0.11799);
-        DRIVE_KP.initDefault(0.13);
-        DRIVE_KD.initDefault(0.0);
-        TURN_KP.initDefault(9.0);
-        TURN_KD.initDefault(0.0);
-        break;
-      case ROBOT_2K24_TEST:
-        WHEEL_RADIUS.initDefault(Units.inchesToMeters(2.0));
-        DRIVE_KS.initDefault(0.14589);
-        DRIVE_KV.initDefault(0.11156);
-        DRIVE_KP.initDefault(0.13);
-        DRIVE_KD.initDefault(0.0);
-        TURN_KP.initDefault(9.0);
-        TURN_KD.initDefault(0.0);
-        break;
-      case ROBOT_SIM:
-        WHEEL_RADIUS.initDefault(Units.inchesToMeters(2.0));
-        DRIVE_KS.initDefault(-0.0081157);
-        DRIVE_KV.initDefault(0.12821);
-        DRIVE_KP.initDefault(0.039024);
-        DRIVE_KD.initDefault(0.0);
-        TURN_KP.initDefault(10.0);
-        TURN_KD.initDefault(0.0);
-        break;
-      default:
-        break;
-    }
-  }
-
   public Module(ModuleIO io, int index) {
     this.io = io;
     this.index = index;
 
-    driveFeedforward = new SimpleMotorFeedforward(DRIVE_KS.get(), DRIVE_KV.get());
+    driveFeedforward =
+        new SimpleMotorFeedforward(ModuleConstants.DRIVE_KS.get(), ModuleConstants.DRIVE_KV.get());
     driveFeedback =
-        new PIDController(DRIVE_KP.get(), 0.0, DRIVE_KD.get(), Constants.LOOP_PERIOD_SECS);
-    turnFeedback = new PIDController(TURN_KP.get(), 0.0, TURN_KD.get(), Constants.LOOP_PERIOD_SECS);
+        new PIDController(
+            ModuleConstants.DRIVE_KP.get(),
+            0.0,
+            ModuleConstants.DRIVE_KD.get(),
+            Constants.LOOP_PERIOD_SECS);
+    turnFeedback =
+        new PIDController(
+            ModuleConstants.TURN_KP.get(),
+            0.0,
+            ModuleConstants.TURN_KD.get(),
+            Constants.LOOP_PERIOD_SECS);
 
     turnFeedback.enableContinuousInput(-Math.PI, Math.PI);
     setBrakeMode(true);
@@ -125,20 +88,23 @@ public class Module {
     Logger.processInputs("Drive/Module" + Integer.toString(index), inputs);
 
     // Adjust models based on tunable numbers
-    if (DRIVE_KS.hasChanged(hashCode()) || DRIVE_KV.hasChanged(hashCode())) {
-      driveFeedforward = new SimpleMotorFeedforward(DRIVE_KS.get(), DRIVE_KV.get());
+    if (ModuleConstants.DRIVE_KS.hasChanged(hashCode())
+        || ModuleConstants.DRIVE_KV.hasChanged(hashCode())) {
+      driveFeedforward =
+          new SimpleMotorFeedforward(
+              ModuleConstants.DRIVE_KS.get(), ModuleConstants.DRIVE_KV.get());
     }
-    if (DRIVE_KP.hasChanged(hashCode())) {
-      driveFeedback.setP(DRIVE_KP.get());
+    if (ModuleConstants.DRIVE_KP.hasChanged(hashCode())) {
+      driveFeedback.setP(ModuleConstants.DRIVE_KP.get());
     }
-    if (DRIVE_KD.hasChanged(hashCode())) {
-      driveFeedback.setD(DRIVE_KD.get());
+    if (ModuleConstants.DRIVE_KD.hasChanged(hashCode())) {
+      driveFeedback.setD(ModuleConstants.DRIVE_KD.get());
     }
-    if (TURN_KP.hasChanged(hashCode())) {
-      turnFeedback.setP(TURN_KP.get());
+    if (ModuleConstants.TURN_KP.hasChanged(hashCode())) {
+      turnFeedback.setP(ModuleConstants.TURN_KP.get());
     }
-    if (TURN_KD.hasChanged(hashCode())) {
-      turnFeedback.setD(TURN_KD.get());
+    if (ModuleConstants.TURN_KD.hasChanged(hashCode())) {
+      turnFeedback.setD(ModuleConstants.TURN_KD.get());
     }
 
     // On first cycle, reset relative turn encoder
@@ -153,7 +119,8 @@ public class Module {
 
     // Alert if out of sync
     if (turnRelativeOffset != null
-        && (getAngle().minus(inputs.turnAbsolutePosition).getRadians()) > OUT_OF_SYNC_THRESHOLD) {
+        && (getAngle().minus(inputs.turnAbsolutePosition).getRadians())
+            > ModuleConstants.OUT_OF_SYNC_THRESHOLD) {
       outOfSyncAlert.set(true);
     }
 
@@ -173,7 +140,7 @@ public class Module {
         double adjustSpeedSetpoint = speedSetpoint * Math.cos(turnFeedback.getPositionError());
 
         // Run drive controller
-        double velocityRadPerSec = adjustSpeedSetpoint / WHEEL_RADIUS.get();
+        double velocityRadPerSec = adjustSpeedSetpoint / ModuleConstants.WHEEL_RADIUS.get();
         io.setDriveVoltage(
             driveFeedforward.calculate(velocityRadPerSec)
                 + driveFeedback.calculate(inputs.driveVelocityRadPerSec, velocityRadPerSec));
@@ -184,7 +151,8 @@ public class Module {
     int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
     odometryPositions = new SwerveModulePosition[sampleCount];
     for (int i = 0; i < sampleCount; i++) {
-      double positionMeters = inputs.odometryDrivePositionsRad[i] * WHEEL_RADIUS.get();
+      double positionMeters =
+          inputs.odometryDrivePositionsRad[i] * ModuleConstants.WHEEL_RADIUS.get();
       Rotation2d angle =
           inputs.odometryTurnPositions[i].plus(
               turnRelativeOffset != null ? turnRelativeOffset : new Rotation2d());
@@ -242,12 +210,12 @@ public class Module {
 
   /** Returns the current drive position of the module in meters. */
   public double getPositionMeters() {
-    return inputs.drivePositionRad * WHEEL_RADIUS.get();
+    return inputs.drivePositionRad * ModuleConstants.WHEEL_RADIUS.get();
   }
 
   /** Returns the current drive velocity of the module in meters per second. */
   public double getVelocityMetersPerSec() {
-    return inputs.driveVelocityRadPerSec * WHEEL_RADIUS.get();
+    return inputs.driveVelocityRadPerSec * ModuleConstants.WHEEL_RADIUS.get();
   }
 
   /** Returns the module position (turn angle and drive position). */

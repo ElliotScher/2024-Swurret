@@ -216,11 +216,11 @@ public class RobotContainer {
     AutoBuilder.configureHolonomic(
         RobotState::getRobotPose,
         RobotState::resetRobotPose,
-        () -> DriveConstants.driveConfig.kinematics().toChassisSpeeds(drive.getModuleStates()),
+        () -> DriveConstants.KINEMATICS.toChassisSpeeds(drive.getModuleStates()),
         drive::runVelocity,
         new HolonomicPathFollowerConfig(
-            DriveConstants.driveConfig.maxLinearVelocity(),
-            DriveConstants.driveConfig.driveBaseRadius(),
+            DriveConstants.MAX_LINEAR_VELOCITY,
+            DriveConstants.DRIVE_BASE_RADIUS,
             new ReplanningConfig()),
         () ->
             DriverStation.getAlliance().isPresent()

@@ -19,41 +19,11 @@ import frc.robot.RobotState;
 import frc.robot.RobotState.AimingParameters;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.LinearProfile;
-import frc.robot.util.LoggedTunableNumber;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
-  private static final LoggedTunableNumber RATIO = new LoggedTunableNumber("Shooter/Ratio");
-
-  private static final LoggedTunableNumber KP = new LoggedTunableNumber("Shooter/Kp");
-  private static final LoggedTunableNumber KD = new LoggedTunableNumber("Shooter/Kd");
-
-  private static final LoggedTunableNumber KS_LEFT = new LoggedTunableNumber("Shooter/Left Ks");
-  private static final LoggedTunableNumber KV_LEFT = new LoggedTunableNumber("Shooter/Left Kv");
-  private static final LoggedTunableNumber KA_LEFT = new LoggedTunableNumber("Shooter/Left Ka");
-
-  private static final LoggedTunableNumber KS_RIGHT = new LoggedTunableNumber("Shooter/Right Ks");
-  private static final LoggedTunableNumber KV_RIGHT = new LoggedTunableNumber("Shooter/Right Kv");
-  private static final LoggedTunableNumber KA_RIGHT = new LoggedTunableNumber("Shooter/Right Ka");
-
-  private static final LoggedTunableNumber MAX_ACCELERATION =
-      new LoggedTunableNumber("Shooter/Max Acceleration");
-
-  private static final LoggedTunableNumber DEFAULT_SPEED =
-      new LoggedTunableNumber("Shooter/Default Speed");
-
-  private static final LoggedTunableNumber SOURCE_FEED_SPEED =
-      new LoggedTunableNumber("Shooter/Source Feed Speed");
-
-  private static final LoggedTunableNumber AMP_FEED_SPEED =
-      new LoggedTunableNumber("Shooter/Amp Feed Speed");
-
-  private static final LoggedTunableNumber AMP_SPEED = new LoggedTunableNumber("Shooter/Amp Speed");
-
-  private static final LoggedTunableNumber GOAL_TOLERANCE =
-      new LoggedTunableNumber("Shooter/Goal Tolerance");
 
   private final ShooterIO io;
   private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
@@ -73,63 +43,40 @@ public class Shooter extends SubsystemBase {
   private final SysIdRoutine sysIdRoutine =
       new SysIdRoutine(
           new SysIdRoutine.Config(
-              Volts.of(0.2).per(Seconds.of(1.0)),
-              Volts.of(3.5),
-              Seconds.of(10.0),
+              Volts.of(ShooterConstants.RAMP_RATE_VOLTAGE)
+                  .per(Seconds.of(ShooterConstants.RAMP_RATE_SECONDS)),
+              Volts.of(ShooterConstants.STEP_VOLTAGE),
+              Seconds.of(ShooterConstants.SYSID_TIMEOUT),
               (state) -> Logger.recordOutput("Shooter/sysID State", state.toString())),
           new SysIdRoutine.Mechanism((volts) -> setVoltage(volts.in(Volts)), null, this));
 
   @AutoLogOutput(key = "Shooter/Spin Direction")
   private SpinDirection spinDirection = SpinDirection.CLOCKWISE;
 
-  static {
-    GOAL_TOLERANCE.initDefault(10);
-    MAX_ACCELERATION.initDefault(425);
-    KS_LEFT.initDefault(0.13053);
-    KV_LEFT.initDefault(0.0072202);
-    KA_LEFT.initDefault(0.0010296);
-    KS_RIGHT.initDefault(0.15054);
-    KV_RIGHT.initDefault(0.0068511);
-    KA_RIGHT.initDefault(0.0011501);
-    SOURCE_FEED_SPEED.initDefault(550);
-    AMP_FEED_SPEED.initDefault(400);
-    switch (Constants.ROBOT) {
-      case SNAPBACK:
-        KP.initDefault(0.008);
-        KD.initDefault(0.0);
-        RATIO.initDefault(0.5);
-        DEFAULT_SPEED.initDefault(600);
-        AMP_SPEED.initDefault(200);
-        break;
-      case ROBOT_2K24_TEST:
-        KP.initDefault(0.035);
-        KD.initDefault(0.0);
-        RATIO.initDefault(2.0 / 3.0);
-        DEFAULT_SPEED.initDefault(400);
-        AMP_SPEED.initDefault(0.0);
-        break;
-      case ROBOT_SIM:
-        KP.initDefault(0.035);
-        KD.initDefault(0.0);
-        RATIO.initDefault(2.0 / 3.0);
-        DEFAULT_SPEED.initDefault(600);
-        AMP_SPEED.initDefault(0.0);
-        break;
-      default:
-        break;
-    }
-  }
-
   public Shooter(ShooterIO io) {
     this.io = io;
-    leftFeedback = new PIDController(KP.get(), 0.0, KD.get(), Constants.LOOP_PERIOD_SECS);
-    rightFeedback = new PIDController(KP.get(), 0.0, KD.get(), Constants.LOOP_PERIOD_SECS);
+    leftFeedback =
+        new PIDController(
+            ShooterConstants.KP.get(), 0.0, ShooterConstants.KD.get(), Constants.LOOP_PERIOD_SECS);
+    rightFeedback =
+        new PIDController(
+            ShooterConstants.KP.get(), 0.0, ShooterConstants.KD.get(), Constants.LOOP_PERIOD_SECS);
 
-    leftFeedforward = new SimpleMotorFeedforward(KS_LEFT.get(), KV_LEFT.get(), KA_LEFT.get());
-    rightFeedforward = new SimpleMotorFeedforward(KS_RIGHT.get(), KV_RIGHT.get(), KA_RIGHT.get());
+    leftFeedforward =
+        new SimpleMotorFeedforward(
+            ShooterConstants.KS_LEFT.get(),
+            ShooterConstants.KV_LEFT.get(),
+            ShooterConstants.KA_LEFT.get());
+    rightFeedforward =
+        new SimpleMotorFeedforward(
+            ShooterConstants.KS_RIGHT.get(),
+            ShooterConstants.KV_RIGHT.get(),
+            ShooterConstants.KA_RIGHT.get());
 
-    leftProfile = new LinearProfile(MAX_ACCELERATION.get(), Constants.LOOP_PERIOD_SECS);
-    rightProfile = new LinearProfile(MAX_ACCELERATION.get(), Constants.LOOP_PERIOD_SECS);
+    leftProfile =
+        new LinearProfile(ShooterConstants.MAX_ACCELERATION.get(), Constants.LOOP_PERIOD_SECS);
+    rightProfile =
+        new LinearProfile(ShooterConstants.MAX_ACCELERATION.get(), Constants.LOOP_PERIOD_SECS);
 
     setDefaultCommand(runVelocity());
   }
@@ -138,27 +85,35 @@ public class Shooter extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("Shooter", inputs);
 
-    if (KP.hasChanged(hashCode())) {
-      leftFeedback.setP(KP.get());
-      rightFeedback.setP(KP.get());
+    if (ShooterConstants.KP.hasChanged(hashCode())) {
+      leftFeedback.setP(ShooterConstants.KP.get());
+      rightFeedback.setP(ShooterConstants.KP.get());
     }
-    if (KD.hasChanged(hashCode())) {
-      leftFeedback.setD(KD.get());
-      rightFeedback.setD(KD.get());
+    if (ShooterConstants.KD.hasChanged(hashCode())) {
+      leftFeedback.setD(ShooterConstants.KD.get());
+      rightFeedback.setD(ShooterConstants.KD.get());
     }
-    if (MAX_ACCELERATION.hasChanged(hashCode())) {
-      leftProfile.setMaxAcceleration(MAX_ACCELERATION.get());
-      rightProfile.setMaxAcceleration(MAX_ACCELERATION.get());
+    if (ShooterConstants.MAX_ACCELERATION.hasChanged(hashCode())) {
+      leftProfile.setMaxAcceleration(ShooterConstants.MAX_ACCELERATION.get());
+      rightProfile.setMaxAcceleration(ShooterConstants.MAX_ACCELERATION.get());
     }
-    if (KS_LEFT.hasChanged(hashCode())
-        || KV_LEFT.hasChanged(hashCode())
-        || KA_LEFT.hasChanged(hashCode())) {
-      leftFeedforward = new SimpleMotorFeedforward(KS_LEFT.get(), KV_LEFT.get(), KA_LEFT.get());
+    if (ShooterConstants.KS_LEFT.hasChanged(hashCode())
+        || ShooterConstants.KV_LEFT.hasChanged(hashCode())
+        || ShooterConstants.KA_LEFT.hasChanged(hashCode())) {
+      leftFeedforward =
+          new SimpleMotorFeedforward(
+              ShooterConstants.KS_LEFT.get(),
+              ShooterConstants.KV_LEFT.get(),
+              ShooterConstants.KA_LEFT.get());
     }
-    if (KS_RIGHT.hasChanged(hashCode())
-        || KV_RIGHT.hasChanged(hashCode())
-        || KA_RIGHT.hasChanged(hashCode())) {
-      rightFeedforward = new SimpleMotorFeedforward(KS_RIGHT.get(), KV_RIGHT.get(), KA_RIGHT.get());
+    if (ShooterConstants.KS_RIGHT.hasChanged(hashCode())
+        || ShooterConstants.KV_RIGHT.hasChanged(hashCode())
+        || ShooterConstants.KA_RIGHT.hasChanged(hashCode())) {
+      rightFeedforward =
+          new SimpleMotorFeedforward(
+              ShooterConstants.KS_RIGHT.get(),
+              ShooterConstants.KV_RIGHT.get(),
+              ShooterConstants.KA_RIGHT.get());
     }
 
     if (!isOpenLoop) {
@@ -189,11 +144,13 @@ public class Shooter extends SubsystemBase {
   private void setSpinVelocity(double velocityRadPerSec) {
     isOpenLoop = false;
     if (spinDirection.equals(SpinDirection.COUNTERCLOCKWISE)) {
-      leftProfile.setGoal((velocityRadPerSec + RobotState.getFlywheelOffset()) * (RATIO.get()));
+      leftProfile.setGoal(
+          (velocityRadPerSec + RobotState.getFlywheelOffset()) * (ShooterConstants.RATIO.get()));
       rightProfile.setGoal(velocityRadPerSec + RobotState.getFlywheelOffset());
     } else if (spinDirection.equals(SpinDirection.CLOCKWISE)) {
       leftProfile.setGoal(velocityRadPerSec + RobotState.getFlywheelOffset());
-      rightProfile.setGoal((velocityRadPerSec + RobotState.getFlywheelOffset()) * (RATIO.get()));
+      rightProfile.setGoal(
+          (velocityRadPerSec + RobotState.getFlywheelOffset()) * (ShooterConstants.RATIO.get()));
     } else {
       // YEET MODE :)
       leftProfile.setGoal(velocityRadPerSec + RobotState.getFlywheelOffset());
@@ -216,24 +173,16 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean atGoal() {
-    return (Math.abs(leftProfile.getGoal() - leftFeedback.getSetpoint()) <= GOAL_TOLERANCE.get())
-        && (Math.abs(rightProfile.getGoal() - rightFeedback.getSetpoint()) <= GOAL_TOLERANCE.get());
+    return (Math.abs(leftProfile.getGoal() - leftFeedback.getSetpoint())
+            <= ShooterConstants.GOAL_TOLERANCE.get())
+        && (Math.abs(rightProfile.getGoal() - rightFeedback.getSetpoint())
+            <= ShooterConstants.GOAL_TOLERANCE.get());
   }
 
   public Command runVelocity() {
     return runEnd(
         () -> {
-          setSpinVelocity(DEFAULT_SPEED.get());
-        },
-        () -> {
-          stop();
-        });
-  }
-
-  public Command runAmp() {
-    return runEnd(
-        () -> {
-          setSpinVelocity(AMP_SPEED.get());
+          setSpinVelocity(ShooterConstants.DEFAULT_SPEED.get());
         },
         () -> {
           stop();
@@ -243,7 +192,7 @@ public class Shooter extends SubsystemBase {
   public Command runSourceFeed() {
     return runEnd(
         () -> {
-          setSpinVelocity(SOURCE_FEED_SPEED.get());
+          setSpinVelocity(ShooterConstants.SOURCE_FEED_SPEED.get());
         },
         () -> {
           stop();
@@ -253,7 +202,7 @@ public class Shooter extends SubsystemBase {
   public Command runAmpFeed() {
     return runEnd(
         () -> {
-          setSpinVelocity(AMP_FEED_SPEED.get());
+          setSpinVelocity(ShooterConstants.AMP_FEED_SPEED.get());
         },
         () -> {
           stop();
@@ -274,14 +223,16 @@ public class Shooter extends SubsystemBase {
               AllianceFlipUtil.apply(FieldConstants.Speaker.centerSpeakerOpening.toTranslation2d());
           double distanceToSpeaker = robotPoseSupplier.get().getDistance(speakerPose);
 
-          if (distanceToSpeaker > 1.5) {
+          if (distanceToSpeaker > ShooterConstants.ENABLED_SPIN_DISTANCE) {
             if (DriverStation.getAlliance().isPresent()
                 && DriverStation.getAlliance().get().equals(Alliance.Blue)) {
               effectiveRobotAngle = effectiveRobotAngle.minus(Rotation2d.fromDegrees(180));
             }
-            if (effectiveRobotAngle.getDegrees() > 15) {
+            if (effectiveRobotAngle.getDegrees()
+                > ShooterConstants.SPEAKER_TO_ROBOT_SPIN_THRESHOLD) {
               spinDirection = SpinDirection.COUNTERCLOCKWISE;
-            } else if (effectiveRobotAngle.getDegrees() < -15) {
+            } else if (effectiveRobotAngle.getDegrees()
+                < -ShooterConstants.SPEAKER_TO_ROBOT_SPIN_THRESHOLD) {
               spinDirection = SpinDirection.CLOCKWISE;
             }
           }
@@ -296,11 +247,11 @@ public class Shooter extends SubsystemBase {
   public Command runSysId() {
     return Commands.sequence(
         sysIdRoutine.quasistatic(Direction.kForward),
-        Commands.waitSeconds(4),
+        Commands.waitSeconds(ShooterConstants.SYSID_DELAY),
         sysIdRoutine.quasistatic(Direction.kReverse),
-        Commands.waitSeconds(4),
+        Commands.waitSeconds(ShooterConstants.SYSID_DELAY),
         sysIdRoutine.dynamic(Direction.kForward),
-        Commands.waitSeconds(4),
+        Commands.waitSeconds(ShooterConstants.SYSID_DELAY),
         sysIdRoutine.dynamic(Direction.kReverse));
   }
 }

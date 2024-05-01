@@ -7,7 +7,6 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
-import frc.robot.Constants;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 
@@ -20,25 +19,15 @@ public class AcceleratorIOTalonFX implements AcceleratorIO {
   private final StatusSignal<Double> current;
   private final StatusSignal<Double> temperature;
 
-  private final double GEAR_RATIO = 2.0;
-
   private final Alert disconnectedAlert =
       new Alert("Accelerator Talon is disconnected, check CAN bus.", AlertType.ERROR);
 
   public AcceleratorIOTalonFX() {
-    switch (Constants.ROBOT) {
-      case SNAPBACK:
-        acceleratorTalon = new TalonFX(15);
-        break;
-      case ROBOT_2K24_TEST:
-        acceleratorTalon = new TalonFX(15);
-        break;
-      default:
-        throw new RuntimeException("Invalid robot");
-    }
+
+    acceleratorTalon = new TalonFX(AcceleratorConstants.DEVICE_ID);
 
     var config = new TalonFXConfiguration();
-    config.CurrentLimits.SupplyCurrentLimit = 40.0;
+    config.CurrentLimits.SupplyCurrentLimit = AcceleratorConstants.SUPPLY_CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.Audio.AllowMusicDurDisable = true;
@@ -62,8 +51,10 @@ public class AcceleratorIOTalonFX implements AcceleratorIO {
         BaseStatusSignal.refreshAll(velocity, position, appliedVolts, current, temperature).isOK();
     disconnectedAlert.set(!connected);
 
-    inputs.positionRad = Units.rotationsToRadians(position.getValueAsDouble()) / GEAR_RATIO;
-    inputs.velocityRadPerSec = Units.rotationsToRadians(velocity.getValueAsDouble()) / GEAR_RATIO;
+    inputs.positionRad =
+        Units.rotationsToRadians(position.getValueAsDouble()) / AcceleratorConstants.GEAR_RATIO;
+    inputs.velocityRadPerSec =
+        Units.rotationsToRadians(velocity.getValueAsDouble()) / AcceleratorConstants.GEAR_RATIO;
     inputs.appliedVolts = appliedVolts.getValueAsDouble();
     inputs.currentAmps = new double[] {current.getValueAsDouble()};
     inputs.tempCelcius = new double[] {temperature.getValueAsDouble()};

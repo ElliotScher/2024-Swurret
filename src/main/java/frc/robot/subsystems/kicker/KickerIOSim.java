@@ -1,12 +1,15 @@
 package frc.robot.subsystems.kicker;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 
 public class KickerIOSim implements KickerIO {
-  private DCMotorSim motorSim = new DCMotorSim(DCMotor.getKrakenX60(1), 2.0, 0.004);
+  private DCMotorSim motorSim =
+      new DCMotorSim(
+          KickerConstants.MOTOR_CONFIG,
+          KickerConstants.GEAR_RATIO,
+          KickerConstants.MOMENT_OF_INERTIA);
 
   private double appliedVolts = 0.0;
 

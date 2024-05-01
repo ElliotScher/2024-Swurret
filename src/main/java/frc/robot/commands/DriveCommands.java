@@ -131,10 +131,8 @@ public class DriveCommands {
           Rotation2d measuredGyroAngle = drive.getRotation();
           double feedForwardRadialVelocity = 0.0;
 
-          double robotRelativeXVel =
-              linearVelocity.getX() * DriveConstants.driveConfig.maxLinearVelocity();
-          double robotRelativeYVel =
-              linearVelocity.getY() * DriveConstants.driveConfig.maxAngularVelocity();
+          double robotRelativeXVel = linearVelocity.getX() * DriveConstants.MAX_LINEAR_VELOCITY;
+          double robotRelativeYVel = linearVelocity.getY() * DriveConstants.MAX_ANGULAR_VELOCITY;
 
           if (noteTracking.getAsBoolean()) {
             targetGyroAngle = RobotState.getTargetGyroAngle();
@@ -158,7 +156,7 @@ public class DriveCommands {
                       ? feedForwardRadialVelocity
                           + aimController.calculate(
                               measuredGyroAngle.getRadians(), targetGyroAngle.get().getRadians())
-                      : omega * DriveConstants.driveConfig.maxAngularVelocity(),
+                      : omega * DriveConstants.MAX_ANGULAR_VELOCITY,
                   isFlipped
                       ? drive.getRotation().plus(new Rotation2d(Math.PI))
                       : drive.getRotation());

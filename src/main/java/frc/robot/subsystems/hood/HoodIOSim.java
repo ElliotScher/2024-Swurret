@@ -2,23 +2,20 @@ package frc.robot.subsystems.hood;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants;
 
 public class HoodIOSim implements HoodIO {
-  private static final double GEAR_RATIO = 85.0;
   private SingleJointedArmSim armSim =
       new SingleJointedArmSim(
-          DCMotor.getKrakenX60(1),
-          GEAR_RATIO,
-          0.004,
-          0.25,
-          Units.degreesToRadians(0.0),
-          Units.degreesToRadians(45.0),
-          true,
-          Units.degreesToRadians(38.0));
+          HoodConstants.MOTOR_CONFIG,
+          HoodConstants.GEAR_RATIO,
+          HoodConstants.MOMENT_OF_INTERTIA,
+          HoodConstants.ARM_LENGTH,
+          HoodConstants.MINIMUM_ANGLE.getRadians(),
+          HoodConstants.MAXIMUM_ANGLE.getRadians(),
+          HoodConstants.SIMULATE_GRAVITY,
+          HoodConstants.STARTING_POSITION.getRadians());
   private double appliedVolts = 0.0;
 
   @Override

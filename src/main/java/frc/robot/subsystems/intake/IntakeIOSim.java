@@ -1,12 +1,15 @@
 package frc.robot.subsystems.intake;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 
 public class IntakeIOSim implements IntakeIO {
-  private DCMotorSim motorSim = new DCMotorSim(DCMotor.getKrakenX60(1), 2.0, 0.004);
+  private DCMotorSim motorSim =
+      new DCMotorSim(
+          IntakeConstants.MOTOR_CONFIG,
+          IntakeConstants.GEAR_RATIO,
+          IntakeConstants.MOMENT_OF_INERTIA);
 
   private double rollersAppliedVolts = 0.0;
   private boolean leftPosition = false;

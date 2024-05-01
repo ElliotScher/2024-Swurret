@@ -9,7 +9,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
-import frc.robot.Constants;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 
@@ -30,40 +29,20 @@ public class ClimberIOTalonFX implements ClimberIO {
   private final StatusSignal<Double> rightCurrentAmps;
   private final StatusSignal<Double> rightTempCelcius;
 
-  private final double GEAR_RATIO = (58.0 / 16.0) * (64.0 / 18.0);
-
-  private final double DRUM_CIRCUMFERENCE = Units.inchesToMeters(2.64595) * Math.PI;
-
   private final Alert leftDisconnectedAlert =
       new Alert("Left climber Talon is disconnected, check CAN bus.", AlertType.ERROR);
   private final Alert rightDisconnectedAlert =
       new Alert("Right climber Talon is disconnected, check CAN bus.", AlertType.ERROR);
 
   public ClimberIOTalonFX() {
-    switch (Constants.ROBOT) {
-      case SNAPBACK:
-        leftTalon = new TalonFX(4);
-        rightTalon = new TalonFX(5);
-        climberSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 6);
-        break;
-      case ROBOT_2K24_TEST:
-        leftTalon = new TalonFX(4);
-        rightTalon = new TalonFX(5);
-        climberSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 6);
-        break;
-      default:
-        throw new RuntimeException("Invalid robot");
-    }
+    leftTalon = new TalonFX(ClimberConstants.LEFT_CLIMBER_TALON_DEVICE_ID);
+    rightTalon = new TalonFX(ClimberConstants.RIGHT_CLIMBER_TALON_DEVICE_ID);
+    climberSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, ClimberConstants.SOLENOID_CHANNEL);
 
     var config = new TalonFXConfiguration();
-    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.SupplyCurrentLimit = ClimberConstants.SUPPLY_CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    // config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    // config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 3; // bottom soft limit in rotations
-    // config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    // config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-    // 6 * DRUM_CIRCUMFERENCE * GEAR_RATIO; // top soft limit in rotations
     config.Audio.AllowMusicDurDisable = true;
     config.Audio.BeepOnBoot = false;
     config.Audio.BeepOnConfig = false;
@@ -118,18 +97,26 @@ public class ClimberIOTalonFX implements ClimberIO {
             .isOK();
     rightDisconnectedAlert.set(!rightConnected);
 
-    inputs.leftPositionMeters = leftPosition.getValueAsDouble() / GEAR_RATIO / DRUM_CIRCUMFERENCE;
+    inputs.leftPositionMeters =
+        leftPosition.getValueAsDouble()
+            / ClimberConstants.GEAR_RATIO
+            / ClimberConstants.DRUM_CIRCUMFERENCE;
     inputs.leftVelocityMetersPerSec =
-        Units.rotationsToRadians(leftVelocity.getValueAsDouble()) / GEAR_RATIO / DRUM_CIRCUMFERENCE;
+        Units.rotationsToRadians(leftVelocity.getValueAsDouble())
+            / ClimberConstants.GEAR_RATIO
+            / ClimberConstants.DRUM_CIRCUMFERENCE;
     inputs.leftAppliedVolts = leftAppliedVolts.getValueAsDouble();
     inputs.leftCurrentAmps = new double[] {leftCurrentAmps.getValueAsDouble()};
     inputs.leftTempCelcius = new double[] {leftTempCelcius.getValueAsDouble()};
 
-    inputs.rightPositionMeters = rightPosition.getValueAsDouble() / GEAR_RATIO / DRUM_CIRCUMFERENCE;
+    inputs.rightPositionMeters =
+        rightPosition.getValueAsDouble()
+            / ClimberConstants.GEAR_RATIO
+            / ClimberConstants.DRUM_CIRCUMFERENCE;
     inputs.rightVelocityMetersPerSec =
         Units.rotationsToRadians(rightVelocity.getValueAsDouble())
-            / GEAR_RATIO
-            / DRUM_CIRCUMFERENCE;
+            / ClimberConstants.GEAR_RATIO
+            / ClimberConstants.DRUM_CIRCUMFERENCE;
     inputs.rightAppliedVolts = rightAppliedVolts.getValueAsDouble();
     inputs.rightCurrentAmps = new double[] {rightCurrentAmps.getValueAsDouble()};
     inputs.rightTempCelcius = new double[] {rightTempCelcius.getValueAsDouble()};

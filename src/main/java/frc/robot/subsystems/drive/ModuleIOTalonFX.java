@@ -25,7 +25,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import frc.robot.Constants;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 import java.util.Queue;
@@ -64,10 +63,6 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final StatusSignal<Double> turnCurrent;
   private final StatusSignal<Double> turnTemp;
 
-  private final double DRIVE_GEAR_RATIO =
-      (50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0); // L3 Gearing
-  private final double TURN_GEAR_RATIO = 150.0 / 7.0;
-
   private final boolean isTurnMotorInverted = true;
   private final Rotation2d absoluteEncoderOffset;
 
@@ -76,73 +71,37 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final Alert cancoderDisconnectedAlert;
 
   public ModuleIOTalonFX(int index) {
-    switch (Constants.ROBOT) {
-      case SNAPBACK:
-        switch (index) {
-          case 0:
-            driveTalon = new TalonFX(11, "drive");
-            turnTalon = new TalonFX(12, "drive");
-            cancoder = new CANcoder(20, "drive");
-            absoluteEncoderOffset = Rotation2d.fromRadians(2.2304080655857224); // TODO: Calibrate
-            break;
-          case 1:
-            driveTalon = new TalonFX(8, "drive");
-            turnTalon = new TalonFX(9, "drive");
-            cancoder = new CANcoder(21, "drive");
-            absoluteEncoderOffset = Rotation2d.fromRadians(-1.4910293258248433); // TODO: Calibrate
-            break;
-          case 2:
-            driveTalon = new TalonFX(18, "drive");
-            turnTalon = new TalonFX(19, "drive");
-            cancoder = new CANcoder(22, "drive");
-            absoluteEncoderOffset = Rotation2d.fromRadians(-0.2132233295161041); // TODO: Calibrate
-            break;
-          case 3:
-            driveTalon = new TalonFX(0, "drive");
-            turnTalon = new TalonFX(1, "drive");
-            cancoder = new CANcoder(23, "drive");
-            absoluteEncoderOffset = Rotation2d.fromRadians(-1.4327380558851888); // TODO: Calibrate
-            break;
-          default:
-            throw new RuntimeException("Invalid module index");
-        }
+    switch (index) {
+      case 0:
+        driveTalon = ModuleConstants.frontLeftConfig.drive();
+        turnTalon = ModuleConstants.frontLeftConfig.turn();
+        cancoder = ModuleConstants.frontLeftConfig.cancoder();
+        absoluteEncoderOffset = ModuleConstants.frontLeftConfig.absoluteEncoderOffset();
         break;
-      case ROBOT_2K24_TEST:
-        switch (index) {
-          case 0:
-            driveTalon = new TalonFX(0, "drive");
-            turnTalon = new TalonFX(1, "drive");
-            cancoder = new CANcoder(2, "drive");
-            absoluteEncoderOffset = Rotation2d.fromRadians(1.8775924843720249);
-            break;
-          case 1:
-            driveTalon = new TalonFX(10, "drive");
-            turnTalon = new TalonFX(11, "drive");
-            cancoder = new CANcoder(12, "drive");
-            absoluteEncoderOffset = Rotation2d.fromRadians(1.9865051203119053);
-            break;
-          case 2:
-            driveTalon = new TalonFX(20, "drive");
-            turnTalon = new TalonFX(21, "drive");
-            cancoder = new CANcoder(22, "drive");
-            absoluteEncoderOffset = Rotation2d.fromRadians(1.1612234564294304);
-            break;
-          case 3:
-            driveTalon = new TalonFX(30, "drive");
-            turnTalon = new TalonFX(31, "drive");
-            cancoder = new CANcoder(32, "drive");
-            absoluteEncoderOffset = Rotation2d.fromRadians(-3.06182565261974);
-            break;
-          default:
-            throw new RuntimeException("Invalid module index");
-        }
+      case 1:
+        driveTalon = ModuleConstants.frontRightConfig.drive();
+        turnTalon = ModuleConstants.frontRightConfig.turn();
+        cancoder = ModuleConstants.frontRightConfig.cancoder();
+        absoluteEncoderOffset = ModuleConstants.frontRightConfig.absoluteEncoderOffset();
+        break;
+      case 2:
+        driveTalon = ModuleConstants.rearLeftConfig.drive();
+        turnTalon = ModuleConstants.rearLeftConfig.turn();
+        cancoder = ModuleConstants.rearLeftConfig.cancoder();
+        absoluteEncoderOffset = ModuleConstants.rearLeftConfig.absoluteEncoderOffset();
+        break;
+      case 3:
+        driveTalon = ModuleConstants.rearRightConfig.drive();
+        turnTalon = ModuleConstants.rearRightConfig.turn();
+        cancoder = ModuleConstants.rearRightConfig.cancoder();
+        absoluteEncoderOffset = ModuleConstants.rearRightConfig.absoluteEncoderOffset();
         break;
       default:
-        throw new RuntimeException("Invalid robot");
+        throw new RuntimeException("Invalid module index");
     }
 
     var driveConfig = new TalonFXConfiguration();
-    driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
+    driveConfig.CurrentLimits.SupplyCurrentLimit = ModuleConstants.DRIVE_CURRENT_LIMIT;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     driveConfig.Audio.AllowMusicDurDisable = true;
     driveConfig.Audio.BeepOnBoot = false;
@@ -152,7 +111,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     setDriveBrakeMode(true);
 
     var turnConfig = new TalonFXConfiguration();
-    turnConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
+    turnConfig.CurrentLimits.SupplyCurrentLimit = ModuleConstants.TURN_CURRENT_LIMIT;
     turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     turnConfig.Audio.AllowMusicDurDisable = true;
     turnConfig.Audio.BeepOnBoot = false;
@@ -183,7 +142,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnTemp = turnTalon.getDeviceTemp();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        Module.ODOMETRY_FREQUENCY, drivePosition, turnPosition);
+        ModuleConstants.ODOMETRY_FREQUENCY, drivePosition, turnPosition);
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
         driveVelocity,
@@ -231,9 +190,11 @@ public class ModuleIOTalonFX implements ModuleIO {
     cancoderDisconnectedAlert.set(!cancoderConnected);
 
     inputs.drivePositionRad =
-        Units.rotationsToRadians(drivePosition.getValueAsDouble()) / DRIVE_GEAR_RATIO;
+        Units.rotationsToRadians(drivePosition.getValueAsDouble())
+            / ModuleConstants.DRIVE_GEAR_RATIO;
     inputs.driveVelocityRadPerSec =
-        Units.rotationsToRadians(driveVelocity.getValueAsDouble()) / DRIVE_GEAR_RATIO;
+        Units.rotationsToRadians(driveVelocity.getValueAsDouble())
+            / ModuleConstants.DRIVE_GEAR_RATIO;
     inputs.driveAppliedVolts = driveAppliedVolts.getValueAsDouble();
     inputs.driveCurrentAmps = new double[] {driveCurrent.getValueAsDouble()};
     inputs.driveTempCelcius = new double[] {driveTemp.getValueAsDouble()};
@@ -242,9 +203,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         Rotation2d.fromRotations(turnAbsolutePosition.getValueAsDouble())
             .minus(absoluteEncoderOffset);
     inputs.turnPosition =
-        Rotation2d.fromRotations(turnPosition.getValueAsDouble() / TURN_GEAR_RATIO);
+        Rotation2d.fromRotations(turnPosition.getValueAsDouble() / ModuleConstants.TURN_GEAR_RATIO);
     inputs.turnVelocityRadPerSec =
-        Units.rotationsToRadians(turnVelocity.getValueAsDouble()) / TURN_GEAR_RATIO;
+        Units.rotationsToRadians(turnVelocity.getValueAsDouble()) / ModuleConstants.TURN_GEAR_RATIO;
     inputs.turnAppliedVolts = turnAppliedVolts.getValueAsDouble();
     inputs.turnCurrentAmps = new double[] {turnCurrent.getValueAsDouble()};
     inputs.turnTempCelcius = new double[] {turnTemp.getValueAsDouble()};
@@ -253,11 +214,14 @@ public class ModuleIOTalonFX implements ModuleIO {
         timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
     inputs.odometryDrivePositionsRad =
         drivePositionQueue.stream()
-            .mapToDouble((Double value) -> Units.rotationsToRadians(value) / DRIVE_GEAR_RATIO)
+            .mapToDouble(
+                (Double value) ->
+                    Units.rotationsToRadians(value) / ModuleConstants.DRIVE_GEAR_RATIO)
             .toArray();
     inputs.odometryTurnPositions =
         turnPositionQueue.stream()
-            .map((Double value) -> Rotation2d.fromRotations(value / TURN_GEAR_RATIO))
+            .map(
+                (Double value) -> Rotation2d.fromRotations(value / ModuleConstants.TURN_GEAR_RATIO))
             .toArray(Rotation2d[]::new);
     timestampQueue.clear();
     drivePositionQueue.clear();

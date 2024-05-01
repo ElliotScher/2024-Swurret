@@ -1,33 +1,31 @@
 package frc.robot.subsystems.climber;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.robot.Constants;
 
 public class ClimberIOSim implements ClimberIO {
   private ElevatorSim leftClimberSim =
       new ElevatorSim(
-          DCMotor.getKrakenX60(1),
-          (58.0 / 16.0) * (64.0 / 18.0),
-          7.0,
-          Units.inchesToMeters(1.25),
-          0.0,
-          1.0,
-          false,
-          0.0);
+          ClimberConstants.MOTOR_CONFIG,
+          ClimberConstants.GEAR_RATIO,
+          ClimberConstants.CARRIAGE_MASS,
+          ClimberConstants.DRUM_CIRCUMFERENCE,
+          ClimberConstants.MINIMUM_HEIGHT,
+          ClimberConstants.MAXIMUM_HEIGHT,
+          ClimberConstants.SIMULATE_GRAVITY,
+          ClimberConstants.STARTING_HEIGHT);
 
   private ElevatorSim rightClimberSim =
       new ElevatorSim(
-          DCMotor.getKrakenX60(1),
-          (58.0 / 16.0) * (64.0 / 18.0),
-          7.0,
-          Units.inchesToMeters(1.25),
-          0.0,
-          1.0,
-          false,
-          0.0);
+          ClimberConstants.MOTOR_CONFIG,
+          ClimberConstants.GEAR_RATIO,
+          ClimberConstants.CARRIAGE_MASS,
+          ClimberConstants.DRUM_CIRCUMFERENCE,
+          ClimberConstants.MINIMUM_HEIGHT,
+          ClimberConstants.MAXIMUM_HEIGHT,
+          ClimberConstants.SIMULATE_GRAVITY,
+          ClimberConstants.STARTING_HEIGHT);
 
   private double leftAppliedVolts;
   private double rightAppliedVolts;

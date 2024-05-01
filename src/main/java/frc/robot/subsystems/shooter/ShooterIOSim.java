@@ -1,13 +1,20 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 
 public class ShooterIOSim implements ShooterIO {
-  private DCMotorSim leftMotorSim = new DCMotorSim(DCMotor.getKrakenX60(1), 2.0, 0.004);
-  private DCMotorSim rightMotorSim = new DCMotorSim(DCMotor.getKrakenX60(1), 2.0, 0.004);
+  private DCMotorSim leftMotorSim =
+      new DCMotorSim(
+          ShooterConstants.MOTOR_CONFIG,
+          ShooterConstants.GEAR_RATIO,
+          ShooterConstants.MOMENT_OF_INERTIA);
+  private DCMotorSim rightMotorSim =
+      new DCMotorSim(
+          ShooterConstants.MOTOR_CONFIG,
+          ShooterConstants.GEAR_RATIO,
+          ShooterConstants.MOMENT_OF_INERTIA);
 
   private double leftAppliedVolts = 0.0;
   private double rightAppliedVolts = 0.0;

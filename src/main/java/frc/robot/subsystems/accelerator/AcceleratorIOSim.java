@@ -1,12 +1,15 @@
 package frc.robot.subsystems.accelerator;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 
 public class AcceleratorIOSim implements AcceleratorIO {
-  private DCMotorSim motorSim = new DCMotorSim(DCMotor.getKrakenX60(1), 2.0, 0.004);
+  private DCMotorSim motorSim =
+      new DCMotorSim(
+          AcceleratorConstants.MOTOR_CONFIG,
+          AcceleratorConstants.GEAR_RATIO,
+          AcceleratorConstants.MOMENT_OF_INERTIA);
 
   private double appliedVolts = 0.0;
 

@@ -8,9 +8,6 @@ import frc.robot.util.VirtualSubsystem;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends VirtualSubsystem {
-
-  private static final double BLINK_TIME = 0.067;
-
   private final String name;
   private final VisionIO io;
   private final VisionIOInputsAutoLogged inputs;
@@ -58,16 +55,16 @@ public class Vision extends VirtualSubsystem {
   public Command blinkLEDs() {
     return Commands.sequence(
         Commands.runOnce(() -> io.enableLEDs()),
-        Commands.waitSeconds(BLINK_TIME),
+        Commands.waitSeconds(VisionConstants.BLINK_TIME),
         Commands.runOnce(() -> io.disableLEDs()),
-        Commands.waitSeconds(BLINK_TIME),
+        Commands.waitSeconds(VisionConstants.BLINK_TIME),
         Commands.runOnce(() -> io.enableLEDs()),
-        Commands.waitSeconds(BLINK_TIME),
+        Commands.waitSeconds(VisionConstants.BLINK_TIME),
         Commands.runOnce(() -> io.disableLEDs()),
-        Commands.waitSeconds(BLINK_TIME),
+        Commands.waitSeconds(VisionConstants.BLINK_TIME),
         Commands.runOnce(() -> io.enableLEDs()),
-        Commands.waitSeconds(BLINK_TIME),
+        Commands.waitSeconds(VisionConstants.BLINK_TIME),
         Commands.runOnce(() -> io.disableLEDs()),
-        Commands.waitSeconds(BLINK_TIME));
+        Commands.waitSeconds(VisionConstants.BLINK_TIME));
   }
 }

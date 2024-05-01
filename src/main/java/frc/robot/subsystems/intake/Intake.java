@@ -2,32 +2,11 @@ package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
-  private static final LoggedTunableNumber rollersVoltage =
-      new LoggedTunableNumber("Intake/Voltage");
-
   private final IntakeIO io;
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
-
-  static {
-    switch (Constants.ROBOT) {
-      case SNAPBACK:
-        rollersVoltage.initDefault(12);
-        break;
-      case ROBOT_2K24_TEST:
-        rollersVoltage.initDefault(12);
-        break;
-      case ROBOT_SIM:
-        rollersVoltage.initDefault(12);
-        break;
-      default:
-        break;
-    }
-  }
 
   public Intake(IntakeIO io) {
     this.io = io;
@@ -55,7 +34,8 @@ public class Intake extends SubsystemBase {
   }
 
   public Command runVoltage() {
-    return runEnd(() -> io.setRollersVoltage(rollersVoltage.get()), () -> stopRollers());
+    return runEnd(
+        () -> io.setRollersVoltage(IntakeConstants.ROLLERS_VOLTAGE.get()), () -> stopRollers());
   }
 
   public Command outtake() {

@@ -8,7 +8,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import frc.robot.Constants;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 
@@ -21,25 +20,14 @@ public class HoodIOTalonFX implements HoodIO {
   private final StatusSignal<Double> currentAmps;
   private final StatusSignal<Double> tempCelcius;
 
-  private final double GEAR_RATIO = 85.0;
-
   private final Alert disconnecctedAlert =
       new Alert("Hood Talon is disconnected, check CAN bus.", AlertType.ERROR);
 
   public HoodIOTalonFX() {
-    switch (Constants.ROBOT) {
-      case SNAPBACK:
-        hoodTalon = new TalonFX(7);
-        break;
-      case ROBOT_2K24_TEST:
-        hoodTalon = new TalonFX(7);
-        break;
-      default:
-        throw new RuntimeException("Invalid robot");
-    }
+    hoodTalon = new TalonFX(HoodConstants.DEVICE_ID);
 
     var config = new TalonFXConfiguration();
-    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.SupplyCurrentLimit = HoodConstants.SUPPLY_CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.Audio.AllowMusicDurDisable = true;
@@ -67,8 +55,10 @@ public class HoodIOTalonFX implements HoodIO {
             .isOK();
     disconnecctedAlert.set(!isConnected);
 
-    inputs.position = Rotation2d.fromRotations(position.getValueAsDouble() / GEAR_RATIO);
-    inputs.velocityRadPerSec = Units.rotationsToRadians(velocity.getValueAsDouble() / GEAR_RATIO);
+    inputs.position =
+        Rotation2d.fromRotations(position.getValueAsDouble() / HoodConstants.GEAR_RATIO);
+    inputs.velocityRadPerSec =
+        Units.rotationsToRadians(velocity.getValueAsDouble() / HoodConstants.GEAR_RATIO);
     inputs.appliedVolts = appliedVolts.getValueAsDouble();
     inputs.currentAmps = new double[] {currentAmps.getValueAsDouble()};
     inputs.tempCelcius = new double[] {tempCelcius.getValueAsDouble()};

@@ -39,7 +39,7 @@ public class GyroIOPigeon2 implements GyroIO {
     switch (Constants.ROBOT) {
       case SNAPBACK:
       case ROBOT_2K24_TEST:
-        pigeon = new Pigeon2(1, "drive");
+        pigeon = new Pigeon2(DriveConstants.PIGEON_2_DEVICE_ID, DriveConstants.CANIVORE);
         break;
       default:
         throw new RuntimeException("Invalid robot");
@@ -49,7 +49,7 @@ public class GyroIOPigeon2 implements GyroIO {
     yawVelocity = pigeon.getAngularVelocityZWorld();
     pigeon.getConfigurator().apply(new Pigeon2Configuration());
     pigeon.getConfigurator().setYaw(0.0);
-    yaw.setUpdateFrequency(Module.ODOMETRY_FREQUENCY);
+    yaw.setUpdateFrequency(ModuleConstants.ODOMETRY_FREQUENCY);
     yawVelocity.setUpdateFrequency(100.0);
     pigeon.optimizeBusUtilization();
 

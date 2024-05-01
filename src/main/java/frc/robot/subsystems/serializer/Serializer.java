@@ -3,24 +3,19 @@ package frc.robot.subsystems.serializer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
 public class Serializer extends SubsystemBase {
 
   private final SerializerIO io;
   private final SerializerIOInputsAutoLogged inputs = new SerializerIOInputsAutoLogged();
-  private static final LoggedTunableNumber shootVoltage =
-      new LoggedTunableNumber("Serializer/Shoot Voltage");
-  private static final LoggedTunableNumber intakeVoltage =
-      new LoggedTunableNumber("Serializer/Intake Voltage");
 
-  private static final DigitalInput sensor = new DigitalInput(0);
+  private static final DigitalInput sensor = new DigitalInput(SerializerConstants.SENSOR_CHANNEL);
 
   public Serializer(SerializerIO io) {
     this.io = io;
-    shootVoltage.initDefault(12.0);
-    intakeVoltage.initDefault(6.0);
+    SerializerConstants.SHOOT_VOLTAGE.initDefault(12.0);
+    SerializerConstants.INTAKE_VOLTAGE.initDefault(6.0);
   }
 
   public void periodic() {
@@ -40,16 +35,17 @@ public class Serializer extends SubsystemBase {
   public Command shoot() {
     return runEnd(
         () -> {
-          io.setVoltage(shootVoltage.get());
+          io.setVoltage(SerializerConstants.SHOOT_VOLTAGE.get());
         },
         () -> stop());
   }
 
   public Command intake() {
-    return runEnd(() -> io.setVoltage(intakeVoltage.get()), () -> stop()).until(sensor::get);
+    return runEnd(() -> io.setVoltage(SerializerConstants.INTAKE_VOLTAGE.get()), () -> stop())
+        .until(sensor::get);
   }
 
   public Command outtake() {
-    return runEnd(() -> io.setVoltage(-intakeVoltage.get()), () -> stop());
+    return runEnd(() -> io.setVoltage(-SerializerConstants.INTAKE_VOLTAGE.get()), () -> stop());
   }
 }

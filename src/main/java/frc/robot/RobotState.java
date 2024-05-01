@@ -98,7 +98,7 @@ public class RobotState extends VirtualSubsystem {
 
     poseEstimator =
         new SwerveDrivePoseEstimator(
-            DriveConstants.driveConfig.kinematics(),
+            DriveConstants.KINEMATICS,
             robotHeadingSupplier.get(),
             modulePositionSupplier.get(),
             new Pose2d(),

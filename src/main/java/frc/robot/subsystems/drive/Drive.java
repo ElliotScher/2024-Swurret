@@ -26,6 +26,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.Getter;
@@ -148,10 +149,9 @@ public class Drive extends SubsystemBase {
    */
   public void runVelocity(ChassisSpeeds speeds) {
     // Calculate module setpoints
-    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, Constants.LOOP_PERIOD_SECS);
     SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-        setpointStates, DriveConstants.driveConfig.maxLinearVelocity());
+    SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, DriveConstants.MAX_LINEAR_VELOCITY);
 
     // Send setpoints to modules
     SwerveModuleState[] optimizedSetpointStates = new SwerveModuleState[4];
@@ -243,8 +243,8 @@ public class Drive extends SubsystemBase {
 
   /** Returns an array of module translations. */
   public static Translation2d[] getModuleTranslations() {
-    double TRACK_WIDTH_X = DriveConstants.driveConfig.trackWidthX();
-    double TRACK_WIDTH_Y = DriveConstants.driveConfig.trackWidthY();
+    double TRACK_WIDTH_X = DriveConstants.TRACK_WIDTH_X;
+    double TRACK_WIDTH_Y = DriveConstants.TRACK_WIDTH_Y;
     return new Translation2d[] {
       new Translation2d(TRACK_WIDTH_X / 2.0, TRACK_WIDTH_Y / 2.0),
       new Translation2d(TRACK_WIDTH_X / 2.0, -TRACK_WIDTH_Y / 2.0),
