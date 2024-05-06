@@ -41,10 +41,12 @@ public class RobotState extends VirtualSubsystem {
 
   private static Supplier<Rotation2d> robotHeadingSupplier;
   private static Supplier<SwerveModulePosition[]> modulePositionSupplier;
-  private static Supplier<Pose3d> visionPoseSupplier;
+  private static Supplier<Pose3d> visionMegaTag1Supplier;
+  private static Supplier<Pose3d> visionMegaTag2Supplier;
   private static Supplier<Pose2d> drivePoseSupplier;
   private static BooleanSupplier visionValidTargetSupplier;
-  private static DoubleSupplier visionTimestampSupplier;
+  private static DoubleSupplier visionMegaTag1TimestampSupplier;
+  private static DoubleSupplier visionMegaTag2TimestampSupplier;
   private static Supplier<Rotation2d> visionXSupplier;
 
   @Getter private static double flywheelOffset = 0.0;
@@ -83,17 +85,21 @@ public class RobotState extends VirtualSubsystem {
   public RobotState(
       Supplier<Rotation2d> robotHeadingSupplier,
       Supplier<SwerveModulePosition[]> modulePositionSupplier,
-      Supplier<Pose3d> visionPoseSupplier,
+      Supplier<Pose3d> visionMegaTag1Supplier,
+      Supplier<Pose3d> visionMegaTag2Supplier,
       Supplier<Pose2d> drivePoseSupplier,
       BooleanSupplier visionValidTargetSupplier,
-      DoubleSupplier visionTimestampSupplier,
+      DoubleSupplier visionMegaTag1TimestampSupplier,
+      DoubleSupplier visionMegaTag2TimestampSupplier,
       Supplier<Rotation2d> visionXSupplier) {
     RobotState.robotHeadingSupplier = robotHeadingSupplier;
     RobotState.modulePositionSupplier = modulePositionSupplier;
-    RobotState.visionPoseSupplier = visionPoseSupplier;
+    RobotState.visionMegaTag1Supplier = visionMegaTag1Supplier;
+    RobotState.visionMegaTag2Supplier = visionMegaTag2Supplier;
     RobotState.drivePoseSupplier = drivePoseSupplier;
     RobotState.visionValidTargetSupplier = visionValidTargetSupplier;
-    RobotState.visionTimestampSupplier = visionTimestampSupplier;
+    RobotState.visionMegaTag1TimestampSupplier = visionMegaTag1TimestampSupplier;
+    RobotState.visionMegaTag2TimestampSupplier = visionMegaTag2TimestampSupplier;
     RobotState.visionXSupplier = visionXSupplier;
 
     poseEstimator =
@@ -113,8 +119,12 @@ public class RobotState extends VirtualSubsystem {
     poseEstimator.updateWithTime(
         Timer.getFPGATimestamp(), robotHeadingSupplier.get(), modulePositionSupplier.get());
     poseEstimator.addVisionMeasurement(
-        visionPoseSupplier.get().toPose2d(), visionTimestampSupplier.getAsDouble());
+        visionMegaTag1Supplier.get().toPose2d(), visionMegaTag1TimestampSupplier.getAsDouble());
+    poseEstimator.addVisionMeasurement(
+        visionMegaTag2Supplier.get().toPose2d(), visionMegaTag2TimestampSupplier.getAsDouble());
 
+    Logger.recordOutput("RobotState/MegaTag 1 Pose", visionMegaTag1Supplier.get());
+    Logger.recordOutput("RobotState/MegaTag 2 Pose", visionMegaTag2Supplier.get());
     Logger.recordOutput("RobotState/Estimated Pose", poseEstimator.getEstimatedPosition());
   }
 
@@ -127,7 +137,8 @@ public class RobotState extends VirtualSubsystem {
   }
 
   public static Optional<Rotation2d> getTargetGyroAngle() {
-    Optional<Pose2d> robotPose = robotPoseBuffer.getSample(visionTimestampSupplier.getAsDouble());
+    Optional<Pose2d> robotPose =
+        robotPoseBuffer.getSample(visionMegaTag1TimestampSupplier.getAsDouble());
     if (robotPose.isPresent() && visionValidTargetSupplier.getAsBoolean()) {
       return Optional.of(robotPose.get().getRotation().minus(visionXSupplier.get()));
     } else {
@@ -150,10 +161,12 @@ public class RobotState extends VirtualSubsystem {
     Rotation2d setpointAngle = speakerPose.minus(effectiveAimingPose).getAngle();
     double tangentialVelocity = -fieldRelativeVelocity.rotateBy(setpointAngle.unaryMinus()).getY();
     double radialVelocity = tangentialVelocity / effectiveDistanceToSpeaker;
-    Logger.recordOutput("RobotState/effectiveDistanceToSpeaker", effectiveDistanceToSpeaker);
     Logger.recordOutput(
-        "RobotState/effectiveAimingPose", new Pose2d(effectiveAimingPose, new Rotation2d()));
-    Logger.recordOutput("RobotState/robotAngle", setpointAngle);
+        "RobotState/AimingParameters/Effective Distance to Speaker", effectiveDistanceToSpeaker);
+    Logger.recordOutput(
+        "RobotState/AimingParameters/Effective Aiming Pose",
+        new Pose2d(effectiveAimingPose, new Rotation2d()));
+    Logger.recordOutput("RobotState/AimingParameters/Robot Angle", setpointAngle);
     return new AimingParameters(
         setpointAngle,
         radialVelocity,

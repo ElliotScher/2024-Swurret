@@ -10,8 +10,10 @@ public interface VisionIO {
     public Rotation2d tx = new Rotation2d();
     public Rotation2d ty = new Rotation2d();
     public boolean tv = false;
-    public double timeStamp = 0.0;
-    public Pose3d robotPose = new Pose3d();
+    public double megaTag1Timestamp = 0.0;
+    public Pose3d megaTag1RobotPose = new Pose3d();
+    public double megaTag2Timestamp = 0.0;
+    public Pose3d megaTag2RobotPose = new Pose3d();
     public long pipeline = 0;
   }
 

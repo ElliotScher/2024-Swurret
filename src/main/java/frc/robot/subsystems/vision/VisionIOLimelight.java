@@ -16,7 +16,8 @@ public class VisionIOLimelight implements VisionIO {
   private final DoubleSubscriber tx;
   private final DoubleSubscriber ty;
   private final DoubleSubscriber tv;
-  private final DoubleArraySubscriber botpose;
+  private final DoubleArraySubscriber megaTag1;
+  private final DoubleArraySubscriber megaTag2;
   private final IntegerSubscriber pipeline;
 
   public VisionIOLimelight(VisionMode mode) {
@@ -24,32 +25,50 @@ public class VisionIOLimelight implements VisionIO {
     tx = table.getDoubleTopic("tx").subscribe(0.0);
     ty = table.getDoubleTopic("ty").subscribe(0.0);
     tv = table.getDoubleTopic("tv").subscribe(0.0);
-    botpose =
+    megaTag1 =
         table
             .getDoubleArrayTopic("botpose")
+            .subscribe(new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+    megaTag2 =
+        table
+            .getDoubleArrayTopic("botpose_orb")
             .subscribe(new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
     pipeline = table.getIntegerTopic("pipeline").subscribe(0);
   }
 
   @Override
   public void updateInputs(VisionIOInputs inputs) {
-    inputs.timeStamp =
-        botpose.getLastChange() * 0.000001
-            - botpose.get()[6]
+    inputs.megaTag1Timestamp =
+        megaTag1.getLastChange() * 0.000001
+            - megaTag1.get()[6]
+                * 0.001; // Calculate the time (in seconds) when the Limelight captured the frame
+
+    inputs.megaTag2Timestamp =
+        megaTag2.getLastChange() * 0.000001
+            - megaTag2.get()[6]
                 * 0.001; // Calculate the time (in seconds) when the Limelight captured the frame
 
     inputs.tx = Rotation2d.fromDegrees(tx.get());
     inputs.ty = Rotation2d.fromDegrees(ty.get());
     inputs.tv = tv.get() != 0;
-    inputs.robotPose =
+    inputs.megaTag1RobotPose =
         new Pose3d(
-            botpose.get()[0] + FieldConstants.fieldLength / 2.0,
-            botpose.get()[1] + FieldConstants.fieldWidth / 2.0,
-            botpose.get()[2],
+            megaTag1.get()[0] + FieldConstants.fieldLength / 2.0,
+            megaTag1.get()[1] + FieldConstants.fieldWidth / 2.0,
+            megaTag1.get()[2],
             new Rotation3d(
-                Units.degreesToRadians(botpose.get()[3]),
-                Units.degreesToRadians(botpose.get()[4]),
-                Units.degreesToRadians(botpose.get()[5])));
+                Units.degreesToRadians(megaTag1.get()[3]),
+                Units.degreesToRadians(megaTag1.get()[4]),
+                Units.degreesToRadians(megaTag1.get()[5])));
+    inputs.megaTag2RobotPose =
+        new Pose3d(
+            megaTag2.get()[0] + FieldConstants.fieldLength / 2.0,
+            megaTag2.get()[1] + FieldConstants.fieldWidth / 2.0,
+            megaTag2.get()[2],
+            new Rotation3d(
+                Units.degreesToRadians(megaTag2.get()[3]),
+                Units.degreesToRadians(megaTag2.get()[4]),
+                Units.degreesToRadians(megaTag2.get()[5])));
     inputs.pipeline = pipeline.get();
   }
 

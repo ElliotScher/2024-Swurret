@@ -86,12 +86,14 @@ public class VisionIOSim implements VisionIO {
       }
     }
 
-    inputs.timeStamp = Timer.getFPGATimestamp();
+    inputs.megaTag1Timestamp = Timer.getFPGATimestamp();
+    inputs.megaTag2Timestamp = Timer.getFPGATimestamp();
     inputs.tv = closestNorm != null;
     if (inputs.tv) {
       inputs.tx = tx;
       inputs.ty = ty;
-      inputs.robotPose = new Pose3d(poseSupplier.get());
+      inputs.megaTag1RobotPose = new Pose3d(poseSupplier.get());
+      inputs.megaTag2RobotPose = new Pose3d(poseSupplier.get());
     }
     inputs.pipeline = 0;
   }

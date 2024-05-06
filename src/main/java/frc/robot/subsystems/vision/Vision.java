@@ -36,12 +36,20 @@ public class Vision extends VirtualSubsystem {
     return inputs.ty;
   }
 
-  public Pose3d getRobotPose() {
-    return inputs.robotPose;
+  public Pose3d getMegaTag1Pose() {
+    return inputs.megaTag1RobotPose;
   }
 
-  public double getTimestamp() {
-    return inputs.timeStamp;
+  public Pose3d getMegaTag2Pose() {
+    return inputs.megaTag2RobotPose;
+  }
+
+  public double getMegaTag1Timestamp() {
+    return inputs.megaTag1Timestamp;
+  }
+
+  public double getMegaTag2Timestamp() {
+    return inputs.megaTag2Timestamp;
   }
 
   public void disableLEDs() {

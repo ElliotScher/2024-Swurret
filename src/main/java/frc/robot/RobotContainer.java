@@ -206,10 +206,12 @@ public class RobotContainer {
     new RobotState(
         drive::getRotation,
         drive::getModulePositions,
-        aprilTagVision::getRobotPose,
+        aprilTagVision::getMegaTag1Pose,
+        aprilTagVision::getMegaTag2Pose,
         drive::getPose,
         aprilTagVision::getTv,
-        aprilTagVision::getTimestamp,
+        aprilTagVision::getMegaTag1Timestamp,
+        aprilTagVision::getMegaTag2Timestamp,
         aprilTagVision::getTx);
 
     // Configure autobuilder
