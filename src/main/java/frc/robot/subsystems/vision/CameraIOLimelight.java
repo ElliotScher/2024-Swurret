@@ -11,7 +11,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.FieldConstants;
 
-public class VisionIOLimelight implements VisionIO {
+public class CameraIOLimelight implements CameraIO {
   private final NetworkTable table;
   private final DoubleSubscriber tx;
   private final DoubleSubscriber ty;
@@ -20,8 +20,8 @@ public class VisionIOLimelight implements VisionIO {
   private final DoubleArraySubscriber megaTag2;
   private final IntegerSubscriber pipeline;
 
-  public VisionIOLimelight(VisionMode mode) {
-    table = NetworkTableInstance.getDefault().getTable(mode.name);
+  public CameraIOLimelight(int index) {
+    table = NetworkTableInstance.getDefault().getTable("limelight-" + index);
     tx = table.getDoubleTopic("tx").subscribe(0.0);
     ty = table.getDoubleTopic("ty").subscribe(0.0);
     tv = table.getDoubleTopic("tv").subscribe(0.0);
@@ -37,7 +37,7 @@ public class VisionIOLimelight implements VisionIO {
   }
 
   @Override
-  public void updateInputs(VisionIOInputs inputs) {
+  public void updateInputs(CameraIOInputs inputs) {
     inputs.megaTag1Timestamp =
         megaTag1.getLastChange() * 0.000001
             - megaTag1.get()[6]

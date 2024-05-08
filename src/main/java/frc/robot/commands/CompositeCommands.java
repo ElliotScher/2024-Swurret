@@ -4,10 +4,13 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants;
+import frc.robot.Constants.RobotType;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.accelerator.Accelerator;
@@ -18,14 +21,21 @@ import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.serializer.Serializer;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionMode;
-import frc.robot.subsystems.vision.VisionPipeline;
 import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.TrackingMode;
 import java.util.Optional;
 
 public class CompositeCommands {
   public static final PathConstraints DEFAULT_PATH_CONSTRAINTS =
       new PathConstraints(5.0, 4.0, 540.0, 720.0);
+
+  public static final Command resetHeading() {
+    return Commands.runOnce(
+            () ->
+                RobotState.resetRobotPose(
+                    new Pose2d(RobotState.getRobotPose().getTranslation(), new Rotation2d())))
+        .ignoringDisable(true);
+  }
 
   public static final Command getCollectCommand(
       Intake intake, Serializer serializer, Vision noteVision, Vision aprilTagVision) {
@@ -64,7 +74,7 @@ public class CompositeCommands {
   }
 
   public static final Command getPosePrepShooterCommand(
-      Drive drive, Hood hood, Shooter shooter, Accelerator accelerator, Vision aprilTagVision) {
+      Drive drive, Hood hood, Shooter shooter, Accelerator accelerator) {
     return shooter
         .runPoseDistance(
             () -> RobotState.getRobotPose().getTranslation(), drive::getFieldRelativeVelocity)
@@ -84,44 +94,21 @@ public class CompositeCommands {
         Commands.parallel(intake.runVoltage(), serializer.intake(), kicker.shoot()));
   }
 
-  public static final Command getTrackNoteCenterCommand(
-      Drive drive, Intake intake, Serializer serializer, Vision noteVision, Vision aprilTagVision) {
-    return (DriveCommands.moveTowardsTarget(
-                drive, noteVision, (FieldConstants.fieldLength / 2.0) + 1, VisionMode.Notes)
-            .raceWith(getCollectCommand(intake, serializer)))
-        .withTimeout(3);
-  }
-
-  public static final Command getTrackNoteSpikeCommand(
-      Drive drive, Intake intake, Serializer serializer, Vision noteVision, Vision aprilTagVision) {
-    return (DriveCommands.moveTowardsTarget(
-                drive, noteVision, FieldConstants.startingLineX + 0.5, VisionMode.Notes)
-            .raceWith(getCollectCommand(intake, serializer)))
-        .withTimeout(2);
-  }
-
   public static final Command getTrackNoteSpikeCommand(
       Drive drive,
       Intake intake,
       Serializer serializer,
-      Vision noteVision,
-      Vision aprilTagVision,
-      double maxSpeed) {
-    return (DriveCommands.moveTowardsTarget(
-                drive, noteVision, FieldConstants.startingLineX + 1, VisionMode.Notes, maxSpeed)
-            .raceWith(getCollectCommand(intake, serializer)))
-        .withTimeout(2);
-  }
-
-  public static final Command getTrackSpeakerFarCommand(
-      Drive drive, Hood hood, Shooter shooter, Vision aprilTagVision) {
-    return DriveCommands.moveTowardsTarget(drive, aprilTagVision, 3.75, VisionMode.AprilTags);
-  }
-
-  public static final Command getTrackSpeakerCloseCommand(
-      Drive drive, Hood hood, Shooter shooter, Vision aprilTagVision) {
-    return DriveCommands.moveTowardsTarget(
-        drive, aprilTagVision, FieldConstants.startingLineX + 0.05, VisionMode.AprilTags);
+      Pose2d targetPose,
+      TrackingMode targetType) {
+    return Constants.ROBOT.equals(RobotType.ROBOT_SIM)
+        ? (DriveCommands.moveTowardsTarget(
+                    drive, FieldConstants.StagingLocations.spikeX + 1, targetPose, targetType)
+                .alongWith(getCollectCommand(intake, serializer)))
+            .withTimeout(2)
+        : (DriveCommands.moveTowardsTarget(
+                    drive, FieldConstants.StagingLocations.spikeX + 1, targetPose, targetType)
+                .raceWith(getCollectCommand(intake, serializer)))
+            .withTimeout(2);
   }
 
   public static final Command getAimSpeakerCommand(Drive drive) {
@@ -149,16 +136,10 @@ public class CompositeCommands {
     return AutoBuilder.pathfindToPose(AllianceFlipUtil.apply(endingPose), pathConstraints);
   }
 
-  public static final Command getPath(
-      Drive drive,
-      Vision noteVision,
-      VisionPipeline noteTrackingPipeline,
-      Pose2d startingPose,
-      Pose2d endingPose) {
+  public static final Command getPath(Drive drive, Pose2d startingPose, Pose2d endingPose) {
     return Commands.sequence(
         Commands.runOnce(
             () -> {
-              noteVision.setPipeline(noteTrackingPipeline);
               RobotState.resetRobotPose(AllianceFlipUtil.apply(startingPose));
               drive.setPose(AllianceFlipUtil.apply(startingPose));
             }),
@@ -170,16 +151,10 @@ public class CompositeCommands {
   }
 
   public static final Command getPath(
-      Drive drive,
-      Vision noteVision,
-      VisionPipeline noteTrackingPipeline,
-      Pose2d startingPose,
-      Pose2d endingPose,
-      PathConstraints pathConstraints) {
+      Drive drive, Pose2d startingPose, Pose2d endingPose, PathConstraints pathConstraints) {
     return Commands.sequence(
         Commands.runOnce(
             () -> {
-              noteVision.setPipeline(noteTrackingPipeline);
               RobotState.resetRobotPose(AllianceFlipUtil.apply(startingPose));
               drive.setPose(AllianceFlipUtil.apply(startingPose));
             }),

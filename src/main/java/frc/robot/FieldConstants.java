@@ -184,19 +184,32 @@ public class FieldConstants {
         new Pose2d(1.43, 1.58, Rotation2d.fromDegrees(180.0));
 
     // Note poses
-    public static final Pose2d NOTE_1 =
+    public static final Pose2d NOTE_1_SHORT =
         new Pose2d(
             StagingLocations.spikeX - 1,
             StagingLocations.spikeFirstY,
             Rotation2d.fromDegrees(180.0));
-    public static final Pose2d NOTE_2 =
+    public static final Pose2d NOTE_2_SHORT =
         new Pose2d(
             StagingLocations.spikeX - 1,
             StagingLocations.spikeFirstY + StagingLocations.spikeSeparationY,
             Rotation2d.fromDegrees(180.0));
-    public static final Pose2d NOTE_3 =
+    public static final Pose2d NOTE_3_SHORT =
         new Pose2d(
             StagingLocations.spikeX - 1,
+            StagingLocations.spikeFirstY + 2 * StagingLocations.spikeSeparationY,
+            Rotation2d.fromDegrees(180.0));
+    public static final Pose2d NOTE_1 =
+        new Pose2d(
+            StagingLocations.spikeX, StagingLocations.spikeFirstY, Rotation2d.fromDegrees(180.0));
+    public static final Pose2d NOTE_2 =
+        new Pose2d(
+            StagingLocations.spikeX,
+            StagingLocations.spikeFirstY + StagingLocations.spikeSeparationY,
+            Rotation2d.fromDegrees(180.0));
+    public static final Pose2d NOTE_3 =
+        new Pose2d(
+            StagingLocations.spikeX,
             StagingLocations.spikeFirstY + 2 * StagingLocations.spikeSeparationY,
             Rotation2d.fromDegrees(180.0));
     public static final Pose2d NOTE_4 =

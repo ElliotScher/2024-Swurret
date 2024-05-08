@@ -4,9 +4,9 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
-public interface VisionIO {
+public interface CameraIO {
   @AutoLog
-  public static class VisionIOInputs {
+  public static class CameraIOInputs {
     public Rotation2d tx = new Rotation2d();
     public Rotation2d ty = new Rotation2d();
     public boolean tv = false;
@@ -17,7 +17,7 @@ public interface VisionIO {
     public long pipeline = 0;
   }
 
-  public default void updateInputs(VisionIOInputs inputs) {}
+  public default void updateInputs(CameraIOInputs inputs) {}
 
   public default void enableLEDs() {}
 

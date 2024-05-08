@@ -1,10 +1,10 @@
 package frc.robot;
 
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
@@ -16,11 +16,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.VirtualSubsystem;
-import java.util.Optional;
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
@@ -41,13 +39,11 @@ public class RobotState extends VirtualSubsystem {
 
   private static Supplier<Rotation2d> robotHeadingSupplier;
   private static Supplier<SwerveModulePosition[]> modulePositionSupplier;
-  private static Supplier<Pose3d> visionMegaTag1Supplier;
-  private static Supplier<Pose3d> visionMegaTag2Supplier;
+  private static Supplier<Pose3d[]> visionMegaTag1Supplier;
+  private static Supplier<Pose3d[]> visionMegaTag2Supplier;
   private static Supplier<Pose2d> drivePoseSupplier;
-  private static BooleanSupplier visionValidTargetSupplier;
-  private static DoubleSupplier visionMegaTag1TimestampSupplier;
-  private static DoubleSupplier visionMegaTag2TimestampSupplier;
-  private static Supplier<Rotation2d> visionXSupplier;
+  private static Supplier<double[]> visionMegaTag1TimestampSupplier;
+  private static Supplier<double[]> visionMegaTag2TimestampSupplier;
 
   @Getter private static double flywheelOffset = 0.0;
   @Getter private static double hoodOffset = 0.0;
@@ -85,22 +81,18 @@ public class RobotState extends VirtualSubsystem {
   public RobotState(
       Supplier<Rotation2d> robotHeadingSupplier,
       Supplier<SwerveModulePosition[]> modulePositionSupplier,
-      Supplier<Pose3d> visionMegaTag1Supplier,
-      Supplier<Pose3d> visionMegaTag2Supplier,
+      Supplier<Pose3d[]> visionMegaTag1Supplier,
+      Supplier<Pose3d[]> visionMegaTag2Supplier,
       Supplier<Pose2d> drivePoseSupplier,
-      BooleanSupplier visionValidTargetSupplier,
-      DoubleSupplier visionMegaTag1TimestampSupplier,
-      DoubleSupplier visionMegaTag2TimestampSupplier,
-      Supplier<Rotation2d> visionXSupplier) {
+      Supplier<double[]> visionMegaTag1TimestampSupplier,
+      Supplier<double[]> visionMegaTag2TimestampSupplier) {
     RobotState.robotHeadingSupplier = robotHeadingSupplier;
     RobotState.modulePositionSupplier = modulePositionSupplier;
     RobotState.visionMegaTag1Supplier = visionMegaTag1Supplier;
     RobotState.visionMegaTag2Supplier = visionMegaTag2Supplier;
     RobotState.drivePoseSupplier = drivePoseSupplier;
-    RobotState.visionValidTargetSupplier = visionValidTargetSupplier;
     RobotState.visionMegaTag1TimestampSupplier = visionMegaTag1TimestampSupplier;
     RobotState.visionMegaTag2TimestampSupplier = visionMegaTag2TimestampSupplier;
-    RobotState.visionXSupplier = visionXSupplier;
 
     poseEstimator =
         new SwerveDrivePoseEstimator(
@@ -108,8 +100,8 @@ public class RobotState extends VirtualSubsystem {
             robotHeadingSupplier.get(),
             modulePositionSupplier.get(),
             new Pose2d(),
-            VecBuilder.fill(0.1, 0.1, 0.1),
-            VecBuilder.fill(99999999, 99999999, 99999999));
+            DriveConstants.ODOMETRY_STANDARD_DEVIATIONS,
+            VisionConstants.MEGA_TAG_DEFAULT_STANDARD_DEVIATIONS);
   }
 
   @Override
@@ -118,10 +110,18 @@ public class RobotState extends VirtualSubsystem {
 
     poseEstimator.updateWithTime(
         Timer.getFPGATimestamp(), robotHeadingSupplier.get(), modulePositionSupplier.get());
-    poseEstimator.addVisionMeasurement(
-        visionMegaTag1Supplier.get().toPose2d(), visionMegaTag1TimestampSupplier.getAsDouble());
-    poseEstimator.addVisionMeasurement(
-        visionMegaTag2Supplier.get().toPose2d(), visionMegaTag2TimestampSupplier.getAsDouble());
+    for (int i = 0; i < visionMegaTag1Supplier.get().length; i++) {
+      poseEstimator.addVisionMeasurement(
+          visionMegaTag1Supplier.get()[i].toPose2d(),
+          visionMegaTag1TimestampSupplier.get()[i],
+          VisionConstants.MEGA_TAG_1_STANDARD_DEVIATIONS);
+    }
+    for (int i = 0; i < visionMegaTag2Supplier.get().length; i++) {
+      poseEstimator.addVisionMeasurement(
+          visionMegaTag2Supplier.get()[i].toPose2d(),
+          visionMegaTag2TimestampSupplier.get()[i],
+          VisionConstants.MEGA_TAG_2_STANDARD_DEVIATIONS);
+    }
 
     Logger.recordOutput("RobotState/MegaTag 1 Pose", visionMegaTag1Supplier.get());
     Logger.recordOutput("RobotState/MegaTag 2 Pose", visionMegaTag2Supplier.get());
@@ -134,16 +134,6 @@ public class RobotState extends VirtualSubsystem {
 
   public static void resetRobotPose(Pose2d pose) {
     poseEstimator.resetPosition(robotHeadingSupplier.get(), modulePositionSupplier.get(), pose);
-  }
-
-  public static Optional<Rotation2d> getTargetGyroAngle() {
-    Optional<Pose2d> robotPose =
-        robotPoseBuffer.getSample(visionMegaTag1TimestampSupplier.getAsDouble());
-    if (robotPose.isPresent() && visionValidTargetSupplier.getAsBoolean()) {
-      return Optional.of(robotPose.get().getRotation().minus(visionXSupplier.get()));
-    } else {
-      return Optional.empty();
-    }
   }
 
   public static AimingParameters poseCalculation(Translation2d fieldRelativeVelocity) {
@@ -172,6 +162,10 @@ public class RobotState extends VirtualSubsystem {
         radialVelocity,
         shooterSpeedMap.get(effectiveDistanceToSpeaker),
         new Rotation2d(shooterAngleMap.get(effectiveDistanceToSpeaker)));
+  }
+
+  public static Rotation2d getTargetGyroAngle(Pose2d targetPose) {
+    return new Transform2d(getRobotPose(), AllianceFlipUtil.apply(targetPose)).getRotation();
   }
 
   public static boolean shooterReady(Hood hood, Shooter shooter) {

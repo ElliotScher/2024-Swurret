@@ -1,7 +1,11 @@
 package frc.robot.subsystems.drive;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 
@@ -15,6 +19,7 @@ public final class DriveConstants {
   public static final SwerveDriveKinematics KINEMATICS;
   public static final String CANIVORE;
   public static final int PIGEON_2_DEVICE_ID;
+  public static final Matrix<N3, N1> ODOMETRY_STANDARD_DEVIATIONS;
 
   static {
     WHEEL_RADIUS = Units.inchesToMeters(2.0);
@@ -33,6 +38,7 @@ public final class DriveConstants {
             });
     CANIVORE = "drive";
     PIGEON_2_DEVICE_ID = 1;
+    ODOMETRY_STANDARD_DEVIATIONS = VecBuilder.fill(0.0, 0.0, 0.0);
     switch (Constants.ROBOT) {
       case SNAPBACK:
       case ROBOT_2K24_TEST:

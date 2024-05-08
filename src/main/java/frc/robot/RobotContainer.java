@@ -65,13 +65,11 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterIOSim;
 import frc.robot.subsystems.shooter.ShooterIOTalonFX;
+import frc.robot.subsystems.vision.CameraIO;
+import frc.robot.subsystems.vision.CameraIOLimelight;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.subsystems.vision.VisionIOSim;
-import frc.robot.subsystems.vision.VisionMode;
-import frc.robot.subsystems.vision.VisionPipeline;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.TrackingMode;
 import java.util.Map;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -87,8 +85,7 @@ public class RobotContainer {
   private Kicker kicker;
   private Accelerator accelerator;
   private Climber climber;
-  private Vision aprilTagVision;
-  private Vision noteVision;
+  private Vision vision;
 
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
@@ -123,9 +120,12 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIOTalonFX());
           accelerator = new Accelerator(new AcceleratorIOTalonFX());
           climber = new Climber(new ClimberIOTalonFX());
-          aprilTagVision =
-              new Vision("AprilTagVision", new VisionIOLimelight(VisionMode.AprilTags));
-          noteVision = new Vision("NoteVision", new VisionIOLimelight(VisionMode.Notes));
+          vision =
+              new Vision(
+                  new CameraIOLimelight(0),
+                  new CameraIOLimelight(1),
+                  new CameraIOLimelight(2),
+                  new CameraIOLimelight(3));
           break;
         case ROBOT_2K24_TEST:
           // Test robot, instantiate hardware IO implementations
@@ -154,12 +154,6 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIOSim());
           accelerator = new Accelerator(new AcceleratorIOSim());
           climber = new Climber(new ClimberIOSim());
-          aprilTagVision =
-              new Vision(
-                  "AprilTagVision",
-                  new VisionIOSim(VisionMode.AprilTags, RobotState::getRobotPose));
-          noteVision =
-              new Vision("NoteVision", new VisionIOSim(VisionMode.Notes, RobotState::getRobotPose));
           break;
       }
     }
@@ -195,24 +189,10 @@ public class RobotContainer {
     if (climber == null) {
       climber = new Climber(new ClimberIO() {});
     }
-    if (aprilTagVision == null) {
-      aprilTagVision = new Vision("AprilTagVision", new VisionIO() {});
+    if (vision == null) {
+      vision =
+          new Vision(new CameraIO() {}, new CameraIO() {}, new CameraIO() {}, new CameraIO() {});
     }
-    if (noteVision == null) {
-      noteVision = new Vision("NoteVision", new VisionIO() {});
-    }
-
-    // set up robot
-    new RobotState(
-        drive::getRotation,
-        drive::getModulePositions,
-        aprilTagVision::getMegaTag1Pose,
-        aprilTagVision::getMegaTag2Pose,
-        drive::getPose,
-        aprilTagVision::getTv,
-        aprilTagVision::getMegaTag1Timestamp,
-        aprilTagVision::getMegaTag2Timestamp,
-        aprilTagVision::getTx);
 
     // Configure autobuilder
     AutoBuilder.configureHolonomic(
@@ -232,11 +212,11 @@ public class RobotContainer {
     PathPlannerLogging.setLogActivePathCallback(
         (activePath) -> {
           Logger.recordOutput(
-              "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
+              "LocalADStarAK/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
         });
     PathPlannerLogging.setLogTargetPoseCallback(
         (targetPose) -> {
-          Logger.recordOutput("Odometry/Trajectory Setpoint", targetPose);
+          Logger.recordOutput("ADStarAK/Trajectory Setpoint", targetPose);
         });
 
     autoChooser = new LoggedDashboardChooser<>("Auto Routines");
@@ -247,6 +227,16 @@ public class RobotContainer {
         autoChooser.addOption(routine, routine);
       }
     }
+
+    // Configure RobotState
+    new RobotState(
+        drive::getRotation,
+        drive::getModulePositions,
+        vision::getMegaTag1Poses,
+        vision::getMegaTag2Poses,
+        drive::getPose,
+        vision::getMegaTag1Timestamps,
+        vision::getMegaTag2Timestamps);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -280,29 +270,24 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            aprilTagVision,
-            noteVision,
+            vision,
             () -> -driver.getLeftY(),
             () -> -driver.getLeftX(),
             () -> -driver.getRightX(),
             driver.rightStick(),
-            driver.rightBumper(),
-            driver.leftBumper().and(() -> isNoteTracking)));
-    driver.start().onTrue(DriveCommands.resetHeading(drive));
+            driver.rightBumper()));
+    driver.start().onTrue(CompositeCommands.resetHeading());
     driver
         .rightTrigger()
         .whileTrue(CompositeCommands.getSourceFeedCommand(shooter, hood, accelerator, kicker));
     driver.leftTrigger().whileTrue(CompositeCommands.getOuttakeCommand(intake, serializer, kicker));
     driver
         .leftBumper()
-        .whileTrue(
-            CompositeCommands.getCollectCommand(intake, serializer, noteVision, aprilTagVision))
+        .whileTrue(CompositeCommands.getCollectCommand(intake, serializer))
         .onFalse(intake.retractIntake());
     driver
         .rightBumper()
-        .whileTrue(
-            CompositeCommands.getPosePrepShooterCommand(
-                drive, hood, shooter, accelerator, aprilTagVision));
+        .whileTrue(CompositeCommands.getPosePrepShooterCommand(drive, hood, shooter, accelerator));
     driver
         .rightBumper()
         .and(() -> RobotState.shooterReady(hood, shooter))
@@ -326,16 +311,11 @@ public class RobotContainer {
     operator.start().onTrue(Commands.runOnce(() -> isNoteTracking = !isNoteTracking));
   }
 
-  public void resetVisionPipelines() {
-    noteVision.setPipeline(VisionPipeline.Center);
-  }
-
   public Command getAutonomousCommand() {
     Map<String, Command> autoMap =
-        AutoRoutines.getAutoList(drive, intake, serializer, kicker, aprilTagVision, noteVision);
+        AutoRoutines.getAutoList(drive, intake, serializer, kicker, TrackingMode.NOTES);
     return Commands.parallel(
         Commands.waitSeconds(autoDelay.get()).andThen(autoMap.get(autoChooser.get())),
-        CompositeCommands.getPosePrepShooterCommand(
-            drive, hood, shooter, accelerator, aprilTagVision));
+        CompositeCommands.getPosePrepShooterCommand(drive, hood, shooter, accelerator));
   }
 }

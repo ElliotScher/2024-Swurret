@@ -1,9 +1,17 @@
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 
 public class VisionConstants {
   public static final double BLINK_TIME = 0.067;
-  public static final Rotation2d LIMELIGHT_HORIZONTAL_FOV = Rotation2d.fromDegrees(63.3);
-  public static final Rotation2d LIMELIGHT_VERTICAL_FOV = Rotation2d.fromDegrees(49.7);
+
+  public static final Matrix<N3, N1> MEGA_TAG_DEFAULT_STANDARD_DEVIATIONS =
+      VecBuilder.fill(0.0, 0.0, 0.0);
+  public static final Matrix<N3, N1> MEGA_TAG_1_STANDARD_DEVIATIONS =
+      VecBuilder.fill(0.0, 0.0, 0.0);
+  public static final Matrix<N3, N1> MEGA_TAG_2_STANDARD_DEVIATIONS =
+      VecBuilder.fill(0.0, 0.0, 0.0);
 }

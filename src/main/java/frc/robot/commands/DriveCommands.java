@@ -35,8 +35,8 @@ import frc.robot.RobotState.AimingParameters;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionMode;
 import frc.robot.util.LoggedTunableNumber;
+import frc.robot.util.TrackingMode;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -81,13 +81,11 @@ public class DriveCommands {
   public static final Command joystickDrive(
       Drive drive,
       Vision aprilTagVision,
-      Vision noteVision,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier,
       BooleanSupplier isFullRotationSpeed,
-      BooleanSupplier aprilTagTracking,
-      BooleanSupplier noteTracking) {
+      BooleanSupplier aprilTagTracking) {
 
     @SuppressWarnings({"resource"})
     PIDController aimController =
@@ -134,9 +132,6 @@ public class DriveCommands {
           double robotRelativeXVel = linearVelocity.getX() * DriveConstants.MAX_LINEAR_VELOCITY;
           double robotRelativeYVel = linearVelocity.getY() * DriveConstants.MAX_ANGULAR_VELOCITY;
 
-          if (noteTracking.getAsBoolean()) {
-            targetGyroAngle = RobotState.getTargetGyroAngle();
-          }
           Pose2d visionPose = RobotState.getRobotPose();
           measuredGyroAngle = visionPose.getRotation();
           Translation2d deadbandFieldRelativeVelocity =
@@ -151,8 +146,7 @@ public class DriveCommands {
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   robotRelativeXVel,
                   robotRelativeYVel,
-                  (aprilTagTracking.getAsBoolean() || noteTracking.getAsBoolean())
-                          && targetGyroAngle.isPresent()
+                  (aprilTagTracking.getAsBoolean()) && targetGyroAngle.isPresent()
                       ? feedForwardRadialVelocity
                           + aimController.calculate(
                               measuredGyroAngle.getRadians(), targetGyroAngle.get().getRadians())
@@ -160,9 +154,6 @@ public class DriveCommands {
                   isFlipped
                       ? drive.getRotation().plus(new Rotation2d(Math.PI))
                       : drive.getRotation());
-          if (noteTracking.getAsBoolean()) {
-            chassisSpeeds.vyMetersPerSecond = 0;
-          }
 
           // Convert to field relative speeds & send command
           drive.runVelocity(chassisSpeeds);
@@ -172,13 +163,6 @@ public class DriveCommands {
 
   public static final Command XLock(Drive drive) {
     return Commands.runOnce(drive::stopWithX);
-  }
-
-  public static final Command resetHeading(Drive drive) {
-    return Commands.runOnce(
-            () -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-            drive)
-        .ignoringDisable(true);
   }
 
   public static final Command aimTowardsTarget(Drive drive) {
@@ -222,8 +206,8 @@ public class DriveCommands {
                                   targetGyroAngle.get().getRadians())
                               : 0),
                       isFlipped
-                          ? drive.getRotation().plus(new Rotation2d(Math.PI))
-                          : drive.getRotation());
+                          ? RobotState.getRobotPose().getRotation().plus(new Rotation2d(Math.PI))
+                          : RobotState.getRobotPose().getRotation());
 
               // Convert to field relative speeds & send command
               drive.runVelocity(chassisSpeeds);
@@ -238,7 +222,7 @@ public class DriveCommands {
   }
 
   public static final Command moveTowardsTarget(
-      Drive drive, Vision vision, double blueXCoord, VisionMode targetType) {
+      Drive drive, double blueXCoord, Pose2d targetPose, TrackingMode targetType) {
 
     @SuppressWarnings({"resource"})
     PIDController aimController =
@@ -260,10 +244,10 @@ public class DriveCommands {
               aimController.setP(autoAimKP.get());
 
               // Convert to field relative speeds & send command
-              Optional<Rotation2d> targetGyroAngle = RobotState.getTargetGyroAngle();
+              Rotation2d targetGyroAngle = RobotState.getTargetGyroAngle(targetPose);
               double distanceT =
                   MathUtil.clamp(
-                      Math.abs(drive.getPose().getX() - targetXCoord.getAsDouble())
+                      Math.abs(RobotState.getRobotPose().getX() - targetXCoord.getAsDouble())
                           / autoAimXVelRange.get(),
                       0.0,
                       1.0);
@@ -271,13 +255,11 @@ public class DriveCommands {
                   MathUtil.interpolate(autoAimXVelMin.get(), autoAimXVelMax.get(), distanceT);
               drive.runVelocity(
                   new ChassisSpeeds(
-                      targetType.equals(VisionMode.AprilTags) ? speed : -speed,
+                      targetType.equals(TrackingMode.APRILTAGS) ? speed : -speed,
                       0,
-                      targetGyroAngle.isEmpty()
-                          ? 0.0
-                          : aimController.calculate(
-                              drive.getRotation().getRadians(),
-                              targetGyroAngle.get().getRadians())));
+                      aimController.calculate(
+                          RobotState.getRobotPose().getRotation().getRadians(),
+                          targetGyroAngle.getRadians())));
             },
             drive)
         .until(
@@ -287,76 +269,14 @@ public class DriveCommands {
                   DriverStation.getAlliance().isPresent()
                       && DriverStation.getAlliance().get().equals(Alliance.Red);
               if (isRed) {
-                endAboveTargetXCoord = targetType.equals(VisionMode.AprilTags);
+                endAboveTargetXCoord = targetType.equals(TrackingMode.APRILTAGS);
               } else {
-                endAboveTargetXCoord = targetType.equals(VisionMode.Notes);
+                endAboveTargetXCoord = targetType.equals(TrackingMode.NOTES);
               }
               if (endAboveTargetXCoord) {
-                return drive.getPose().getX() > targetXCoord.getAsDouble();
+                return RobotState.getRobotPose().getX() > targetXCoord.getAsDouble();
               } else {
-                return drive.getPose().getX() < targetXCoord.getAsDouble();
-              }
-            })
-        .finallyDo(() -> drive.stop());
-  }
-
-  public static final Command moveTowardsTarget(
-      Drive drive, Vision vision, double blueXCoord, VisionMode targetType, double maxSpeed) {
-
-    @SuppressWarnings({"resource"})
-    PIDController aimController =
-        new PIDController(autoAimKP.get(), 0, autoAimKD.get(), Constants.LOOP_PERIOD_SECS);
-    aimController.enableContinuousInput(-Math.PI, Math.PI);
-
-    DoubleSupplier targetXCoord =
-        () -> {
-          boolean isRed =
-              DriverStation.getAlliance().isPresent()
-                  && DriverStation.getAlliance().get().equals(Alliance.Red);
-          return isRed ? FieldConstants.fieldLength - blueXCoord : blueXCoord;
-        };
-
-    return Commands.run(
-            () -> {
-              // Configure PID
-              aimController.setD(autoAimKD.get());
-              aimController.setP(autoAimKP.get());
-
-              // Convert to field relative speeds & send command
-              Optional<Rotation2d> targetGyroAngle = RobotState.getTargetGyroAngle();
-              double distanceT =
-                  MathUtil.clamp(
-                      Math.abs(drive.getPose().getX() - targetXCoord.getAsDouble())
-                          / autoAimXVelRange.get(),
-                      0.0,
-                      1.0);
-              double speed = MathUtil.interpolate(autoAimXVelMin.get(), maxSpeed, distanceT);
-              drive.runVelocity(
-                  new ChassisSpeeds(
-                      targetType.equals(VisionMode.AprilTags) ? speed : -speed,
-                      0,
-                      targetGyroAngle.isEmpty()
-                          ? 0.0
-                          : aimController.calculate(
-                              drive.getRotation().getRadians(),
-                              targetGyroAngle.get().getRadians())));
-            },
-            drive)
-        .until(
-            () -> {
-              boolean endAboveTargetXCoord;
-              boolean isRed =
-                  DriverStation.getAlliance().isPresent()
-                      && DriverStation.getAlliance().get().equals(Alliance.Red);
-              if (isRed) {
-                endAboveTargetXCoord = targetType.equals(VisionMode.AprilTags);
-              } else {
-                endAboveTargetXCoord = targetType.equals(VisionMode.Notes);
-              }
-              if (endAboveTargetXCoord) {
-                return drive.getPose().getX() > targetXCoord.getAsDouble();
-              } else {
-                return drive.getPose().getX() < targetXCoord.getAsDouble();
+                return RobotState.getRobotPose().getX() < targetXCoord.getAsDouble();
               }
             })
         .finallyDo(() -> drive.stop());
