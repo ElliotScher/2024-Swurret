@@ -41,7 +41,7 @@ public final class AutoRoutines {
         CompositeCommands.getAimSpeakerCommand(drive),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
-            drive, intake, serializer, AutoPathPoints.NOTE_3, targetType),
+            drive, intake, serializer, AutoPathPoints.NOTE_1, targetType),
         CompositeCommands.getAimSpeakerCommand(drive),
         CompositeCommands.getShootCommand(intake, serializer, kicker));
   }
@@ -54,7 +54,7 @@ public final class AutoRoutines {
         CompositeCommands.getAimSpeakerCommand(drive),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
-            drive, intake, serializer, AutoPathPoints.NOTE_1, targetType),
+            drive, intake, serializer, AutoPathPoints.NOTE_3, targetType),
         CompositeCommands.getAimSpeakerCommand(drive),
         CompositeCommands.getShootCommand(intake, serializer, kicker));
   }
@@ -84,15 +84,11 @@ public final class AutoRoutines {
         CompositeCommands.getAimSpeakerCommand(drive),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getPath(AutoPathPoints.NOTE_2_SHORT),
-        CompositeCommands.getAimSpeakerCommand(drive),
-        CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
             drive, intake, serializer, AutoPathPoints.NOTE_2, targetType),
         CompositeCommands.getAimSpeakerCommand(drive),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getPath(AutoPathPoints.NOTE_3_SHORT),
-        CompositeCommands.getAimSpeakerCommand(drive),
-        CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
             drive, intake, serializer, AutoPathPoints.NOTE_3, targetType),
         CompositeCommands.getAimSpeakerCommand(drive),
@@ -107,21 +103,17 @@ public final class AutoRoutines {
         CompositeCommands.getAimSpeakerCommand(drive),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
-            drive, intake, serializer, AutoPathPoints.NOTE_1, targetType),
+            drive, intake, serializer, AutoPathPoints.NOTE_3, targetType),
         CompositeCommands.getAimSpeakerCommand(drive),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getPath(AutoPathPoints.NOTE_2_SHORT),
-        CompositeCommands.getAimSpeakerCommand(drive),
-        CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
             drive, intake, serializer, AutoPathPoints.NOTE_2, targetType),
         CompositeCommands.getAimSpeakerCommand(drive),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getPath(AutoPathPoints.NOTE_1_SHORT),
-        CompositeCommands.getAimSpeakerCommand(drive),
-        CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
-            drive, intake, serializer, AutoPathPoints.NOTE_3, targetType),
+            drive, intake, serializer, AutoPathPoints.NOTE_1, targetType),
         CompositeCommands.getAimSpeakerCommand(drive),
         CompositeCommands.getShootCommand(intake, serializer, kicker));
   }
@@ -138,17 +130,13 @@ public final class AutoRoutines {
         CompositeCommands.getAimSpeakerCommand(drive),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getPath(AutoPathPoints.NOTE_2_SHORT),
-        CompositeCommands.getAimSpeakerCommand(drive),
-        CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
             drive, intake, serializer, AutoPathPoints.NOTE_2, targetType),
         CompositeCommands.getAimSpeakerCommand(drive),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getPath(AutoPathPoints.NOTE_1_SHORT),
-        CompositeCommands.getAimSpeakerCommand(drive),
-        CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
-            drive, intake, serializer, AutoPathPoints.NOTE_3, targetType),
+            drive, intake, serializer, AutoPathPoints.NOTE_1, targetType),
         CompositeCommands.getAimSpeakerCommand(drive),
         CompositeCommands.getShootCommand(intake, serializer, kicker));
   }
@@ -165,15 +153,11 @@ public final class AutoRoutines {
         CompositeCommands.getAimSpeakerCommand(drive),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getPath(AutoPathPoints.NOTE_2_SHORT),
-        CompositeCommands.getAimSpeakerCommand(drive),
-        CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
             drive, intake, serializer, AutoPathPoints.NOTE_2, targetType),
         CompositeCommands.getAimSpeakerCommand(drive),
         CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getPath(AutoPathPoints.NOTE_3_SHORT),
-        CompositeCommands.getAimSpeakerCommand(drive),
-        CompositeCommands.getShootCommand(intake, serializer, kicker),
         CompositeCommands.getTrackNoteSpikeCommand(
             drive, intake, serializer, AutoPathPoints.NOTE_3, targetType),
         CompositeCommands.getAimSpeakerCommand(drive),

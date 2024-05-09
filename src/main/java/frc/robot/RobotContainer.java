@@ -216,7 +216,7 @@ public class RobotContainer {
         });
     PathPlannerLogging.setLogTargetPoseCallback(
         (targetPose) -> {
-          Logger.recordOutput("ADStarAK/Trajectory Setpoint", targetPose);
+          Logger.recordOutput("LocalADStarAK/Trajectory Setpoint", targetPose);
         });
 
     autoChooser = new LoggedDashboardChooser<>("Auto Routines");

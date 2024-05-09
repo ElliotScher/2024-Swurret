@@ -4,7 +4,6 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
@@ -165,7 +164,9 @@ public class RobotState extends VirtualSubsystem {
   }
 
   public static Rotation2d getTargetGyroAngle(Pose2d targetPose) {
-    return new Transform2d(getRobotPose(), AllianceFlipUtil.apply(targetPose)).getRotation();
+    return Rotation2d.fromRadians(
+        Math.atan2(
+            targetPose.getY() - getRobotPose().getY(), targetPose.getX() - getRobotPose().getX()));
   }
 
   public static boolean shooterReady(Hood hood, Shooter shooter) {

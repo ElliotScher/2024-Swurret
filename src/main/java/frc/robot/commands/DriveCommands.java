@@ -47,7 +47,7 @@ public class DriveCommands {
   private static final LoggedTunableNumber autoAimKP = new LoggedTunableNumber("autoaim/kp");
   private static final LoggedTunableNumber autoAimKD = new LoggedTunableNumber("autoaim/kd");
   private static final LoggedTunableNumber autoAimXVelMax =
-      new LoggedTunableNumber("autoaim/xvelmax", 3.0);
+      new LoggedTunableNumber("autoaim/xvelmax", 1.5);
   private static final LoggedTunableNumber autoAimXVelMin =
       new LoggedTunableNumber("autoaim/xvelmin", 0.5);
   private static final LoggedTunableNumber autoAimXVelRange =
@@ -259,7 +259,13 @@ public class DriveCommands {
                       0,
                       aimController.calculate(
                           RobotState.getRobotPose().getRotation().getRadians(),
-                          targetGyroAngle.getRadians())));
+                          RobotState.getRobotPose()
+                              .getRotation()
+                              .minus(
+                                  targetType.equals(TrackingMode.APRILTAGS)
+                                      ? targetGyroAngle
+                                      : targetGyroAngle.plus(Rotation2d.fromRadians(Math.PI)))
+                              .getRadians())));
             },
             drive)
         .until(

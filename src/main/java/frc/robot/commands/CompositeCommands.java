@@ -102,11 +102,11 @@ public class CompositeCommands {
       TrackingMode targetType) {
     return Constants.ROBOT.equals(RobotType.ROBOT_SIM)
         ? (DriveCommands.moveTowardsTarget(
-                    drive, FieldConstants.StagingLocations.spikeX + 1, targetPose, targetType)
+                    drive, FieldConstants.StagingLocations.spikeX - 0.5, targetPose, targetType)
                 .alongWith(getCollectCommand(intake, serializer)))
             .withTimeout(2)
         : (DriveCommands.moveTowardsTarget(
-                    drive, FieldConstants.StagingLocations.spikeX + 1, targetPose, targetType)
+                    drive, FieldConstants.StagingLocations.spikeX - 0.5, targetPose, targetType)
                 .raceWith(getCollectCommand(intake, serializer)))
             .withTimeout(2);
   }
