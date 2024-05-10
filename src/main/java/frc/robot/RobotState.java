@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.vision.CameraType;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.VirtualSubsystem;
@@ -38,11 +39,12 @@ public class RobotState extends VirtualSubsystem {
 
   private static Supplier<Rotation2d> robotHeadingSupplier;
   private static Supplier<SwerveModulePosition[]> modulePositionSupplier;
-  private static Supplier<Pose3d[]> visionMegaTag1Supplier;
-  private static Supplier<Pose3d[]> visionMegaTag2Supplier;
+  private static Supplier<CameraType[]> camerasSupplier;
+  private static Supplier<Pose3d[]> visionPrimaryPosesSupplier;
+  private static Supplier<Pose3d[]> visionSecondaryPosesSupplier;
   private static Supplier<Pose2d> drivePoseSupplier;
-  private static Supplier<double[]> visionMegaTag1TimestampSupplier;
-  private static Supplier<double[]> visionMegaTag2TimestampSupplier;
+  private static Supplier<double[]> visionPrimaryPoseTimestampsSupplier;
+  private static Supplier<double[]> visionSecondaryPoseTimestampsSupplier;
 
   @Getter private static double flywheelOffset = 0.0;
   @Getter private static double hoodOffset = 0.0;
@@ -80,18 +82,20 @@ public class RobotState extends VirtualSubsystem {
   public RobotState(
       Supplier<Rotation2d> robotHeadingSupplier,
       Supplier<SwerveModulePosition[]> modulePositionSupplier,
-      Supplier<Pose3d[]> visionMegaTag1Supplier,
-      Supplier<Pose3d[]> visionMegaTag2Supplier,
+      Supplier<CameraType[]> camerasSupplier,
+      Supplier<Pose3d[]> visionPrimaryPosesSupplier,
+      Supplier<Pose3d[]> visionSecondaryPosesSupplier,
       Supplier<Pose2d> drivePoseSupplier,
-      Supplier<double[]> visionMegaTag1TimestampSupplier,
-      Supplier<double[]> visionMegaTag2TimestampSupplier) {
+      Supplier<double[]> visionPrimaryPoseTimestampsSupplier,
+      Supplier<double[]> visionSecondaryPoseTimestampsSupplier) {
     RobotState.robotHeadingSupplier = robotHeadingSupplier;
     RobotState.modulePositionSupplier = modulePositionSupplier;
-    RobotState.visionMegaTag1Supplier = visionMegaTag1Supplier;
-    RobotState.visionMegaTag2Supplier = visionMegaTag2Supplier;
+    RobotState.camerasSupplier = camerasSupplier;
+    RobotState.visionPrimaryPosesSupplier = visionPrimaryPosesSupplier;
+    RobotState.visionSecondaryPosesSupplier = visionSecondaryPosesSupplier;
     RobotState.drivePoseSupplier = drivePoseSupplier;
-    RobotState.visionMegaTag1TimestampSupplier = visionMegaTag1TimestampSupplier;
-    RobotState.visionMegaTag2TimestampSupplier = visionMegaTag2TimestampSupplier;
+    RobotState.visionPrimaryPoseTimestampsSupplier = visionPrimaryPoseTimestampsSupplier;
+    RobotState.visionSecondaryPoseTimestampsSupplier = visionSecondaryPoseTimestampsSupplier;
 
     poseEstimator =
         new SwerveDrivePoseEstimator(
@@ -100,7 +104,7 @@ public class RobotState extends VirtualSubsystem {
             modulePositionSupplier.get(),
             new Pose2d(),
             DriveConstants.ODOMETRY_STANDARD_DEVIATIONS,
-            VisionConstants.MEGA_TAG_DEFAULT_STANDARD_DEVIATIONS);
+            VisionConstants.DEFAULT_STANDARD_DEVIATIONS);
   }
 
   @Override
@@ -109,21 +113,23 @@ public class RobotState extends VirtualSubsystem {
 
     poseEstimator.updateWithTime(
         Timer.getFPGATimestamp(), robotHeadingSupplier.get(), modulePositionSupplier.get());
-    for (int i = 0; i < visionMegaTag1Supplier.get().length; i++) {
+    for (int i = 0; i < visionPrimaryPosesSupplier.get().length; i++) {
       poseEstimator.addVisionMeasurement(
-          visionMegaTag1Supplier.get()[i].toPose2d(),
-          visionMegaTag1TimestampSupplier.get()[i],
-          VisionConstants.MEGA_TAG_1_STANDARD_DEVIATIONS);
+          visionPrimaryPosesSupplier.get()[i].toPose2d(),
+          visionPrimaryPoseTimestampsSupplier.get()[i],
+          camerasSupplier.get()[i].primaryStandardDeviations);
     }
-    for (int i = 0; i < visionMegaTag2Supplier.get().length; i++) {
+    // TODO: THIS THROWS A NULL POINTER EXCEPTION BECAUSE SECONDARYSTANDARDDEVIATIONS MAY BE NULL,
+    // HANDLE THIS
+    for (int i = 0; i < visionSecondaryPosesSupplier.get().length; i++) {
       poseEstimator.addVisionMeasurement(
-          visionMegaTag2Supplier.get()[i].toPose2d(),
-          visionMegaTag2TimestampSupplier.get()[i],
-          VisionConstants.MEGA_TAG_2_STANDARD_DEVIATIONS);
+          visionSecondaryPosesSupplier.get()[i].toPose2d(),
+          visionSecondaryPoseTimestampsSupplier.get()[i],
+          camerasSupplier.get()[i].secondaryStandardDeviations);
     }
 
-    Logger.recordOutput("RobotState/MegaTag 1 Pose", visionMegaTag1Supplier.get());
-    Logger.recordOutput("RobotState/MegaTag 2 Pose", visionMegaTag2Supplier.get());
+    Logger.recordOutput("RobotState/MegaTag 1 Pose", visionPrimaryPosesSupplier.get());
+    Logger.recordOutput("RobotState/MegaTag 2 Pose", visionSecondaryPosesSupplier.get());
     Logger.recordOutput("RobotState/Estimated Pose", poseEstimator.getEstimatedPosition());
   }
 

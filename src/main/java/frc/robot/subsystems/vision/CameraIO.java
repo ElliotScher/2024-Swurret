@@ -7,14 +7,15 @@ import org.littletonrobotics.junction.AutoLog;
 public interface CameraIO {
   @AutoLog
   public static class CameraIOInputs {
-    public Rotation2d tx = new Rotation2d();
-    public Rotation2d ty = new Rotation2d();
-    public boolean tv = false;
-    public double megaTag1Timestamp = 0.0;
-    public Pose3d megaTag1RobotPose = new Pose3d();
-    public double megaTag2Timestamp = 0.0;
-    public Pose3d megaTag2RobotPose = new Pose3d();
+    public Rotation2d xOffset = new Rotation2d();
+    public Rotation2d yOffset = new Rotation2d();
+    public boolean targetAquired = false;
+    public double primaryPoseTimestamp = 0.0;
+    public Pose3d primaryPose = new Pose3d();
+    public double secondaryPoseTimestamp = 0.0;
+    public Pose3d secondaryPose = new Pose3d();
     public long pipeline = 0;
+    public CameraType cameraType = CameraType.GENERIC_PHOTON_VISION_CAMERA;
   }
 
   public default void updateInputs(CameraIOInputs inputs) {}

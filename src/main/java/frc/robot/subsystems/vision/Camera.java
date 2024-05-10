@@ -23,35 +23,39 @@ public class Camera {
   }
 
   public Rotation2d getTx() {
-    return inputs.tx;
+    return inputs.xOffset;
   }
 
   public Rotation2d getTy() {
-    return inputs.ty;
+    return inputs.yOffset;
   }
 
   public boolean getTv() {
-    return inputs.tv;
+    return inputs.targetAquired;
   }
 
   public double getMegaTag1Timestamp() {
-    return inputs.megaTag1Timestamp;
+    return inputs.primaryPoseTimestamp;
   }
 
   public Pose3d getMegaTag1RobotPose() {
-    return inputs.megaTag1RobotPose;
+    return inputs.primaryPose;
   }
 
   public double getMegaTag2Timestamp() {
-    return inputs.megaTag2Timestamp;
+    return inputs.secondaryPoseTimestamp;
   }
 
   public Pose3d getMegaTag2RobotPose() {
-    return inputs.megaTag2RobotPose;
+    return inputs.secondaryPose;
   }
 
   public long getPipeline() {
     return inputs.pipeline;
+  }
+
+  public CameraType getCameraType() {
+    return inputs.cameraType;
   }
 
   public void setPipeline(int pipeline) {

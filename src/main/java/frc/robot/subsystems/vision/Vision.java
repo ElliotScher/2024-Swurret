@@ -27,7 +27,7 @@ public class Vision extends VirtualSubsystem {
     return isValidTarget;
   }
 
-  public Pose3d[] getMegaTag1Poses() {
+  public Pose3d[] getPrimaryVisionPoses() {
     Pose3d[] poseArray = new Pose3d[4];
     for (int i = 0; i < cameras.length; i++) {
       poseArray[i] = cameras[i].getMegaTag1RobotPose();
@@ -36,7 +36,7 @@ public class Vision extends VirtualSubsystem {
     return poseArray;
   }
 
-  public Pose3d[] getMegaTag2Poses() {
+  public Pose3d[] getSecondaryVisionPoses() {
     Pose3d[] poseArray = new Pose3d[4];
     for (int i = 0; i < cameras.length; i++) {
       poseArray[i] = cameras[i].getMegaTag2RobotPose();
@@ -45,7 +45,7 @@ public class Vision extends VirtualSubsystem {
     return poseArray;
   }
 
-  public double[] getMegaTag1Timestamps() {
+  public double[] getPrimaryPoseTimestamps() {
     double[] timestampArray = new double[4];
     for (int i = 0; i < cameras.length; i++) {
       timestampArray[i] = cameras[i].getMegaTag1Timestamp();
@@ -54,13 +54,21 @@ public class Vision extends VirtualSubsystem {
     return timestampArray;
   }
 
-  public double[] getMegaTag2Timestamps() {
+  public double[] getSecondaryPoseTimestamps() {
     double[] timestampArray = new double[4];
     for (int i = 0; i < cameras.length; i++) {
       timestampArray[i] = cameras[i].getMegaTag2Timestamp();
     }
 
     return timestampArray;
+  }
+
+  public CameraType[] getCameraTypes() {
+    CameraType[] cameraTypeArray = new CameraType[4];
+    for (int i = 0; i < cameraTypeArray.length; i++) {
+      cameraTypeArray[i] = cameras[i].getCameraType();
+    }
+    return cameraTypeArray;
   }
 
   public Command enableLEDs() {

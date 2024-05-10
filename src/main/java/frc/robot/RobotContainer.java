@@ -66,7 +66,7 @@ import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterIOSim;
 import frc.robot.subsystems.shooter.ShooterIOTalonFX;
 import frc.robot.subsystems.vision.CameraIO;
-import frc.robot.subsystems.vision.CameraIOLimelight;
+import frc.robot.subsystems.vision.CameraIOLimelight3;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.TrackingMode;
@@ -122,10 +122,10 @@ public class RobotContainer {
           climber = new Climber(new ClimberIOTalonFX());
           vision =
               new Vision(
-                  new CameraIOLimelight(0),
-                  new CameraIOLimelight(1),
-                  new CameraIOLimelight(2),
-                  new CameraIOLimelight(3));
+                  new CameraIOLimelight3(0),
+                  new CameraIOLimelight3(1),
+                  new CameraIOLimelight3(2),
+                  new CameraIOLimelight3(3));
           break;
         case ROBOT_2K24_TEST:
           // Test robot, instantiate hardware IO implementations
@@ -232,11 +232,12 @@ public class RobotContainer {
     new RobotState(
         drive::getRotation,
         drive::getModulePositions,
-        vision::getMegaTag1Poses,
-        vision::getMegaTag2Poses,
+        vision::getCameraTypes,
+        vision::getPrimaryVisionPoses,
+        vision::getSecondaryVisionPoses,
         drive::getPose,
-        vision::getMegaTag1Timestamps,
-        vision::getMegaTag2Timestamps);
+        vision::getPrimaryPoseTimestamps,
+        vision::getSecondaryPoseTimestamps);
 
     // Configure the button bindings
     configureButtonBindings();
