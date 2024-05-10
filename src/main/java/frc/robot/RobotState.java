@@ -17,6 +17,8 @@ import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.CameraType;
 import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.util.Alert;
+import frc.robot.util.Alert.AlertType;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.VirtualSubsystem;
 import java.util.function.Supplier;
@@ -48,6 +50,9 @@ public class RobotState extends VirtualSubsystem {
 
   @Getter private static double flywheelOffset = 0.0;
   @Getter private static double hoodOffset = 0.0;
+
+  private static Alert secondaryPosesNullAlert =
+      new Alert("SECONDARY VISION POSES ARE NULL", AlertType.INFO);
 
   static {
     // Units: radians per second
@@ -119,13 +124,16 @@ public class RobotState extends VirtualSubsystem {
           visionPrimaryPoseTimestampsSupplier.get()[i],
           camerasSupplier.get()[i].primaryStandardDeviations);
     }
-    // TODO: THIS THROWS A NULL POINTER EXCEPTION BECAUSE SECONDARYSTANDARDDEVIATIONS MAY BE NULL,
-    // HANDLE THIS
-    for (int i = 0; i < visionSecondaryPosesSupplier.get().length; i++) {
-      poseEstimator.addVisionMeasurement(
-          visionSecondaryPosesSupplier.get()[i].toPose2d(),
-          visionSecondaryPoseTimestampsSupplier.get()[i],
-          camerasSupplier.get()[i].secondaryStandardDeviations);
+    try {
+      for (int i = 0; i < visionSecondaryPosesSupplier.get().length; i++) {
+        poseEstimator.addVisionMeasurement(
+            visionSecondaryPosesSupplier.get()[i].toPose2d(),
+            visionSecondaryPoseTimestampsSupplier.get()[i],
+            camerasSupplier.get()[i].secondaryStandardDeviations);
+      }
+      secondaryPosesNullAlert.set(false);
+    } catch (Exception e) {
+      secondaryPosesNullAlert.set(true);
     }
 
     Logger.recordOutput("RobotState/MegaTag 1 Pose", visionPrimaryPosesSupplier.get());
