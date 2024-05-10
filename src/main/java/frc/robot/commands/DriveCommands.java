@@ -243,8 +243,12 @@ public class DriveCommands {
               aimController.setD(autoAimKD.get());
               aimController.setP(autoAimKP.get());
 
+              boolean isRed =
+                  DriverStation.getAlliance().isPresent()
+                      && DriverStation.getAlliance().get().equals(Alliance.Red);
+
               // Convert to field relative speeds & send command
-              Rotation2d targetGyroAngle = RobotState.getTargetGyroAngle(targetPose);
+              Rotation2d targetGyroOffset = RobotState.getTargetGyroOffset(targetPose);
               double distanceT =
                   MathUtil.clamp(
                       Math.abs(RobotState.getRobotPose().getX() - targetXCoord.getAsDouble())
@@ -259,12 +263,16 @@ public class DriveCommands {
                       0,
                       aimController.calculate(
                           RobotState.getRobotPose().getRotation().getRadians(),
-                          RobotState.getRobotPose()
+                          targetPose
                               .getRotation()
-                              .minus(
+                              .plus(
                                   targetType.equals(TrackingMode.APRILTAGS)
-                                      ? targetGyroAngle
-                                      : targetGyroAngle.plus(Rotation2d.fromRadians(Math.PI)))
+                                      ? isRed
+                                          ? targetGyroOffset
+                                          : targetGyroOffset.plus(Rotation2d.fromRadians(Math.PI))
+                                      : isRed
+                                          ? targetGyroOffset.plus(Rotation2d.fromRadians(Math.PI))
+                                          : targetGyroOffset)
                               .getRadians())));
             },
             drive)

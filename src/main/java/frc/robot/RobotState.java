@@ -163,7 +163,7 @@ public class RobotState extends VirtualSubsystem {
         new Rotation2d(shooterAngleMap.get(effectiveDistanceToSpeaker)));
   }
 
-  public static Rotation2d getTargetGyroAngle(Pose2d targetPose) {
+  public static Rotation2d getTargetGyroOffset(Pose2d targetPose) {
     return Rotation2d.fromRadians(
         Math.atan2(
             targetPose.getY() - getRobotPose().getY(), targetPose.getX() - getRobotPose().getX()));
