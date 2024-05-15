@@ -19,7 +19,7 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ModuleIO {
   @AutoLog
   public static class ModuleIOInputs {
-    public double drivePositionRad = 0.0;
+    public Rotation2d drivePosition = new Rotation2d();
     public double driveVelocityRadPerSec = 0.0;
     public double driveAppliedVolts = 0.0;
     public double[] driveCurrentAmps = new double[] {};
@@ -33,7 +33,7 @@ public interface ModuleIO {
     public double[] turnTempCelcius = new double[] {};
 
     public double[] odometryTimestamps = new double[] {};
-    public double[] odometryDrivePositionsRad = new double[] {};
+    public Rotation2d[] odometryDrivePositionsRad = new Rotation2d[] {};
     public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
   }
 

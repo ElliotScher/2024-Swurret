@@ -27,8 +27,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -38,16 +36,11 @@ public class Drive extends SubsystemBase {
   private final LinearFilter yFilter = LinearFilter.movingAverage(10);
   private double filteredX = 0;
   private double filteredY = 0;
-
-  static final Lock odometryLock = new ReentrantLock();
-  private final GyroIO gyroIO;
-  private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
-  private final Module[] modules = new Module[4]; // FL, FR, BL, BR
+  private Rotation2d rawGyroRotation = new Rotation2d();
 
   @Getter
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
 
-  private Rotation2d rawGyroRotation = new Rotation2d();
   private SwerveModulePosition[] lastModulePositions = // For delta tracking
       new SwerveModulePosition[] {
         new SwerveModulePosition(),
@@ -57,6 +50,11 @@ public class Drive extends SubsystemBase {
       };
   private SwerveDriveOdometry odometry =
       new SwerveDriveOdometry(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+
+  private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
+  private final Module[] modules = new Module[4]; // FL, FR, BL, BR
+
+  private final GyroIO gyroIO;
 
   public Drive(
       GyroIO gyroIO,
@@ -75,12 +73,12 @@ public class Drive extends SubsystemBase {
   }
 
   public void periodic() {
-    odometryLock.lock(); // Prevents odometry updates while reading data
+    DriveConstants.ODOMETRY_LOCK.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     for (var module : modules) {
       module.updateInputs();
     }
-    odometryLock.unlock();
+    DriveConstants.ODOMETRY_LOCK.unlock();
     Logger.processInputs("Drive/Gyro", gyroInputs);
     for (var module : modules) {
       module.periodic();
@@ -139,7 +137,8 @@ public class Drive extends SubsystemBase {
     }
 
     // Log CANivore utilization
-    Logger.recordOutput("Drive/CANivore Utilization", CANBus.getStatus("drive").BusUtilization);
+    Logger.recordOutput(
+        "Drive/CANivore Utilization", CANBus.getStatus(DriveConstants.CANIVORE).BusUtilization);
   }
 
   /**

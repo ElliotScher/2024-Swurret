@@ -35,44 +35,13 @@ import frc.robot.RobotState.AimingParameters;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.TrackingMode;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
-public class DriveCommands {
-  private static final double DEADBAND = 0.1;
-  private static final LoggedTunableNumber autoAimKP = new LoggedTunableNumber("autoaim/kp");
-  private static final LoggedTunableNumber autoAimKD = new LoggedTunableNumber("autoaim/kd");
-  private static final LoggedTunableNumber autoAimXVelMax =
-      new LoggedTunableNumber("autoaim/xvelmax", 1.5);
-  private static final LoggedTunableNumber autoAimXVelMin =
-      new LoggedTunableNumber("autoaim/xvelmin", 0.5);
-  private static final LoggedTunableNumber autoAimXVelRange =
-      new LoggedTunableNumber("autoaim/xvelrange", 0.5);
-  private static final LoggedTunableNumber autoAimFieldVelocityDeadband =
-      new LoggedTunableNumber("autoaim/fieldvelocitydeadband", 0.5);
-
-  static {
-    switch (Constants.ROBOT) {
-      case SNAPBACK:
-        autoAimKP.initDefault(6.0);
-        autoAimKD.initDefault(0.002);
-        break;
-      case ROBOT_2K24_TEST:
-        autoAimKP.initDefault(6.0);
-        autoAimKD.initDefault(0.002);
-        break;
-      case ROBOT_SIM:
-        autoAimKP.initDefault(7);
-        autoAimKD.initDefault(0.125);
-      default:
-        break;
-    }
-  }
-
+public final class DriveCommands {
   private DriveCommands() {}
 
   /**
@@ -89,7 +58,11 @@ public class DriveCommands {
 
     @SuppressWarnings({"resource"})
     PIDController aimController =
-        new PIDController(autoAimKP.get(), 0, autoAimKD.get(), Constants.LOOP_PERIOD_SECS);
+        new PIDController(
+            DriveConstants.AUTO_AIM_KP.get(),
+            0,
+            DriveConstants.AUTO_AIM_KD.get(),
+            Constants.LOOP_PERIOD_SECS);
     aimController.enableContinuousInput(-Math.PI, Math.PI);
 
     return Commands.run(
@@ -97,10 +70,12 @@ public class DriveCommands {
           // Apply deadband
           double linearMagnitude =
               MathUtil.applyDeadband(
-                  Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()), DEADBAND);
+                  Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()),
+                  DriveConstants.DRIVER_DEADBAND);
           Rotation2d linearDirection =
               new Rotation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble());
-          double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
+          double omega =
+              MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DriveConstants.DRIVER_DEADBAND);
 
           // Square values
           linearMagnitude = linearMagnitude * linearMagnitude;
@@ -118,8 +93,8 @@ public class DriveCommands {
                   .getTranslation();
           //
           // Configure PID
-          aimController.setD(autoAimKD.get());
-          aimController.setP(autoAimKP.get());
+          aimController.setD(DriveConstants.AUTO_AIM_KD.get());
+          aimController.setP(DriveConstants.AUTO_AIM_KP.get());
 
           // Get robot relative vel
           boolean isFlipped =
@@ -135,7 +110,8 @@ public class DriveCommands {
           Pose2d visionPose = RobotState.getRobotPose();
           measuredGyroAngle = visionPose.getRotation();
           Translation2d deadbandFieldRelativeVelocity =
-              (drive.getFieldRelativeVelocity().getNorm() < autoAimFieldVelocityDeadband.get())
+              (drive.getFieldRelativeVelocity().getNorm()
+                      < DriveConstants.AUTO_AIM_FIELD_VELOCITY_DEADBAND.get())
                   ? new Translation2d(0, 0)
                   : drive.getFieldRelativeVelocity();
           AimingParameters calculatedAim =
@@ -161,21 +137,21 @@ public class DriveCommands {
         drive);
   }
 
-  public static final Command XLock(Drive drive) {
-    return Commands.runOnce(drive::stopWithX);
-  }
-
   public static final Command aimTowardsTarget(Drive drive) {
     @SuppressWarnings({"resource"})
     PIDController aimController =
-        new PIDController(autoAimKP.get(), 0, autoAimKD.get(), Constants.LOOP_PERIOD_SECS);
+        new PIDController(
+            DriveConstants.AUTO_AIM_KP.get(),
+            0,
+            DriveConstants.AUTO_AIM_KD.get(),
+            Constants.LOOP_PERIOD_SECS);
     aimController.enableContinuousInput(-Math.PI, Math.PI);
     aimController.setTolerance(0.017);
 
     return Commands.run(
             () -> {
-              aimController.setD(autoAimKD.get());
-              aimController.setP(autoAimKP.get());
+              aimController.setD(DriveConstants.AUTO_AIM_KD.get());
+              aimController.setP(DriveConstants.AUTO_AIM_KP.get());
 
               // Get robot relative vel
               boolean isFlipped =
@@ -188,7 +164,8 @@ public class DriveCommands {
               Pose2d visionPose = RobotState.getRobotPose();
               measuredGyroAngle = visionPose.getRotation();
               Translation2d deadbandFieldRelativeVelocity =
-                  (drive.getFieldRelativeVelocity().getNorm() < autoAimFieldVelocityDeadband.get())
+                  (drive.getFieldRelativeVelocity().getNorm()
+                          < DriveConstants.AUTO_AIM_FIELD_VELOCITY_DEADBAND.get())
                       ? new Translation2d(0, 0)
                       : drive.getFieldRelativeVelocity();
               AimingParameters calculatedAim =
@@ -224,64 +201,64 @@ public class DriveCommands {
   public static final Command moveTowardsTarget(
       Drive drive, double blueXCoord, Pose2d targetPose, TrackingMode targetType) {
 
-    @SuppressWarnings({"resource"})
-    PIDController aimController =
-        new PIDController(autoAimKP.get(), 0, autoAimKD.get(), Constants.LOOP_PERIOD_SECS);
+    @SuppressWarnings({ "resource" })
+    PIDController aimController = new PIDController(
+        DriveConstants.AUTO_AIM_KP.get(),
+        0,
+        DriveConstants.AUTO_AIM_KD.get(),
+        Constants.LOOP_PERIOD_SECS);
     aimController.enableContinuousInput(-Math.PI, Math.PI);
 
-    DoubleSupplier targetXCoord =
-        () -> {
-          boolean isRed =
-              DriverStation.getAlliance().isPresent()
-                  && DriverStation.getAlliance().get().equals(Alliance.Red);
-          return isRed ? FieldConstants.fieldLength - blueXCoord : blueXCoord;
-        };
+    DoubleSupplier targetXCoord = () -> {
+      boolean isRed = DriverStation.getAlliance().isPresent()
+          && DriverStation.getAlliance().get().equals(Alliance.Red);
+      return isRed ? FieldConstants.fieldLength - blueXCoord : blueXCoord;
+    };
 
     return Commands.run(
-            () -> {
-              // Configure PID
-              aimController.setD(autoAimKD.get());
-              aimController.setP(autoAimKP.get());
+        () -> {
+          // Configure PID
+          aimController.setD(DriveConstants.AUTO_AIM_KD.get());
+          aimController.setP(DriveConstants.AUTO_AIM_KP.get());
 
-              boolean isRed =
-                  DriverStation.getAlliance().isPresent()
-                      && DriverStation.getAlliance().get().equals(Alliance.Red);
+          boolean isRed = DriverStation.getAlliance().isPresent()
+              && DriverStation.getAlliance().get().equals(Alliance.Red);
 
-              // Convert to field relative speeds & send command
-              Rotation2d targetGyroOffset = RobotState.getTargetGyroOffset(targetPose);
-              double distanceT =
-                  MathUtil.clamp(
-                      Math.abs(RobotState.getRobotPose().getX() - targetXCoord.getAsDouble())
-                          / autoAimXVelRange.get(),
-                      0.0,
-                      1.0);
-              double speed =
-                  MathUtil.interpolate(autoAimXVelMin.get(), autoAimXVelMax.get(), distanceT);
-              drive.runVelocity(
-                  new ChassisSpeeds(
-                      targetType.equals(TrackingMode.APRILTAGS) ? speed : -speed,
-                      0,
-                      aimController.calculate(
-                          RobotState.getRobotPose().getRotation().getRadians(),
-                          targetPose
-                              .getRotation()
-                              .plus(
-                                  targetType.equals(TrackingMode.APRILTAGS)
-                                      ? isRed
-                                          ? targetGyroOffset
-                                          : targetGyroOffset.plus(Rotation2d.fromRadians(Math.PI))
-                                      : isRed
-                                          ? targetGyroOffset.plus(Rotation2d.fromRadians(Math.PI))
-                                          : targetGyroOffset)
-                              .getRadians())));
-            },
-            drive)
+          // Convert to field relative speeds & send command
+          Rotation2d targetGyroOffset = RobotState.getTargetGyroOffset(targetPose);
+          double distanceT = MathUtil.clamp(
+              Math.abs(RobotState.getRobotPose().getX() - targetXCoord.getAsDouble())
+                  / DriveConstants.AUTO_AIM_X_VEL_RANGE.get(),
+              0.0,
+              1.0);
+          double speed = MathUtil.interpolate(
+              DriveConstants.AUTO_AIM_X_VEL_MIN.get(),
+              DriveConstants.AUTO_AIM_X_VEL_MAX.get(),
+              distanceT);
+          drive.runVelocity(
+              new ChassisSpeeds(
+                  targetType.equals(TrackingMode.APRILTAGS) ? speed : -speed,
+                  0,
+                  aimController.calculate(
+                      RobotState.getRobotPose().getRotation().getRadians(),
+                      targetPose
+                          .getRotation()
+                          .plus(
+                              targetType.equals(TrackingMode.APRILTAGS)
+                                  ? isRed
+                                      ? targetGyroOffset
+                                      : targetGyroOffset.plus(Rotation2d.fromRadians(Math.PI))
+                                  : isRed
+                                      ? targetGyroOffset.plus(Rotation2d.fromRadians(Math.PI))
+                                      : targetGyroOffset)
+                          .getRadians())));
+        },
+        drive)
         .until(
             () -> {
               boolean endAboveTargetXCoord;
-              boolean isRed =
-                  DriverStation.getAlliance().isPresent()
-                      && DriverStation.getAlliance().get().equals(Alliance.Red);
+              boolean isRed = DriverStation.getAlliance().isPresent()
+                  && DriverStation.getAlliance().get().equals(Alliance.Red);
               if (isRed) {
                 endAboveTargetXCoord = targetType.equals(TrackingMode.APRILTAGS);
               } else {

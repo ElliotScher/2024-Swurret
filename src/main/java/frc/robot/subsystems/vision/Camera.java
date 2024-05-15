@@ -5,8 +5,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.Logger;
 
 public class Camera {
-  private final CameraIO io;
   private final CameraIOInputsAutoLogged inputs = new CameraIOInputsAutoLogged();
+
+  private final CameraIO io;
   private final int index;
 
   public Camera(CameraIO io, int index) {

@@ -6,6 +6,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -13,8 +14,11 @@ import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 
 public class IntakeIOTalonFX implements IntakeIO {
-  private final TalonFX rollersTalon;
-  private final Solenoid solenoid;
+  private final TalonFX rollersTalon = new TalonFX(IntakeConstants.DEVICE_ID);
+  private final Solenoid solenoid =
+      new Solenoid(PneumaticsModuleType.CTREPCM, IntakeConstants.SOLENOID_CHANNEL);
+  private final Alert rollersDisconnectedAlert =
+      new Alert("Rollers Talon is disconnected, check CAN bus.", AlertType.ERROR);
 
   private final StatusSignal<Double> rollersPosition;
   private final StatusSignal<Double> rollersVelocity;
@@ -22,13 +26,7 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final StatusSignal<Double> rollersCurrent;
   private final StatusSignal<Double> rollersTemperature;
 
-  private final Alert rollersDisconnectedAlert =
-      new Alert("Rollers Talon is disconnected, check CAN bus.", AlertType.ERROR);
-
   public IntakeIOTalonFX() {
-    rollersTalon = new TalonFX(IntakeConstants.DEVICE_ID);
-    solenoid = new Solenoid(PneumaticsModuleType.CTREPCM, IntakeConstants.SOLENOID_CHANNEL);
-
     var config = new TalonFXConfiguration();
     config.CurrentLimits.SupplyCurrentLimit = IntakeConstants.SUPPLY_CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -63,13 +61,13 @@ public class IntakeIOTalonFX implements IntakeIO {
             .isOK();
     rollersDisconnectedAlert.set(!rollersConnected);
 
-    inputs.rollersPositionRad =
-        Units.rotationsToRadians(rollersPosition.getValueAsDouble()) / IntakeConstants.GEAR_RATIO;
+    inputs.rollersPosition =
+        Rotation2d.fromRotations(rollersPosition.getValueAsDouble() / IntakeConstants.GEAR_RATIO);
     inputs.rollersVelocityRadPerSec =
         Units.rotationsToRadians(rollersVelocity.getValueAsDouble()) / IntakeConstants.GEAR_RATIO;
     inputs.rollersAppliedVolts = rollersAppliedVolts.getValueAsDouble();
-    inputs.rollersCurrentAmps = new double[] {rollersCurrent.getValueAsDouble()};
-    inputs.rollersTempCelcius = new double[] {rollersTemperature.getValueAsDouble()};
+    inputs.rollersCurrentAmps = rollersCurrent.getValueAsDouble();
+    inputs.rollersTempCelcius = rollersTemperature.getValueAsDouble();
 
     inputs.leftPosition = solenoid.get();
   }
@@ -82,10 +80,5 @@ public class IntakeIOTalonFX implements IntakeIO {
   @Override
   public void setIntakePosition(boolean position) {
     solenoid.set(position);
-  }
-
-  @Override
-  public void toggleIntakePosition() {
-    solenoid.toggle();
   }
 }

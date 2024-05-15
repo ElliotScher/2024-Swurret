@@ -6,12 +6,15 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 
 public class SerializerIOTalonFX implements SerializerIO {
-  private final TalonFX serializerTalon;
+  private final TalonFX serializerTalon = new TalonFX(SerializerConstants.DEVICE_ID);
+  private final Alert disconnectedAlert =
+      new Alert("Serializer Talon is disconnected, check CAN bus.", AlertType.ERROR);
 
   private final StatusSignal<Double> position;
   private final StatusSignal<Double> velocity;
@@ -19,12 +22,7 @@ public class SerializerIOTalonFX implements SerializerIO {
   private final StatusSignal<Double> current;
   private final StatusSignal<Double> temperature;
 
-  private final Alert disconnectedAlert =
-      new Alert("Serializer Talon is disconnected, check CAN bus.", AlertType.ERROR);
-
   public SerializerIOTalonFX() {
-    serializerTalon = new TalonFX(SerializerConstants.DEVICE_ID);
-
     var config = new TalonFXConfiguration();
     config.CurrentLimits.SupplyCurrentLimit = SerializerConstants.SUPPLY_CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -50,13 +48,13 @@ public class SerializerIOTalonFX implements SerializerIO {
         BaseStatusSignal.refreshAll(velocity, position, appliedVolts, current, temperature).isOK();
     disconnectedAlert.set(!connected);
 
-    inputs.positionRad =
-        Units.rotationsToRadians(position.getValueAsDouble()) / SerializerConstants.GEAR_RATIO;
+    inputs.position =
+        Rotation2d.fromRotations(position.getValueAsDouble() / SerializerConstants.GEAR_RATIO);
     inputs.velocityRadPerSec =
         Units.rotationsToRadians(velocity.getValueAsDouble()) / SerializerConstants.GEAR_RATIO;
     inputs.appliedVolts = appliedVolts.getValueAsDouble();
-    inputs.currentAmps = new double[] {current.getValueAsDouble()};
-    inputs.tempCelcius = new double[] {temperature.getValueAsDouble()};
+    inputs.currentAmps = current.getValueAsDouble();
+    inputs.tempCelcius = temperature.getValueAsDouble();
   }
 
   @Override

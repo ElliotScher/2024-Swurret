@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class AutoRoutines {
-  public static final PathConstraints SLOW_PATH_CONSTRAINTS = new PathConstraints(1, 1, 2, 2);
+  public static final PathConstraints SLOW_PATH_CONSTRAINTS = new PathConstraints(1, 1, 4, 4);
 
   private static final Command leaveAuto(Drive drive) {
     return CompositeCommands.getPath(

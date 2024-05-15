@@ -7,7 +7,6 @@ import edu.wpi.first.math.numbers.N3;
 
 public class VisionConstants {
   public static final double BLINK_TIME = 0.067;
-
   public static final Matrix<N3, N1> DEFAULT_STANDARD_DEVIATIONS = VecBuilder.fill(0.0, 0.0, 0.0);
 
   public class Limelight3Constants {

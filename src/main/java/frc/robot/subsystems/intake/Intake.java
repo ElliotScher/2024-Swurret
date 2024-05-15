@@ -5,8 +5,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
-  private final IntakeIO io;
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
+
+  private final IntakeIO io;
 
   public Intake(IntakeIO io) {
     this.io = io;
@@ -29,10 +30,6 @@ public class Intake extends SubsystemBase {
     io.setIntakePosition(position);
   }
 
-  private void toggleIntakePosition() {
-    io.toggleIntakePosition();
-  }
-
   public Command runVoltage() {
     return runEnd(
         () -> io.setRollersVoltage(IntakeConstants.ROLLERS_VOLTAGE.get()), () -> stopRollers());
@@ -48,10 +45,6 @@ public class Intake extends SubsystemBase {
 
   public Command retractIntake() {
     return runOnce(() -> setIntakePosition(false));
-  }
-
-  public Command toggleIntake() {
-    return runOnce(() -> toggleIntakePosition());
   }
 
   public Command singleActuation() {

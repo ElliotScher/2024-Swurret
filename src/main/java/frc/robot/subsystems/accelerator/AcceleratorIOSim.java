@@ -1,6 +1,7 @@
 package frc.robot.subsystems.accelerator;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 
@@ -17,11 +18,11 @@ public class AcceleratorIOSim implements AcceleratorIO {
   public void updateInputs(AcceleratorIOInputs inputs) {
     motorSim.update(Constants.LOOP_PERIOD_SECS);
 
-    inputs.positionRad = motorSim.getAngularPositionRad();
+    inputs.position = Rotation2d.fromRadians(motorSim.getAngularPositionRad());
     inputs.velocityRadPerSec = motorSim.getAngularVelocityRadPerSec();
     inputs.appliedVolts = appliedVolts;
-    inputs.currentAmps = new double[] {Math.abs(motorSim.getCurrentDrawAmps())};
-    inputs.tempCelcius = new double[] {};
+    inputs.currentAmps = Math.abs(motorSim.getCurrentDrawAmps());
+    inputs.tempCelcius = 0.0;
   }
 
   @Override

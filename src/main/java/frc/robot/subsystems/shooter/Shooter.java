@@ -24,22 +24,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
-
-  private final ShooterIO io;
   private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
-
-  private static SimpleMotorFeedforward leftFeedforward;
-  private static SimpleMotorFeedforward rightFeedforward;
-
-  private static LinearProfile leftProfile;
-  private static LinearProfile rightProfile;
-
-  private static PIDController leftFeedback;
-  private static PIDController rightFeedback;
-
-  private boolean isOpenLoop = true;
-  private double openLoopVoltage = 0.0;
-
   private final SysIdRoutine sysIdRoutine =
       new SysIdRoutine(
           new SysIdRoutine.Config(
@@ -49,35 +34,37 @@ public class Shooter extends SubsystemBase {
               Seconds.of(ShooterConstants.SYSID_TIMEOUT),
               (state) -> Logger.recordOutput("Shooter/sysID State", state.toString())),
           new SysIdRoutine.Mechanism((volts) -> setVoltage(volts.in(Volts)), null, this));
+  private static SimpleMotorFeedforward leftFeedforward =
+      new SimpleMotorFeedforward(
+          ShooterConstants.KS_LEFT.get(),
+          ShooterConstants.KV_LEFT.get(),
+          ShooterConstants.KA_LEFT.get());
+  private static SimpleMotorFeedforward rightFeedforward =
+      new SimpleMotorFeedforward(
+          ShooterConstants.KS_RIGHT.get(),
+          ShooterConstants.KV_RIGHT.get(),
+          ShooterConstants.KA_RIGHT.get());
+  private static PIDController leftFeedback =
+      new PIDController(
+          ShooterConstants.KP.get(), 0.0, ShooterConstants.KD.get(), Constants.LOOP_PERIOD_SECS);
+  private static PIDController rightFeedback =
+      new PIDController(
+          ShooterConstants.KP.get(), 0.0, ShooterConstants.KD.get(), Constants.LOOP_PERIOD_SECS);
+  private static LinearProfile leftProfile =
+      new LinearProfile(ShooterConstants.MAX_ACCELERATION.get(), Constants.LOOP_PERIOD_SECS);
+  private static LinearProfile rightProfile =
+      new LinearProfile(ShooterConstants.MAX_ACCELERATION.get(), Constants.LOOP_PERIOD_SECS);
 
   @AutoLogOutput(key = "Shooter/Spin Direction")
   private SpinDirection spinDirection = SpinDirection.CLOCKWISE;
 
+  private boolean isOpenLoop = true;
+  private double openLoopVoltage = 0.0;
+
+  private final ShooterIO io;
+
   public Shooter(ShooterIO io) {
     this.io = io;
-    leftFeedback =
-        new PIDController(
-            ShooterConstants.KP.get(), 0.0, ShooterConstants.KD.get(), Constants.LOOP_PERIOD_SECS);
-    rightFeedback =
-        new PIDController(
-            ShooterConstants.KP.get(), 0.0, ShooterConstants.KD.get(), Constants.LOOP_PERIOD_SECS);
-
-    leftFeedforward =
-        new SimpleMotorFeedforward(
-            ShooterConstants.KS_LEFT.get(),
-            ShooterConstants.KV_LEFT.get(),
-            ShooterConstants.KA_LEFT.get());
-    rightFeedforward =
-        new SimpleMotorFeedforward(
-            ShooterConstants.KS_RIGHT.get(),
-            ShooterConstants.KV_RIGHT.get(),
-            ShooterConstants.KA_RIGHT.get());
-
-    leftProfile =
-        new LinearProfile(ShooterConstants.MAX_ACCELERATION.get(), Constants.LOOP_PERIOD_SECS);
-    rightProfile =
-        new LinearProfile(ShooterConstants.MAX_ACCELERATION.get(), Constants.LOOP_PERIOD_SECS);
-
     setDefaultCommand(runVelocity());
   }
 
@@ -214,7 +201,7 @@ public class Shooter extends SubsystemBase {
     return runEnd(
         () -> {
           AimingParameters aimingParameters = RobotState.poseCalculation(velocitySupplier.get());
-          if (spinDirection.equals(SpinDirection.YEET)) {
+          if (spinDirection.equals(SpinDirection.NONE)) {
             spinDirection = SpinDirection.CLOCKWISE;
           }
           Rotation2d effectiveRobotAngle = aimingParameters.robotAngle();

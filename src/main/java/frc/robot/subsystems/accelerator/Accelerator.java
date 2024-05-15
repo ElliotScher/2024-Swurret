@@ -5,9 +5,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
 public class Accelerator extends SubsystemBase {
+  private final AcceleratorIOInputsAutoLogged inputs = new AcceleratorIOInputsAutoLogged();
 
   private final AcceleratorIO io;
-  private final AcceleratorIOInputsAutoLogged inputs = new AcceleratorIOInputsAutoLogged();
 
   public Accelerator(AcceleratorIO io) {
     this.io = io;

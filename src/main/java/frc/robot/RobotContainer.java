@@ -91,14 +91,14 @@ public class RobotContainer {
   private final CommandXboxController driver = new CommandXboxController(0);
   private final CommandXboxController operator = new CommandXboxController(1);
 
-  // Dashboard Inputs
-  private LoggedDashboardChooser<String> autoChooser;
-
   // Tunable Numbers
   private final LoggedDashboardNumber autoDelay = new LoggedDashboardNumber("Auto Delay");
 
   // Note Tracking
   private static boolean isNoteTracking = false;
+
+  // Dashboard Inputs
+  private LoggedDashboardChooser<String> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -235,7 +235,6 @@ public class RobotContainer {
         vision::getCameraTypes,
         vision::getPrimaryVisionPoses,
         vision::getSecondaryVisionPoses,
-        drive::getPose,
         vision::getPrimaryPoseTimestamps,
         vision::getSecondaryPoseTimestamps);
 

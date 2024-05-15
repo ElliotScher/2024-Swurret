@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 
@@ -19,11 +20,11 @@ public class IntakeIOSim implements IntakeIO {
   public void updateInputs(IntakeIOInputs inputs) {
     motorSim.update(Constants.LOOP_PERIOD_SECS);
 
-    inputs.rollersPositionRad = motorSim.getAngularPositionRad();
+    inputs.rollersPosition = Rotation2d.fromRadians(motorSim.getAngularPositionRad());
     inputs.rollersVelocityRadPerSec = motorSim.getAngularVelocityRadPerSec();
     inputs.rollersAppliedVolts = rollersAppliedVolts;
-    inputs.rollersCurrentAmps = new double[] {Math.abs(motorSim.getCurrentDrawAmps())};
-    inputs.rollersTempCelcius = new double[] {};
+    inputs.rollersCurrentAmps = Math.abs(motorSim.getCurrentDrawAmps());
+    inputs.rollersTempCelcius = 0.0;
 
     inputs.leftPosition = leftPosition;
     inputs.rightPosition = rightPosition;
@@ -37,7 +38,7 @@ public class IntakeIOSim implements IntakeIO {
 
   @Override
   public void setIntakePosition(boolean position) {
-    leftPosition = !position;
-    rightPosition = !position;
+    leftPosition = position;
+    rightPosition = position;
   }
 }

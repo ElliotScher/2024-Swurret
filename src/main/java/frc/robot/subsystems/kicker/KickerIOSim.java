@@ -1,6 +1,7 @@
 package frc.robot.subsystems.kicker;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 
@@ -17,7 +18,7 @@ public class KickerIOSim implements KickerIO {
   public void updateInputs(KickerIOInputs inputs) {
     motorSim.update(Constants.LOOP_PERIOD_SECS);
 
-    inputs.positionRad = motorSim.getAngularPositionRad();
+    inputs.position = Rotation2d.fromRadians(motorSim.getAngularPositionRad());
     inputs.velocityRadPerSec = motorSim.getAngularVelocityRadPerSec();
     inputs.appliedVolts = appliedVolts;
     inputs.currentAmps = new double[] {Math.abs(motorSim.getCurrentDrawAmps())};

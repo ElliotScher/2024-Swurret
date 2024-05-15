@@ -8,14 +8,14 @@ public interface ClimberIO {
     public double leftPositionMeters = 0.0;
     public double leftVelocityMetersPerSec = 0.0;
     public double leftAppliedVolts = 0.0;
-    public double[] leftCurrentAmps = new double[] {};
-    public double[] leftTempCelcius = new double[] {};
+    public double leftCurrentAmps = 0.0;
+    public double leftTempCelcius = 0.0;
 
     public double rightPositionMeters = 0.0;
     public double rightVelocityMetersPerSec = 0.0;
     public double rightAppliedVolts = 0.0;
-    public double[] rightCurrentAmps = new double[] {};
-    public double[] rightTempCelcius = new double[] {};
+    public double rightCurrentAmps = 0.0;
+    public double rightTempCelcius = 0.0;
 
     public boolean lockedPosition = true;
   }

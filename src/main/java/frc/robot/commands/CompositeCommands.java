@@ -65,27 +65,28 @@ public class CompositeCommands {
 
   public static final Command getSourceFeedCommand(
       Shooter shooter, Hood hood, Accelerator accelerator, Kicker kicker) {
-    return shooter.runSourceFeed().alongWith(hood.setSourceFeed(), accelerator.runAccelerator());
+    return Commands.parallel(
+        shooter.runSourceFeed(), hood.setSourceFeed(), accelerator.runAccelerator());
   }
 
   public static final Command getAmpFeedCommand(
       Shooter shooter, Hood hood, Accelerator accelerator, Kicker kicker) {
-    return shooter.runAmpFeed().alongWith(hood.setAmpFeed(), accelerator.runAccelerator());
+    return Commands.parallel(shooter.runAmpFeed(), hood.setAmpFeed(), accelerator.runAccelerator());
   }
 
   public static final Command getPosePrepShooterCommand(
       Drive drive, Hood hood, Shooter shooter, Accelerator accelerator) {
-    return shooter
-        .runPoseDistance(
-            () -> RobotState.getRobotPose().getTranslation(), drive::getFieldRelativeVelocity)
-        .alongWith(
-            hood.setPosePosition(
-                () -> RobotState.getRobotPose().getTranslation(), drive::getFieldRelativeVelocity))
-        .alongWith(accelerator.runAccelerator());
+    return Commands.parallel(
+        shooter.runPoseDistance(
+            () -> RobotState.getRobotPose().getTranslation(), drive::getFieldRelativeVelocity),
+        hood.setPosePosition(
+            () -> RobotState.getRobotPose().getTranslation(), drive::getFieldRelativeVelocity),
+        accelerator.runAccelerator());
   }
 
   public static final Command getShootCommand(Intake intake, Serializer serializer, Kicker kicker) {
-    return serializer.shoot().alongWith(intake.runVoltage(), kicker.shoot()).withTimeout(0.25);
+    return Commands.parallel(serializer.shoot(), intake.runVoltage(), kicker.shoot())
+        .withTimeout(0.25);
   }
 
   public static final Command getFeedCommand(Intake intake, Serializer serializer, Kicker kicker) {
@@ -101,19 +102,21 @@ public class CompositeCommands {
       Pose2d targetPose,
       TrackingMode targetType) {
     return Constants.ROBOT.equals(RobotType.ROBOT_SIM)
-        ? (DriveCommands.moveTowardsTarget(
+        ? Commands.parallel(
+                DriveCommands.moveTowardsTarget(
                     drive,
                     FieldConstants.StagingLocations.spikeX - 0.5,
                     AllianceFlipUtil.apply(targetPose),
-                    targetType)
-                .alongWith(getCollectCommand(intake, serializer)))
+                    targetType),
+                getCollectCommand(intake, serializer))
             .withTimeout(2)
-        : (DriveCommands.moveTowardsTarget(
+        : Commands.race(
+                DriveCommands.moveTowardsTarget(
                     drive,
                     FieldConstants.StagingLocations.spikeX - 0.5,
                     AllianceFlipUtil.apply(targetPose),
-                    targetType)
-                .raceWith(getCollectCommand(intake, serializer)))
+                    targetType),
+                getCollectCommand(intake, serializer))
             .withTimeout(2);
   }
 

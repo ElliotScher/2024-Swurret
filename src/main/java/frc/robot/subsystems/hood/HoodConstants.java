@@ -7,17 +7,6 @@ import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
 
 public class HoodConstants {
-  public static final int DEVICE_ID;
-  public static final double SUPPLY_CURRENT_LIMIT;
-  public static final double GEAR_RATIO;
-  public static final double MOMENT_OF_INTERTIA;
-  public static final double ARM_LENGTH;
-  public static final Rotation2d MINIMUM_ANGLE;
-  public static final Rotation2d MAXIMUM_ANGLE;
-  public static final boolean SIMULATE_GRAVITY;
-  public static final Rotation2d STARTING_POSITION;
-  public static final DCMotor MOTOR_CONFIG;
-
   public static final LoggedTunableNumber KP = new LoggedTunableNumber("Hood/Kp");
   public static final LoggedTunableNumber KD = new LoggedTunableNumber("Hood/Kd");
   public static final LoggedTunableNumber MAX_VELOCITY =
@@ -39,7 +28,20 @@ public class HoodConstants {
   public static final LoggedTunableNumber GOAL_TOLERANCE =
       new LoggedTunableNumber("Hood/Goal Tolerance");
 
+  public static final int DEVICE_ID;
+  public static final double SUPPLY_CURRENT_LIMIT;
+  public static final double GEAR_RATIO;
+  public static final double MOMENT_OF_INTERTIA;
+  public static final double ARM_LENGTH;
+  public static final Rotation2d MINIMUM_ANGLE;
+  public static final Rotation2d MAXIMUM_ANGLE;
+  public static final boolean SIMULATE_GRAVITY;
+  public static final Rotation2d STARTING_POSITION;
+  public static final DCMotor MOTOR_CONFIG;
+
   static {
+    GOAL_TOLERANCE.initDefault(0.017);
+
     DEVICE_ID = 7;
     SUPPLY_CURRENT_LIMIT = 60.0;
     GEAR_RATIO = 85.0;
@@ -50,7 +52,6 @@ public class HoodConstants {
     SIMULATE_GRAVITY = true;
     STARTING_POSITION = Rotation2d.fromDegrees(38.0);
     MOTOR_CONFIG = DCMotor.getKrakenX60(1);
-    GOAL_TOLERANCE.initDefault(0.017);
     switch (Constants.ROBOT) {
       case SNAPBACK:
         KP.initDefault(25.0);

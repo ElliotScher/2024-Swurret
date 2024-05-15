@@ -189,9 +189,9 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnDisconnectedAlert.set(!turnConnected);
     cancoderDisconnectedAlert.set(!cancoderConnected);
 
-    inputs.drivePositionRad =
-        Units.rotationsToRadians(drivePosition.getValueAsDouble())
-            / ModuleConstants.DRIVE_GEAR_RATIO;
+    inputs.drivePosition =
+        Rotation2d.fromRotations(
+            drivePosition.getValueAsDouble() / ModuleConstants.DRIVE_GEAR_RATIO);
     inputs.driveVelocityRadPerSec =
         Units.rotationsToRadians(driveVelocity.getValueAsDouble())
             / ModuleConstants.DRIVE_GEAR_RATIO;
@@ -214,10 +214,10 @@ public class ModuleIOTalonFX implements ModuleIO {
         timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
     inputs.odometryDrivePositionsRad =
         drivePositionQueue.stream()
-            .mapToDouble(
+            .map(
                 (Double value) ->
-                    Units.rotationsToRadians(value) / ModuleConstants.DRIVE_GEAR_RATIO)
-            .toArray();
+                    Rotation2d.fromRotations(value / ModuleConstants.DRIVE_GEAR_RATIO))
+            .toArray(Rotation2d[]::new);
     inputs.odometryTurnPositions =
         turnPositionQueue.stream()
             .map(

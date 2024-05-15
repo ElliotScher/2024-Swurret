@@ -5,19 +5,6 @@ import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
 
 public class ShooterConstants {
-  public static final int LEFT_DEVICE_ID;
-  public static final int RIGHT_DEVICE_ID;
-  public static final double SUPPLY_CURRENT_LIMIT;
-  public static final double GEAR_RATIO;
-  public static final double MOMENT_OF_INERTIA;
-  public static final DCMotor MOTOR_CONFIG;
-  public static final double ENABLED_SPIN_DISTANCE;
-  public static final double SPEAKER_TO_ROBOT_SPIN_THRESHOLD;
-  public static final double SYSID_DELAY;
-  public static final double RAMP_RATE_VOLTAGE;
-  public static final double RAMP_RATE_SECONDS;
-  public static final double STEP_VOLTAGE;
-  public static final double SYSID_TIMEOUT;
   public static final LoggedTunableNumber RATIO = new LoggedTunableNumber("Shooter/Ratio");
   public static final LoggedTunableNumber KP = new LoggedTunableNumber("Shooter/Kp");
   public static final LoggedTunableNumber KD = new LoggedTunableNumber("Shooter/Kd");
@@ -38,7 +25,32 @@ public class ShooterConstants {
   public static final LoggedTunableNumber GOAL_TOLERANCE =
       new LoggedTunableNumber("Shooter/Goal Tolerance");
 
+  public static final int LEFT_DEVICE_ID;
+  public static final int RIGHT_DEVICE_ID;
+  public static final double SUPPLY_CURRENT_LIMIT;
+  public static final double GEAR_RATIO;
+  public static final double MOMENT_OF_INERTIA;
+  public static final DCMotor MOTOR_CONFIG;
+  public static final double ENABLED_SPIN_DISTANCE;
+  public static final double SPEAKER_TO_ROBOT_SPIN_THRESHOLD;
+  public static final double SYSID_DELAY;
+  public static final double RAMP_RATE_VOLTAGE;
+  public static final double RAMP_RATE_SECONDS;
+  public static final double STEP_VOLTAGE;
+  public static final double SYSID_TIMEOUT;
+
   static {
+    GOAL_TOLERANCE.initDefault(10);
+    MAX_ACCELERATION.initDefault(425);
+    KS_LEFT.initDefault(0.13053);
+    KV_LEFT.initDefault(0.0072202);
+    KA_LEFT.initDefault(0.0010296);
+    KS_RIGHT.initDefault(0.15054);
+    KV_RIGHT.initDefault(0.0068511);
+    KA_RIGHT.initDefault(0.0011501);
+    SOURCE_FEED_SPEED.initDefault(550);
+    AMP_FEED_SPEED.initDefault(400);
+
     LEFT_DEVICE_ID = 16;
     RIGHT_DEVICE_ID = 10;
     SUPPLY_CURRENT_LIMIT = 60.0;
@@ -52,16 +64,6 @@ public class ShooterConstants {
     RAMP_RATE_SECONDS = 1.0;
     STEP_VOLTAGE = 3.5;
     SYSID_TIMEOUT = 10.0;
-    GOAL_TOLERANCE.initDefault(10);
-    MAX_ACCELERATION.initDefault(425);
-    KS_LEFT.initDefault(0.13053);
-    KV_LEFT.initDefault(0.0072202);
-    KA_LEFT.initDefault(0.0010296);
-    KS_RIGHT.initDefault(0.15054);
-    KV_RIGHT.initDefault(0.0068511);
-    KA_RIGHT.initDefault(0.0011501);
-    SOURCE_FEED_SPEED.initDefault(550);
-    AMP_FEED_SPEED.initDefault(400);
     switch (Constants.ROBOT) {
       case SNAPBACK:
         KP.initDefault(0.008);

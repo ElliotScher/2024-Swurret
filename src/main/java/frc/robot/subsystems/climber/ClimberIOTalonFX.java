@@ -13,9 +13,14 @@ import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 
 public class ClimberIOTalonFX implements ClimberIO {
-  private final TalonFX leftTalon;
-  private final TalonFX rightTalon;
-  private final Solenoid climberSolenoid;
+  private final TalonFX leftTalon = new TalonFX(ClimberConstants.LEFT_CLIMBER_TALON_DEVICE_ID);
+  private final TalonFX rightTalon = new TalonFX(ClimberConstants.RIGHT_CLIMBER_TALON_DEVICE_ID);
+  private final Solenoid climberSolenoid =
+      new Solenoid(PneumaticsModuleType.CTREPCM, ClimberConstants.SOLENOID_CHANNEL);
+  private final Alert leftDisconnectedAlert =
+      new Alert("Left climber Talon is disconnected, check CAN bus.", AlertType.ERROR);
+  private final Alert rightDisconnectedAlert =
+      new Alert("Right climber Talon is disconnected, check CAN bus.", AlertType.ERROR);
 
   private final StatusSignal<Double> leftPosition;
   private final StatusSignal<Double> leftVelocity;
@@ -29,16 +34,7 @@ public class ClimberIOTalonFX implements ClimberIO {
   private final StatusSignal<Double> rightCurrentAmps;
   private final StatusSignal<Double> rightTempCelcius;
 
-  private final Alert leftDisconnectedAlert =
-      new Alert("Left climber Talon is disconnected, check CAN bus.", AlertType.ERROR);
-  private final Alert rightDisconnectedAlert =
-      new Alert("Right climber Talon is disconnected, check CAN bus.", AlertType.ERROR);
-
   public ClimberIOTalonFX() {
-    leftTalon = new TalonFX(ClimberConstants.LEFT_CLIMBER_TALON_DEVICE_ID);
-    rightTalon = new TalonFX(ClimberConstants.RIGHT_CLIMBER_TALON_DEVICE_ID);
-    climberSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, ClimberConstants.SOLENOID_CHANNEL);
-
     var config = new TalonFXConfiguration();
     config.CurrentLimits.SupplyCurrentLimit = ClimberConstants.SUPPLY_CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -106,8 +102,8 @@ public class ClimberIOTalonFX implements ClimberIO {
             / ClimberConstants.GEAR_RATIO
             / ClimberConstants.DRUM_CIRCUMFERENCE;
     inputs.leftAppliedVolts = leftAppliedVolts.getValueAsDouble();
-    inputs.leftCurrentAmps = new double[] {leftCurrentAmps.getValueAsDouble()};
-    inputs.leftTempCelcius = new double[] {leftTempCelcius.getValueAsDouble()};
+    inputs.leftCurrentAmps = leftCurrentAmps.getValueAsDouble();
+    inputs.leftTempCelcius = leftTempCelcius.getValueAsDouble();
 
     inputs.rightPositionMeters =
         rightPosition.getValueAsDouble()
@@ -118,8 +114,8 @@ public class ClimberIOTalonFX implements ClimberIO {
             / ClimberConstants.GEAR_RATIO
             / ClimberConstants.DRUM_CIRCUMFERENCE;
     inputs.rightAppliedVolts = rightAppliedVolts.getValueAsDouble();
-    inputs.rightCurrentAmps = new double[] {rightCurrentAmps.getValueAsDouble()};
-    inputs.rightTempCelcius = new double[] {rightTempCelcius.getValueAsDouble()};
+    inputs.rightCurrentAmps = rightCurrentAmps.getValueAsDouble();
+    inputs.rightTempCelcius = rightTempCelcius.getValueAsDouble();
   }
 
   @Override

@@ -10,6 +10,15 @@ import frc.robot.util.LoggedTunableNumber;
 import lombok.Builder;
 
 public class ModuleConstants {
+  public static final LoggedTunableNumber WHEEL_RADIUS =
+      new LoggedTunableNumber("Drive/Wheel Radius");
+  public static final LoggedTunableNumber DRIVE_KS = new LoggedTunableNumber("Drive/Drive Ks");
+  public static final LoggedTunableNumber DRIVE_KV = new LoggedTunableNumber("Drive/Drive Kv");
+  public static final LoggedTunableNumber DRIVE_KP = new LoggedTunableNumber("Drive/Drive Kp");
+  public static final LoggedTunableNumber DRIVE_KD = new LoggedTunableNumber("Drive/Drive Kd");
+  public static final LoggedTunableNumber TURN_KP = new LoggedTunableNumber("Drive/Turn Kp");
+  public static final LoggedTunableNumber TURN_KD = new LoggedTunableNumber("Drive/Turn Kd");
+
   public static final ModuleConfig frontLeftConfig;
   public static final ModuleConfig frontRightConfig;
   public static final ModuleConfig rearLeftConfig;
@@ -24,14 +33,6 @@ public class ModuleConstants {
   public static final double TURN_MOMENT_OF_INERTIA;
   public static final DCMotor DRIVE_MOTOR_CONFIG;
   public static final DCMotor TURN_MOTOR_CONFIG;
-  public static final LoggedTunableNumber WHEEL_RADIUS =
-      new LoggedTunableNumber("Drive/Wheel Radius");
-  public static final LoggedTunableNumber DRIVE_KS = new LoggedTunableNumber("Drive/Drive Ks");
-  public static final LoggedTunableNumber DRIVE_KV = new LoggedTunableNumber("Drive/Drive Kv");
-  public static final LoggedTunableNumber DRIVE_KP = new LoggedTunableNumber("Drive/Drive Kp");
-  public static final LoggedTunableNumber DRIVE_KD = new LoggedTunableNumber("Drive/Drive Kd");
-  public static final LoggedTunableNumber TURN_KP = new LoggedTunableNumber("Drive/Turn Kp");
-  public static final LoggedTunableNumber TURN_KD = new LoggedTunableNumber("Drive/Turn Kd");
 
   static {
     ODOMETRY_FREQUENCY = 250.0;

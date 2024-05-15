@@ -14,20 +14,18 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Hood extends SubsystemBase {
-  private final HoodIO io;
   private final HoodIOInputsAutoLogged inputs = new HoodIOInputsAutoLogged();
+  private final ProfiledPIDController profiledFeedback =
+      new ProfiledPIDController(
+          HoodConstants.KP.get(),
+          0.0,
+          HoodConstants.KD.get(),
+          new Constraints(HoodConstants.MAX_VELOCITY.get(), HoodConstants.MAX_ACCELERATION.get()));
 
-  private final ProfiledPIDController profiledFeedback;
+  private final HoodIO io;
 
   public Hood(HoodIO io) {
     this.io = io;
-    profiledFeedback =
-        new ProfiledPIDController(
-            HoodConstants.KP.get(),
-            0.0,
-            HoodConstants.KD.get(),
-            new Constraints(
-                HoodConstants.MAX_VELOCITY.get(), HoodConstants.MAX_ACCELERATION.get()));
     setDefaultCommand(
         run(
             () -> {
@@ -59,8 +57,8 @@ public class Hood extends SubsystemBase {
       profiledFeedback.reset(inputs.position.getRadians(), 0);
     }
 
-    Logger.recordOutput("Hood/goal", profiledFeedback.getGoal().position);
-    Logger.recordOutput("Hood/setpoint", profiledFeedback.getSetpoint().position);
+    Logger.recordOutput("Hood/Goal", profiledFeedback.getGoal().position);
+    Logger.recordOutput("Hood/Setpoint", profiledFeedback.getSetpoint().position);
   }
 
   private void setPosition(double positionRad) {

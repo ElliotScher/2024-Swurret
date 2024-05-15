@@ -19,14 +19,15 @@ import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import frc.robot.Constants;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 import java.util.Queue;
 
 /** IO implementation for Pigeon2 */
 public class GyroIOPigeon2 implements GyroIO {
-  private final Pigeon2 pigeon;
+  private final Pigeon2 pigeon =
+      new Pigeon2(DriveConstants.PIGEON_2_DEVICE_ID, DriveConstants.CANIVORE);
+
   private final StatusSignal<Double> yaw;
   private final Queue<Double> yawPositionQueue;
   private final Queue<Double> yawTimestampQueue;
@@ -36,15 +37,6 @@ public class GyroIOPigeon2 implements GyroIO {
       new Alert("Pigeon is disconnected, check CAN bus.", AlertType.ERROR);
 
   public GyroIOPigeon2() {
-    switch (Constants.ROBOT) {
-      case SNAPBACK:
-      case ROBOT_2K24_TEST:
-        pigeon = new Pigeon2(DriveConstants.PIGEON_2_DEVICE_ID, DriveConstants.CANIVORE);
-        break;
-      default:
-        throw new RuntimeException("Invalid robot");
-    }
-
     yaw = pigeon.getYaw();
     yawVelocity = pigeon.getAngularVelocityZWorld();
     pigeon.getConfigurator().apply(new Pigeon2Configuration());

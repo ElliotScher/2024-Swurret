@@ -9,29 +9,26 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
 public class Climber extends SubsystemBase {
-  private final ClimberIO io;
   private final ClimberIOInputsAutoLogged inputs = new ClimberIOInputsAutoLogged();
+  private final ProfiledPIDController leftProfiledFeedback =
+      new ProfiledPIDController(
+          ClimberConstants.KP.get(),
+          0.0,
+          ClimberConstants.KD.get(),
+          new Constraints(
+              ClimberConstants.MAX_VELOCITY.get(), ClimberConstants.MAX_ACCELERATION.get()));
+  private final ProfiledPIDController rightProfiledFeedback =
+      new ProfiledPIDController(
+          ClimberConstants.KP.get(),
+          0.0,
+          ClimberConstants.KD.get(),
+          new Constraints(
+              ClimberConstants.MAX_VELOCITY.get(), ClimberConstants.MAX_ACCELERATION.get()));
 
-  private final ProfiledPIDController leftProfiledFeedback;
-  private final ProfiledPIDController rightProfiledFeedback;
+  private final ClimberIO io;
 
   public Climber(ClimberIO io) {
     this.io = io;
-    leftProfiledFeedback =
-        new ProfiledPIDController(
-            ClimberConstants.KP.get(),
-            0.0,
-            ClimberConstants.KD.get(),
-            new Constraints(
-                ClimberConstants.MAX_VELOCITY.get(), ClimberConstants.MAX_ACCELERATION.get()));
-    rightProfiledFeedback =
-        new ProfiledPIDController(
-            ClimberConstants.KP.get(),
-            0.0,
-            ClimberConstants.KD.get(),
-            new Constraints(
-                ClimberConstants.MAX_VELOCITY.get(), ClimberConstants.MAX_ACCELERATION.get()));
-
     leftProfiledFeedback.setTolerance(ClimberConstants.CLIMB_POSITION_TOLERANCE);
     rightProfiledFeedback.setTolerance(ClimberConstants.CLIMB_POSITION_TOLERANCE);
   }
@@ -87,14 +84,6 @@ public class Climber extends SubsystemBase {
         .until(() -> rightProfiledFeedback.atGoal());
   }
 
-  public double getLeftPositionMeters() {
-    return inputs.leftPositionMeters;
-  }
-
-  public double getRightPositionMeters() {
-    return inputs.rightPositionMeters;
-  }
-
   public Command preClimb() {
     return Commands.runOnce(() -> io.setLock(false))
         .andThen(Commands.waitSeconds(ClimberConstants.LOCKING_DELAY))
@@ -114,14 +103,14 @@ public class Climber extends SubsystemBase {
                     () -> io.setLeftVoltage(0.0))
                 .until(
                     () ->
-                        inputs.leftCurrentAmps[inputs.leftCurrentAmps.length - 1]
+                        inputs.leftCurrentAmps
                             >= ClimberConstants.CLIMB_TRANSITION_CURRENT_THRESHOLD),
             Commands.runEnd(
                     () -> io.setRightVoltage(ClimberConstants.CLIMB_STAGE_1_VOLTAGE),
                     () -> io.setRightVoltage(0.0))
                 .until(
                     () ->
-                        inputs.rightCurrentAmps[inputs.rightCurrentAmps.length - 1]
+                        inputs.rightCurrentAmps
                             >= ClimberConstants.CLIMB_TRANSITION_CURRENT_THRESHOLD)),
         Commands.race(
             Commands.runEnd(
@@ -164,16 +153,13 @@ public class Climber extends SubsystemBase {
                     () -> io.setLeftVoltage(ClimberConstants.CLIMB_ZERO_VOLTAGE),
                     () -> io.setLeftVoltage(0.0))
                 .until(
-                    () ->
-                        inputs.leftCurrentAmps[inputs.leftCurrentAmps.length - 1]
-                            >= ClimberConstants.CLIMB_ZERO_CURRENT_THRESHOLD),
+                    () -> inputs.leftCurrentAmps >= ClimberConstants.CLIMB_ZERO_CURRENT_THRESHOLD),
             Commands.runEnd(
                     () -> io.setRightVoltage(ClimberConstants.CLIMB_ZERO_VOLTAGE),
                     () -> io.setRightVoltage(0.0))
                 .until(
                     () ->
-                        inputs.rightCurrentAmps[inputs.rightCurrentAmps.length - 1]
-                            >= ClimberConstants.CLIMB_ZERO_CURRENT_THRESHOLD)),
+                        inputs.rightCurrentAmps >= ClimberConstants.CLIMB_ZERO_CURRENT_THRESHOLD)),
         stop(),
         Commands.runOnce(
             () -> {

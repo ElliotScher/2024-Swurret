@@ -25,8 +25,8 @@ public class HoodIOSim implements HoodIO {
     inputs.position = Rotation2d.fromRadians(armSim.getAngleRads());
     inputs.velocityRadPerSec = armSim.getVelocityRadPerSec();
     inputs.appliedVolts = appliedVolts;
-    inputs.currentAmps = new double[] {Math.abs(armSim.getCurrentDrawAmps())};
-    inputs.tempCelcius = new double[] {};
+    inputs.currentAmps = Math.abs(armSim.getCurrentDrawAmps());
+    inputs.tempCelcius = 0.0;
   }
 
   @Override

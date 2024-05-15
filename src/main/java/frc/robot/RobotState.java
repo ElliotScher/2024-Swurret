@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
@@ -20,13 +19,11 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 import frc.robot.util.AllianceFlipUtil;
-import frc.robot.util.VirtualSubsystem;
 import java.util.function.Supplier;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
-public class RobotState extends VirtualSubsystem {
-  private static final double BUFFER_SECONDS = 3.0;
+public class RobotState {
   private static final InterpolatingDoubleTreeMap shooterSpeedMap =
       new InterpolatingDoubleTreeMap();
   private static final InterpolatingDoubleTreeMap shooterAngleMap =
@@ -34,8 +31,11 @@ public class RobotState extends VirtualSubsystem {
   private static final InterpolatingDoubleTreeMap timeOfFlightMap =
       new InterpolatingDoubleTreeMap();
 
-  private static final TimeInterpolatableBuffer<Pose2d> robotPoseBuffer =
-      TimeInterpolatableBuffer.createBuffer(BUFFER_SECONDS);
+  private static final Alert secondaryPosesNullAlert =
+      new Alert("SECONDARY VISION POSES ARE NULL", AlertType.INFO);
+
+  @Getter private static double flywheelOffset = 0.0;
+  @Getter private static double hoodOffset = 0.0;
 
   private static SwerveDrivePoseEstimator poseEstimator;
 
@@ -44,15 +44,8 @@ public class RobotState extends VirtualSubsystem {
   private static Supplier<CameraType[]> camerasSupplier;
   private static Supplier<Pose3d[]> visionPrimaryPosesSupplier;
   private static Supplier<Pose3d[]> visionSecondaryPosesSupplier;
-  private static Supplier<Pose2d> drivePoseSupplier;
   private static Supplier<double[]> visionPrimaryPoseTimestampsSupplier;
   private static Supplier<double[]> visionSecondaryPoseTimestampsSupplier;
-
-  @Getter private static double flywheelOffset = 0.0;
-  @Getter private static double hoodOffset = 0.0;
-
-  private static Alert secondaryPosesNullAlert =
-      new Alert("SECONDARY VISION POSES ARE NULL", AlertType.INFO);
 
   static {
     // Units: radians per second
@@ -90,7 +83,6 @@ public class RobotState extends VirtualSubsystem {
       Supplier<CameraType[]> camerasSupplier,
       Supplier<Pose3d[]> visionPrimaryPosesSupplier,
       Supplier<Pose3d[]> visionSecondaryPosesSupplier,
-      Supplier<Pose2d> drivePoseSupplier,
       Supplier<double[]> visionPrimaryPoseTimestampsSupplier,
       Supplier<double[]> visionSecondaryPoseTimestampsSupplier) {
     RobotState.robotHeadingSupplier = robotHeadingSupplier;
@@ -98,7 +90,6 @@ public class RobotState extends VirtualSubsystem {
     RobotState.camerasSupplier = camerasSupplier;
     RobotState.visionPrimaryPosesSupplier = visionPrimaryPosesSupplier;
     RobotState.visionSecondaryPosesSupplier = visionSecondaryPosesSupplier;
-    RobotState.drivePoseSupplier = drivePoseSupplier;
     RobotState.visionPrimaryPoseTimestampsSupplier = visionPrimaryPoseTimestampsSupplier;
     RobotState.visionSecondaryPoseTimestampsSupplier = visionSecondaryPoseTimestampsSupplier;
 
@@ -112,10 +103,7 @@ public class RobotState extends VirtualSubsystem {
             VisionConstants.DEFAULT_STANDARD_DEVIATIONS);
   }
 
-  @Override
-  public void periodic() {
-    robotPoseBuffer.addSample(Timer.getFPGATimestamp(), drivePoseSupplier.get());
-
+  public static void periodic() {
     poseEstimator.updateWithTime(
         Timer.getFPGATimestamp(), robotHeadingSupplier.get(), modulePositionSupplier.get());
     for (int i = 0; i < visionPrimaryPosesSupplier.get().length; i++) {
@@ -124,16 +112,18 @@ public class RobotState extends VirtualSubsystem {
           visionPrimaryPoseTimestampsSupplier.get()[i],
           camerasSupplier.get()[i].primaryStandardDeviations);
     }
-    try {
-      for (int i = 0; i < visionSecondaryPosesSupplier.get().length; i++) {
-        poseEstimator.addVisionMeasurement(
-            visionSecondaryPosesSupplier.get()[i].toPose2d(),
-            visionSecondaryPoseTimestampsSupplier.get()[i],
-            camerasSupplier.get()[i].secondaryStandardDeviations);
+    if (!secondaryPosesNullAlert.isActive()) {
+      try {
+        for (int i = 0; i < visionSecondaryPosesSupplier.get().length; i++) {
+          poseEstimator.addVisionMeasurement(
+              visionSecondaryPosesSupplier.get()[i].toPose2d(),
+              visionSecondaryPoseTimestampsSupplier.get()[i],
+              camerasSupplier.get()[i].secondaryStandardDeviations);
+        }
+        secondaryPosesNullAlert.set(false);
+      } catch (Exception e) {
+        secondaryPosesNullAlert.set(true);
       }
-      secondaryPosesNullAlert.set(false);
-    } catch (Exception e) {
-      secondaryPosesNullAlert.set(true);
     }
 
     Logger.recordOutput("RobotState/MegaTag 1 Pose", visionPrimaryPosesSupplier.get());

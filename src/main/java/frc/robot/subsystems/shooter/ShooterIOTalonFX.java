@@ -5,13 +5,18 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 
 public class ShooterIOTalonFX implements ShooterIO {
-  private final TalonFX leftShooterTalon;
-  private final TalonFX rightShooterTalon;
+  private final TalonFX leftShooterTalon = new TalonFX(ShooterConstants.LEFT_DEVICE_ID);
+  private final TalonFX rightShooterTalon = new TalonFX(ShooterConstants.RIGHT_DEVICE_ID);
+  private final Alert leftDisconnectedAlert =
+      new Alert("Shooter left Talon is disconnected, check CAN bus.", AlertType.ERROR);
+  private final Alert rightDisconnectedAlert =
+      new Alert("Shooter right Talon is disconnected, check CAN bus.", AlertType.ERROR);
 
   private final StatusSignal<Double> leftPosition;
   private final StatusSignal<Double> leftVelocity;
@@ -25,15 +30,7 @@ public class ShooterIOTalonFX implements ShooterIO {
   private final StatusSignal<Double> rightCurrent;
   private final StatusSignal<Double> rightTemperature;
 
-  private final Alert leftDisconnectedAlert =
-      new Alert("Shooter left Talon is disconnected, check CAN bus.", AlertType.ERROR);
-  private final Alert rightDisconnectedAlert =
-      new Alert("Shooter right Talon is disconnected, check CAN bus.", AlertType.ERROR);
-
   public ShooterIOTalonFX() {
-    leftShooterTalon = new TalonFX(ShooterConstants.LEFT_DEVICE_ID);
-    rightShooterTalon = new TalonFX(ShooterConstants.RIGHT_DEVICE_ID);
-
     var config = new TalonFXConfiguration();
     config.CurrentLimits.SupplyCurrentLimit = ShooterConstants.SUPPLY_CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -83,16 +80,16 @@ public class ShooterIOTalonFX implements ShooterIO {
     leftDisconnectedAlert.set(!leftConnected);
     rightDisconnectedAlert.set(!rightConnected);
 
-    inputs.leftPositionRad =
-        Units.rotationsToRadians(leftPosition.getValueAsDouble()) * ShooterConstants.GEAR_RATIO;
+    inputs.leftPosition =
+        Rotation2d.fromRotations(leftPosition.getValueAsDouble() * ShooterConstants.GEAR_RATIO);
     inputs.leftVelocityRadPerSec =
         Units.rotationsToRadians(leftVelocity.getValueAsDouble()) * ShooterConstants.GEAR_RATIO;
     inputs.leftAppliedVolts = leftAppliedVolts.getValueAsDouble();
     inputs.leftCurrentAmps = new double[] {leftCurrent.getValueAsDouble()};
     inputs.leftTempCelcius = new double[] {leftTemperature.getValueAsDouble()};
 
-    inputs.rightPositionRad =
-        Units.rotationsToRadians(rightPosition.getValueAsDouble()) * ShooterConstants.GEAR_RATIO;
+    inputs.rightPosition =
+        Rotation2d.fromRotations(rightPosition.getValueAsDouble() * ShooterConstants.GEAR_RATIO);
     inputs.rightVelocityRadPerSec =
         Units.rotationsToRadians(rightVelocity.getValueAsDouble()) * ShooterConstants.GEAR_RATIO;
     inputs.rightAppliedVolts = rightAppliedVolts.getValueAsDouble();

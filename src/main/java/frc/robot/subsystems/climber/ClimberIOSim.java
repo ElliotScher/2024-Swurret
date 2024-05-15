@@ -38,14 +38,14 @@ public class ClimberIOSim implements ClimberIO {
     inputs.leftPositionMeters = leftClimberSim.getPositionMeters();
     inputs.leftVelocityMetersPerSec = leftClimberSim.getVelocityMetersPerSecond();
     inputs.leftAppliedVolts = leftAppliedVolts;
-    inputs.leftCurrentAmps = new double[] {leftClimberSim.getCurrentDrawAmps()};
-    inputs.leftTempCelcius = new double[] {};
+    inputs.leftCurrentAmps = leftClimberSim.getCurrentDrawAmps();
+    inputs.leftTempCelcius = 0.0;
 
     inputs.rightPositionMeters = rightClimberSim.getPositionMeters();
     inputs.rightVelocityMetersPerSec = rightClimberSim.getVelocityMetersPerSecond();
     inputs.rightAppliedVolts = rightAppliedVolts;
-    inputs.rightCurrentAmps = new double[] {rightClimberSim.getCurrentDrawAmps()};
-    inputs.rightTempCelcius = new double[] {};
+    inputs.rightCurrentAmps = rightClimberSim.getCurrentDrawAmps();
+    inputs.rightTempCelcius = 0.0;
   }
 
   @Override

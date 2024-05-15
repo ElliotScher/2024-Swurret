@@ -24,40 +24,36 @@ import frc.robot.util.Alert.AlertType;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
-  private final ModuleIO io;
   private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
-  private final int index;
-
-  private SimpleMotorFeedforward driveFeedforward;
-  private final PIDController driveFeedback;
-  private final PIDController turnFeedback;
+  private SimpleMotorFeedforward driveFeedforward =
+      new SimpleMotorFeedforward(ModuleConstants.DRIVE_KS.get(), ModuleConstants.DRIVE_KV.get());
+  private final PIDController driveFeedback =
+      new PIDController(
+          ModuleConstants.DRIVE_KP.get(),
+          0.0,
+          ModuleConstants.DRIVE_KD.get(),
+          Constants.LOOP_PERIOD_SECS);
+  private final PIDController turnFeedback =
+      new PIDController(
+          ModuleConstants.TURN_KP.get(),
+          0.0,
+          ModuleConstants.TURN_KD.get(),
+          Constants.LOOP_PERIOD_SECS);
+  private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
   private Rotation2d angleSetpoint = null; // Setpoint for closed loop control, null for open loop
   private Double speedSetpoint = null; // Setpoint for closed loop control, null for open loop
   private Rotation2d turnRelativeOffset = null; // Relative + Offset = Absolute
-  private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
-
   private int cycleCount = 0;
+
+  private final ModuleIO io;
+  private final int index;
+
   private final Alert unitializedAlert;
   private final Alert outOfSyncAlert;
 
   public Module(ModuleIO io, int index) {
     this.io = io;
     this.index = index;
-
-    driveFeedforward =
-        new SimpleMotorFeedforward(ModuleConstants.DRIVE_KS.get(), ModuleConstants.DRIVE_KV.get());
-    driveFeedback =
-        new PIDController(
-            ModuleConstants.DRIVE_KP.get(),
-            0.0,
-            ModuleConstants.DRIVE_KD.get(),
-            Constants.LOOP_PERIOD_SECS);
-    turnFeedback =
-        new PIDController(
-            ModuleConstants.TURN_KP.get(),
-            0.0,
-            ModuleConstants.TURN_KD.get(),
-            Constants.LOOP_PERIOD_SECS);
 
     turnFeedback.enableContinuousInput(-Math.PI, Math.PI);
     setBrakeMode(true);
@@ -152,7 +148,7 @@ public class Module {
     odometryPositions = new SwerveModulePosition[sampleCount];
     for (int i = 0; i < sampleCount; i++) {
       double positionMeters =
-          inputs.odometryDrivePositionsRad[i] * ModuleConstants.WHEEL_RADIUS.get();
+          inputs.odometryDrivePositionsRad[i].getRadians() * ModuleConstants.WHEEL_RADIUS.get();
       Rotation2d angle =
           inputs.odometryTurnPositions[i].plus(
               turnRelativeOffset != null ? turnRelativeOffset : new Rotation2d());
@@ -210,7 +206,7 @@ public class Module {
 
   /** Returns the current drive position of the module in meters. */
   public double getPositionMeters() {
-    return inputs.drivePositionRad * ModuleConstants.WHEEL_RADIUS.get();
+    return inputs.drivePosition.getRadians() * ModuleConstants.WHEEL_RADIUS.get();
   }
 
   /** Returns the current drive velocity of the module in meters per second. */

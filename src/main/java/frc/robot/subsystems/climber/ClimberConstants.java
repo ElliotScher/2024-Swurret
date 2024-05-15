@@ -6,6 +6,17 @@ import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
 
 public class ClimberConstants {
+  public static final LoggedTunableNumber KP = new LoggedTunableNumber("Climber/Kp");
+  public static final LoggedTunableNumber KD = new LoggedTunableNumber("Climber/Kd");
+  public static final LoggedTunableNumber MAX_VELOCITY =
+      new LoggedTunableNumber("Climber/Max Velocity");
+  public static final LoggedTunableNumber MAX_ACCELERATION =
+      new LoggedTunableNumber("Climber/Max Acceleration");
+  public static final LoggedTunableNumber STOWED_POSITION =
+      new LoggedTunableNumber("Climber/Stowed Position");
+  public static final LoggedTunableNumber CLIMB_POSITION =
+      new LoggedTunableNumber("Climber/Climb Position");
+
   public static final int LEFT_CLIMBER_TALON_DEVICE_ID;
   public static final int RIGHT_CLIMBER_TALON_DEVICE_ID;
   public static final int SOLENOID_CHANNEL;
@@ -23,29 +34,19 @@ public class ClimberConstants {
   public static final double CLIMB_TRANSITION_CURRENT_THRESHOLD;
   public static final double CLIMB_STAGE_2_VOLTAGE;
   public static final double CLIMB_STOP_POSITION_THRESHOLD;
-  ;
   public static final double CLIMB_HOLD_VOLTAGE;
   public static final double CLIMB_ZERO_VOLTAGE;
   public static final double CLIMB_ZERO_CURRENT_THRESHOLD;
   public static final double CLIMB_POSITION_TOLERANCE;
-  public static final LoggedTunableNumber KP = new LoggedTunableNumber("Climber/Kp");
-  public static final LoggedTunableNumber KD = new LoggedTunableNumber("Climber/Kd");
-  public static final LoggedTunableNumber MAX_VELOCITY =
-      new LoggedTunableNumber("Climber/Max Velocity");
-  public static final LoggedTunableNumber MAX_ACCELERATION =
-      new LoggedTunableNumber("Climber/Max Acceleration");
-  public static final LoggedTunableNumber STOWED_POSITION =
-      new LoggedTunableNumber("Climber/Stowed Position");
-  public static final LoggedTunableNumber CLIMB_POSITION =
-      new LoggedTunableNumber("Climber/Climb Position");
 
   static {
+    CLIMB_POSITION.initDefault(12.5);
+
     LEFT_CLIMBER_TALON_DEVICE_ID = 4;
     RIGHT_CLIMBER_TALON_DEVICE_ID = 5;
     SOLENOID_CHANNEL = 6;
     SUPPLY_CURRENT_LIMIT = 60.0;
     GEAR_RATIO = (58.0 / 16.0) * (64.0 / 18.0);
-    CLIMB_POSITION.initDefault(12.5);
     DRUM_CIRCUMFERENCE = Units.inchesToMeters(2.64595) * Math.PI;
     MOTOR_CONFIG = DCMotor.getKrakenX60(1);
     CARRIAGE_MASS = 7.0;

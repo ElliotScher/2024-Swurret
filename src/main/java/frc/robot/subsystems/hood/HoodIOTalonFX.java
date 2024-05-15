@@ -12,7 +12,9 @@ import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 
 public class HoodIOTalonFX implements HoodIO {
-  private final TalonFX hoodTalon;
+  private final TalonFX hoodTalon = new TalonFX(HoodConstants.DEVICE_ID);
+  private final Alert disconnecctedAlert =
+      new Alert("Hood Talon is disconnected, check CAN bus.", AlertType.ERROR);
 
   private final StatusSignal<Double> position;
   private final StatusSignal<Double> velocity;
@@ -20,12 +22,7 @@ public class HoodIOTalonFX implements HoodIO {
   private final StatusSignal<Double> currentAmps;
   private final StatusSignal<Double> tempCelcius;
 
-  private final Alert disconnecctedAlert =
-      new Alert("Hood Talon is disconnected, check CAN bus.", AlertType.ERROR);
-
   public HoodIOTalonFX() {
-    hoodTalon = new TalonFX(HoodConstants.DEVICE_ID);
-
     var config = new TalonFXConfiguration();
     config.CurrentLimits.SupplyCurrentLimit = HoodConstants.SUPPLY_CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -60,8 +57,8 @@ public class HoodIOTalonFX implements HoodIO {
     inputs.velocityRadPerSec =
         Units.rotationsToRadians(velocity.getValueAsDouble() / HoodConstants.GEAR_RATIO);
     inputs.appliedVolts = appliedVolts.getValueAsDouble();
-    inputs.currentAmps = new double[] {currentAmps.getValueAsDouble()};
-    inputs.tempCelcius = new double[] {tempCelcius.getValueAsDouble()};
+    inputs.currentAmps = currentAmps.getValueAsDouble();
+    inputs.tempCelcius = tempCelcius.getValueAsDouble();
   }
 
   @Override
