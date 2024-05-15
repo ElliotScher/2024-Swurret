@@ -47,7 +47,7 @@ public class Module {
 
   private final Alert unitializedAlert;
   private final Alert outOfSyncAlert;
-  
+
   private final ModuleIO io;
   private final int index;
 

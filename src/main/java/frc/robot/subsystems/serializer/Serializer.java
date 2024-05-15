@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.Logger;
 public class Serializer extends SubsystemBase {
   private final SerializerIOInputsAutoLogged inputs = new SerializerIOInputsAutoLogged();
   private static final DigitalInput sensor = new DigitalInput(SerializerConstants.SENSOR_CHANNEL);
+
   private final SerializerIO io;
 
   public Serializer(SerializerIO io) {

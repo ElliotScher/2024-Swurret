@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class Kicker extends SubsystemBase {
   private final KickerIOInputsAutoLogged inputs = new KickerIOInputsAutoLogged();
+
   private final KickerIO io;
 
   @Getter private boolean isShooting = false;

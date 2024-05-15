@@ -52,24 +52,10 @@ public class ModuleConstants {
         DRIVE_KD.initDefault(0.0);
         TURN_KP.initDefault(9.0);
         TURN_KD.initDefault(0.0);
-        frontLeftConfig =
-            new ModuleConfig(
-                11,
-                12,
-                20,
-                Rotation2d.fromRadians(2.2304080655857224));
-        frontRightConfig =
-            new ModuleConfig(
-                8, 9, 21,
-                Rotation2d.fromRadians(-1.4910293258248433));
-        rearLeftConfig =
-            new ModuleConfig(
-                18, 19, 22,
-                Rotation2d.fromRadians(-0.2132233295161041));
-        rearRightConfig =
-            new ModuleConfig(
-                0, 1, 23,
-                Rotation2d.fromRadians(-1.4327380558851888));
+        frontLeftConfig = new ModuleConfig(11, 12, 20, Rotation2d.fromRadians(2.2304080655857224));
+        frontRightConfig = new ModuleConfig(8, 9, 21, Rotation2d.fromRadians(-1.4910293258248433));
+        rearLeftConfig = new ModuleConfig(18, 19, 22, Rotation2d.fromRadians(-0.2132233295161041));
+        rearRightConfig = new ModuleConfig(0, 1, 23, Rotation2d.fromRadians(-1.4327380558851888));
         break;
       case ROBOT_2K24_TEST:
         WHEEL_RADIUS.initDefault(Units.inchesToMeters(2.0));
@@ -79,22 +65,10 @@ public class ModuleConstants {
         DRIVE_KD.initDefault(0.0);
         TURN_KP.initDefault(9.0);
         TURN_KD.initDefault(0.0);
-        frontLeftConfig =
-            new ModuleConfig(
-                0, 1, 2,
-                Rotation2d.fromRadians(1.8775924843720249));
-        frontRightConfig =
-            new ModuleConfig(
-                10, 11, 12,
-                Rotation2d.fromRadians(1.9865051203119053));
-        rearLeftConfig =
-            new ModuleConfig(
-                20, 21, 22,
-                Rotation2d.fromRadians(1.1612234564294304));
-        rearRightConfig =
-            new ModuleConfig(
-                30, 31, 32,
-                Rotation2d.fromRadians(-3.06182565261974));
+        frontLeftConfig = new ModuleConfig(0, 1, 2, Rotation2d.fromRadians(1.8775924843720249));
+        frontRightConfig = new ModuleConfig(10, 11, 12, Rotation2d.fromRadians(1.9865051203119053));
+        rearLeftConfig = new ModuleConfig(20, 21, 22, Rotation2d.fromRadians(1.1612234564294304));
+        rearRightConfig = new ModuleConfig(30, 31, 32, Rotation2d.fromRadians(-3.06182565261974));
         break;
       case ROBOT_SIM:
         WHEEL_RADIUS.initDefault(Units.inchesToMeters(2.0));
@@ -119,6 +93,5 @@ public class ModuleConstants {
   }
 
   @Builder
-  public record ModuleConfig(
-      int drive, int turn, int encoder, Rotation2d absoluteEncoderOffset) {}
+  public record ModuleConfig(int drive, int turn, int encoder, Rotation2d absoluteEncoderOffset) {}
 }

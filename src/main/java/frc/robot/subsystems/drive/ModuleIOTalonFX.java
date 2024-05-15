@@ -81,7 +81,8 @@ public class ModuleIOTalonFX implements ModuleIO {
       case 1:
         driveTalon = new TalonFX(ModuleConstants.frontRightConfig.drive(), DriveConstants.CANIVORE);
         turnTalon = new TalonFX(ModuleConstants.frontRightConfig.turn(), DriveConstants.CANIVORE);
-        cancoder = new CANcoder(ModuleConstants.frontRightConfig.encoder(), DriveConstants.CANIVORE);
+        cancoder =
+            new CANcoder(ModuleConstants.frontRightConfig.encoder(), DriveConstants.CANIVORE);
         absoluteEncoderOffset = ModuleConstants.frontRightConfig.absoluteEncoderOffset();
         break;
       case 2:
