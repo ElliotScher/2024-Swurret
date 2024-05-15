@@ -219,6 +219,7 @@ public class RobotContainer {
           Logger.recordOutput("LocalADStarAK/Trajectory Setpoint", targetPose);
         });
 
+    // Configure auto choices.
     autoChooser = new LoggedDashboardChooser<>("Auto Routines");
     for (String routine : AutoRoutines.autoList) {
       if (routine.equals(AutoRoutines.autoList.get(0))) {

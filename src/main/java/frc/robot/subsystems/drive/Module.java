@@ -45,11 +45,11 @@ public class Module {
   private Rotation2d turnRelativeOffset = null; // Relative + Offset = Absolute
   private int cycleCount = 0;
 
-  private final ModuleIO io;
-  private final int index;
-
   private final Alert unitializedAlert;
   private final Alert outOfSyncAlert;
+  
+  private final ModuleIO io;
+  private final int index;
 
   public Module(ModuleIO io, int index) {
     this.io = io;

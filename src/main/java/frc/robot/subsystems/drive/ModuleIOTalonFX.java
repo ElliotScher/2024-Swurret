@@ -73,27 +73,27 @@ public class ModuleIOTalonFX implements ModuleIO {
   public ModuleIOTalonFX(int index) {
     switch (index) {
       case 0:
-        driveTalon = ModuleConstants.frontLeftConfig.drive();
-        turnTalon = ModuleConstants.frontLeftConfig.turn();
-        cancoder = ModuleConstants.frontLeftConfig.cancoder();
+        driveTalon = new TalonFX(ModuleConstants.frontLeftConfig.drive(), DriveConstants.CANIVORE);
+        turnTalon = new TalonFX(ModuleConstants.frontLeftConfig.turn(), DriveConstants.CANIVORE);
+        cancoder = new CANcoder(ModuleConstants.frontLeftConfig.encoder(), DriveConstants.CANIVORE);
         absoluteEncoderOffset = ModuleConstants.frontLeftConfig.absoluteEncoderOffset();
         break;
       case 1:
-        driveTalon = ModuleConstants.frontRightConfig.drive();
-        turnTalon = ModuleConstants.frontRightConfig.turn();
-        cancoder = ModuleConstants.frontRightConfig.cancoder();
+        driveTalon = new TalonFX(ModuleConstants.frontRightConfig.drive(), DriveConstants.CANIVORE);
+        turnTalon = new TalonFX(ModuleConstants.frontRightConfig.turn(), DriveConstants.CANIVORE);
+        cancoder = new CANcoder(ModuleConstants.frontRightConfig.encoder(), DriveConstants.CANIVORE);
         absoluteEncoderOffset = ModuleConstants.frontRightConfig.absoluteEncoderOffset();
         break;
       case 2:
-        driveTalon = ModuleConstants.rearLeftConfig.drive();
-        turnTalon = ModuleConstants.rearLeftConfig.turn();
-        cancoder = ModuleConstants.rearLeftConfig.cancoder();
+        driveTalon = new TalonFX(ModuleConstants.rearLeftConfig.drive(), DriveConstants.CANIVORE);
+        turnTalon = new TalonFX(ModuleConstants.rearLeftConfig.turn(), DriveConstants.CANIVORE);
+        cancoder = new CANcoder(ModuleConstants.rearLeftConfig.encoder(), DriveConstants.CANIVORE);
         absoluteEncoderOffset = ModuleConstants.rearLeftConfig.absoluteEncoderOffset();
         break;
       case 3:
-        driveTalon = ModuleConstants.rearRightConfig.drive();
-        turnTalon = ModuleConstants.rearRightConfig.turn();
-        cancoder = ModuleConstants.rearRightConfig.cancoder();
+        driveTalon = new TalonFX(ModuleConstants.rearRightConfig.drive(), DriveConstants.CANIVORE);
+        turnTalon = new TalonFX(ModuleConstants.rearRightConfig.turn(), DriveConstants.CANIVORE);
+        cancoder = new CANcoder(ModuleConstants.rearRightConfig.encoder(), DriveConstants.CANIVORE);
         absoluteEncoderOffset = ModuleConstants.rearRightConfig.absoluteEncoderOffset();
         break;
       default:

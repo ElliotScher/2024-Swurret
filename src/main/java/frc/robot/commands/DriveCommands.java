@@ -201,64 +201,71 @@ public final class DriveCommands {
   public static final Command moveTowardsTarget(
       Drive drive, double blueXCoord, Pose2d targetPose, TrackingMode targetType) {
 
-    @SuppressWarnings({ "resource" })
-    PIDController aimController = new PIDController(
-        DriveConstants.AUTO_AIM_KP.get(),
-        0,
-        DriveConstants.AUTO_AIM_KD.get(),
-        Constants.LOOP_PERIOD_SECS);
+    @SuppressWarnings({"resource"})
+    PIDController aimController =
+        new PIDController(
+            DriveConstants.AUTO_AIM_KP.get(),
+            0,
+            DriveConstants.AUTO_AIM_KD.get(),
+            Constants.LOOP_PERIOD_SECS);
     aimController.enableContinuousInput(-Math.PI, Math.PI);
 
-    DoubleSupplier targetXCoord = () -> {
-      boolean isRed = DriverStation.getAlliance().isPresent()
-          && DriverStation.getAlliance().get().equals(Alliance.Red);
-      return isRed ? FieldConstants.fieldLength - blueXCoord : blueXCoord;
-    };
+    DoubleSupplier targetXCoord =
+        () -> {
+          boolean isRed =
+              DriverStation.getAlliance().isPresent()
+                  && DriverStation.getAlliance().get().equals(Alliance.Red);
+          return isRed ? FieldConstants.fieldLength - blueXCoord : blueXCoord;
+        };
 
     return Commands.run(
-        () -> {
-          // Configure PID
-          aimController.setD(DriveConstants.AUTO_AIM_KD.get());
-          aimController.setP(DriveConstants.AUTO_AIM_KP.get());
+            () -> {
+              // Configure PID
+              aimController.setD(DriveConstants.AUTO_AIM_KD.get());
+              aimController.setP(DriveConstants.AUTO_AIM_KP.get());
 
-          boolean isRed = DriverStation.getAlliance().isPresent()
-              && DriverStation.getAlliance().get().equals(Alliance.Red);
+              boolean isRed =
+                  DriverStation.getAlliance().isPresent()
+                      && DriverStation.getAlliance().get().equals(Alliance.Red);
 
-          // Convert to field relative speeds & send command
-          Rotation2d targetGyroOffset = RobotState.getTargetGyroOffset(targetPose);
-          double distanceT = MathUtil.clamp(
-              Math.abs(RobotState.getRobotPose().getX() - targetXCoord.getAsDouble())
-                  / DriveConstants.AUTO_AIM_X_VEL_RANGE.get(),
-              0.0,
-              1.0);
-          double speed = MathUtil.interpolate(
-              DriveConstants.AUTO_AIM_X_VEL_MIN.get(),
-              DriveConstants.AUTO_AIM_X_VEL_MAX.get(),
-              distanceT);
-          drive.runVelocity(
-              new ChassisSpeeds(
-                  targetType.equals(TrackingMode.APRILTAGS) ? speed : -speed,
-                  0,
-                  aimController.calculate(
-                      RobotState.getRobotPose().getRotation().getRadians(),
-                      targetPose
-                          .getRotation()
-                          .plus(
-                              targetType.equals(TrackingMode.APRILTAGS)
-                                  ? isRed
-                                      ? targetGyroOffset
-                                      : targetGyroOffset.plus(Rotation2d.fromRadians(Math.PI))
-                                  : isRed
-                                      ? targetGyroOffset.plus(Rotation2d.fromRadians(Math.PI))
-                                      : targetGyroOffset)
-                          .getRadians())));
-        },
-        drive)
+              // Convert to field relative speeds & send command
+              Rotation2d targetGyroOffset = RobotState.getTargetGyroOffset(targetPose);
+              double distanceT =
+                  MathUtil.clamp(
+                      Math.abs(RobotState.getRobotPose().getX() - targetXCoord.getAsDouble())
+                          / DriveConstants.AUTO_AIM_X_VEL_RANGE.get(),
+                      0.0,
+                      1.0);
+              double speed =
+                  MathUtil.interpolate(
+                      DriveConstants.AUTO_AIM_X_VEL_MIN.get(),
+                      DriveConstants.AUTO_AIM_X_VEL_MAX.get(),
+                      distanceT);
+              drive.runVelocity(
+                  new ChassisSpeeds(
+                      targetType.equals(TrackingMode.APRILTAGS) ? speed : -speed,
+                      0,
+                      aimController.calculate(
+                          RobotState.getRobotPose().getRotation().getRadians(),
+                          targetPose
+                              .getRotation()
+                              .plus(
+                                  targetType.equals(TrackingMode.APRILTAGS)
+                                      ? isRed
+                                          ? targetGyroOffset
+                                          : targetGyroOffset.plus(Rotation2d.fromRadians(Math.PI))
+                                      : isRed
+                                          ? targetGyroOffset.plus(Rotation2d.fromRadians(Math.PI))
+                                          : targetGyroOffset)
+                              .getRadians())));
+            },
+            drive)
         .until(
             () -> {
               boolean endAboveTargetXCoord;
-              boolean isRed = DriverStation.getAlliance().isPresent()
-                  && DriverStation.getAlliance().get().equals(Alliance.Red);
+              boolean isRed =
+                  DriverStation.getAlliance().isPresent()
+                      && DriverStation.getAlliance().get().equals(Alliance.Red);
               if (isRed) {
                 endAboveTargetXCoord = targetType.equals(TrackingMode.APRILTAGS);
               } else {

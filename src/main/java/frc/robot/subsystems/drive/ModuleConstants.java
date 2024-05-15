@@ -1,7 +1,5 @@
 package frc.robot.subsystems.drive;
 
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -56,27 +54,21 @@ public class ModuleConstants {
         TURN_KD.initDefault(0.0);
         frontLeftConfig =
             new ModuleConfig(
-                new TalonFX(11, DriveConstants.CANIVORE),
-                new TalonFX(12, DriveConstants.CANIVORE),
-                new CANcoder(20, DriveConstants.CANIVORE),
+                11,
+                12,
+                20,
                 Rotation2d.fromRadians(2.2304080655857224));
         frontRightConfig =
             new ModuleConfig(
-                new TalonFX(8, DriveConstants.CANIVORE),
-                new TalonFX(9, DriveConstants.CANIVORE),
-                new CANcoder(21, DriveConstants.CANIVORE),
+                8, 9, 21,
                 Rotation2d.fromRadians(-1.4910293258248433));
         rearLeftConfig =
             new ModuleConfig(
-                new TalonFX(18, DriveConstants.CANIVORE),
-                new TalonFX(19, DriveConstants.CANIVORE),
-                new CANcoder(22, DriveConstants.CANIVORE),
+                18, 19, 22,
                 Rotation2d.fromRadians(-0.2132233295161041));
         rearRightConfig =
             new ModuleConfig(
-                new TalonFX(0, DriveConstants.CANIVORE),
-                new TalonFX(1, DriveConstants.CANIVORE),
-                new CANcoder(23, DriveConstants.CANIVORE),
+                0, 1, 23,
                 Rotation2d.fromRadians(-1.4327380558851888));
         break;
       case ROBOT_2K24_TEST:
@@ -89,27 +81,19 @@ public class ModuleConstants {
         TURN_KD.initDefault(0.0);
         frontLeftConfig =
             new ModuleConfig(
-                new TalonFX(0, DriveConstants.CANIVORE),
-                new TalonFX(1, DriveConstants.CANIVORE),
-                new CANcoder(2, DriveConstants.CANIVORE),
+                0, 1, 2,
                 Rotation2d.fromRadians(1.8775924843720249));
         frontRightConfig =
             new ModuleConfig(
-                new TalonFX(10, DriveConstants.CANIVORE),
-                new TalonFX(11, DriveConstants.CANIVORE),
-                new CANcoder(12, DriveConstants.CANIVORE),
+                10, 11, 12,
                 Rotation2d.fromRadians(1.9865051203119053));
         rearLeftConfig =
             new ModuleConfig(
-                new TalonFX(20, DriveConstants.CANIVORE),
-                new TalonFX(21, DriveConstants.CANIVORE),
-                new CANcoder(22, DriveConstants.CANIVORE),
+                20, 21, 22,
                 Rotation2d.fromRadians(1.1612234564294304));
         rearRightConfig =
             new ModuleConfig(
-                new TalonFX(30, DriveConstants.CANIVORE),
-                new TalonFX(31, DriveConstants.CANIVORE),
-                new CANcoder(32, DriveConstants.CANIVORE),
+                30, 31, 32,
                 Rotation2d.fromRadians(-3.06182565261974));
         break;
       case ROBOT_SIM:
@@ -136,5 +120,5 @@ public class ModuleConstants {
 
   @Builder
   public record ModuleConfig(
-      TalonFX drive, TalonFX turn, CANcoder cancoder, Rotation2d absoluteEncoderOffset) {}
+      int drive, int turn, int encoder, Rotation2d absoluteEncoderOffset) {}
 }

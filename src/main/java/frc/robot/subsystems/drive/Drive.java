@@ -37,10 +37,8 @@ public class Drive extends SubsystemBase {
   private double filteredX = 0;
   private double filteredY = 0;
   private Rotation2d rawGyroRotation = new Rotation2d();
-
   @Getter
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
-
   private SwerveModulePosition[] lastModulePositions = // For delta tracking
       new SwerveModulePosition[] {
         new SwerveModulePosition(),
@@ -50,7 +48,6 @@ public class Drive extends SubsystemBase {
       };
   private SwerveDriveOdometry odometry =
       new SwerveDriveOdometry(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
-
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
   private final Module[] modules = new Module[4]; // FL, FR, BL, BR
 

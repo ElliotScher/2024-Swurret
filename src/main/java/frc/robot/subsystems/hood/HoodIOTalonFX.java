@@ -65,9 +65,4 @@ public class HoodIOTalonFX implements HoodIO {
   public void setVoltage(double volts) {
     hoodTalon.setControl(new VoltageOut(volts));
   }
-
-  @Override
-  public void resetPosition() {
-    hoodTalon.setPosition(0.0);
-  }
 }
