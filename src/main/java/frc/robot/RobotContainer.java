@@ -232,6 +232,7 @@ public class RobotContainer {
     // Configure RobotState
     new RobotState(
         drive::getRotation,
+        drive::getFieldRelativeVelocity,
         drive::getModulePositions,
         vision::getCameraTypes,
         vision::getPrimaryVisionPoses,
@@ -275,7 +276,6 @@ public class RobotContainer {
             () -> -driver.getLeftY(),
             () -> -driver.getLeftX(),
             () -> -driver.getRightX(),
-            driver.rightStick(),
             driver.rightBumper()));
     driver.start().onTrue(CompositeCommands.resetHeading());
     driver
@@ -302,13 +302,13 @@ public class RobotContainer {
     operator
         .rightBumper()
         .whileTrue(CompositeCommands.getAmpFeedCommand(shooter, hood, accelerator, kicker));
-    operator.y().whileTrue(RobotState.increaseFlywheelVelocity());
-    operator.a().whileTrue(RobotState.decreaseFlywheelVelocity());
+    operator.y().whileTrue(CompositeCommands.increaseFlywheelVelocity());
+    operator.a().whileTrue(CompositeCommands.decreaseFlywheelVelocity());
     operator.povUp().onTrue(climber.preClimb());
     operator.povDown().onTrue(climber.climbAutomatic());
     operator.back().onTrue(climber.zero());
-    operator.leftBumper().onTrue(RobotState.decreaseHoodAngle());
-    operator.leftTrigger().onTrue(RobotState.increaseHoodAngle());
+    operator.leftBumper().onTrue(CompositeCommands.decreaseHoodAngle());
+    operator.leftTrigger().onTrue(CompositeCommands.increaseHoodAngle());
     operator.start().onTrue(Commands.runOnce(() -> isNoteTracking = !isNoteTracking));
   }
 

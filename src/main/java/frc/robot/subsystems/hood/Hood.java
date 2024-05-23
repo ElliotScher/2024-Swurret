@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
-import frc.robot.RobotState.AimingParameters;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -95,8 +94,7 @@ public class Hood extends SubsystemBase {
       Supplier<Translation2d> robotPoseSupplier, Supplier<Translation2d> velocitySupplier) {
     return runEnd(
         () -> {
-          AimingParameters aimingParameters = RobotState.poseCalculation(velocitySupplier.get());
-          setPosition(aimingParameters.shooterAngle().getRadians());
+          setPosition(RobotState.getStateCache().shooterAngle().getRadians());
         },
         () -> setPosition(HoodConstants.STOWED_POSITION.get()));
   }

@@ -1,10 +1,10 @@
 package frc.robot.commands;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,7 +23,6 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.TrackingMode;
-import java.util.Optional;
 
 public class CompositeCommands {
   public static final PathConstraints DEFAULT_PATH_CONSTRAINTS =
@@ -95,6 +94,26 @@ public class CompositeCommands {
         Commands.parallel(intake.runVoltage(), serializer.intake(), kicker.shoot()));
   }
 
+  public static Command increaseFlywheelVelocity() {
+    return Commands.runOnce(
+        () -> RobotState.setFlywheelOffset(RobotState.getFlywheelOffset() + 10));
+  }
+
+  public static Command decreaseFlywheelVelocity() {
+    return Commands.runOnce(
+        () -> RobotState.setFlywheelOffset(RobotState.getFlywheelOffset() - 10));
+  }
+
+  public static Command increaseHoodAngle() {
+    return Commands.runOnce(
+        () -> RobotState.setHoodOffset(RobotState.getHoodOffset() + Units.degreesToRadians(0.25)));
+  }
+
+  public static Command decreaseHoodAngle() {
+    return Commands.runOnce(
+        () -> RobotState.setHoodOffset(RobotState.getHoodOffset() - Units.degreesToRadians(0.25)));
+  }
+
   public static final Command getTrackNoteSpikeCommand(
       Drive drive,
       Intake intake,
@@ -122,19 +141,6 @@ public class CompositeCommands {
 
   public static final Command getAimSpeakerCommand(Drive drive) {
     return DriveCommands.aimTowardsTarget(drive);
-  }
-
-  public static final Command shootOnTheMove(
-      Drive drive, Intake intake, Serializer serializer, Kicker kicker, Vision vision) {
-    return Commands.run(
-            () -> {
-              PPHolonomicDriveController.setRotationTargetOverride(
-                  () ->
-                      Optional.of(
-                          RobotState.poseCalculation(drive.getFieldRelativeVelocity())
-                              .robotAngle()));
-            })
-        .alongWith(getShootCommand(intake, serializer, kicker));
   }
 
   public static final Command getPath(Pose2d endingPose) {

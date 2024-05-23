@@ -7,10 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.shooter.Shooter;
@@ -21,6 +18,7 @@ import frc.robot.util.Alert.AlertType;
 import frc.robot.util.AllianceFlipUtil;
 import java.util.function.Supplier;
 import lombok.Getter;
+import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 
 public class RobotState {
@@ -34,12 +32,17 @@ public class RobotState {
   private static final Alert secondaryPosesNullAlert =
       new Alert("SECONDARY VISION POSES ARE NULL", AlertType.INFO);
 
-  @Getter private static double flywheelOffset = 0.0;
-  @Getter private static double hoodOffset = 0.0;
+  @Getter
+  private static StateCache stateCache =
+      new StateCache(new Rotation2d(), 0.0, 0.0, new Rotation2d());
+
+  @Getter @Setter private static double flywheelOffset = 0.0;
+  @Getter @Setter private static double hoodOffset = 0.0;
 
   private static SwerveDrivePoseEstimator poseEstimator;
 
   private static Supplier<Rotation2d> robotHeadingSupplier;
+  private static Supplier<Translation2d> robotFieldRelativeVelocitySupplier;
   private static Supplier<SwerveModulePosition[]> modulePositionSupplier;
   private static Supplier<CameraType[]> camerasSupplier;
   private static Supplier<Pose3d[]> visionPrimaryPosesSupplier;
@@ -79,6 +82,7 @@ public class RobotState {
 
   public RobotState(
       Supplier<Rotation2d> robotHeadingSupplier,
+      Supplier<Translation2d> robotFieldRelativeVelocitySupplier,
       Supplier<SwerveModulePosition[]> modulePositionSupplier,
       Supplier<CameraType[]> camerasSupplier,
       Supplier<Pose3d[]> visionPrimaryPosesSupplier,
@@ -86,6 +90,7 @@ public class RobotState {
       Supplier<double[]> visionPrimaryPoseTimestampsSupplier,
       Supplier<double[]> visionSecondaryPoseTimestampsSupplier) {
     RobotState.robotHeadingSupplier = robotHeadingSupplier;
+    RobotState.robotFieldRelativeVelocitySupplier = robotFieldRelativeVelocitySupplier;
     RobotState.modulePositionSupplier = modulePositionSupplier;
     RobotState.camerasSupplier = camerasSupplier;
     RobotState.visionPrimaryPosesSupplier = visionPrimaryPosesSupplier;
@@ -126,20 +131,6 @@ public class RobotState {
       }
     }
 
-    Logger.recordOutput("RobotState/MegaTag 1 Pose", visionPrimaryPosesSupplier.get());
-    Logger.recordOutput("RobotState/MegaTag 2 Pose", visionSecondaryPosesSupplier.get());
-    Logger.recordOutput("RobotState/Estimated Pose", poseEstimator.getEstimatedPosition());
-  }
-
-  public static Pose2d getRobotPose() {
-    return poseEstimator.getEstimatedPosition();
-  }
-
-  public static void resetRobotPose(Pose2d pose) {
-    poseEstimator.resetPosition(robotHeadingSupplier.get(), modulePositionSupplier.get(), pose);
-  }
-
-  public static AimingParameters poseCalculation(Translation2d fieldRelativeVelocity) {
     Translation2d speakerPose =
         AllianceFlipUtil.apply(FieldConstants.Speaker.centerSpeakerOpening.toTranslation2d());
     double distanceToSpeaker =
@@ -148,23 +139,40 @@ public class RobotState {
         poseEstimator
             .getEstimatedPosition()
             .getTranslation()
-            .plus(fieldRelativeVelocity.times(timeOfFlightMap.get(distanceToSpeaker)));
+            .plus(
+                robotFieldRelativeVelocitySupplier
+                    .get()
+                    .times(timeOfFlightMap.get(distanceToSpeaker)));
     double effectiveDistanceToSpeaker = effectiveAimingPose.getDistance(speakerPose);
 
     Rotation2d setpointAngle = speakerPose.minus(effectiveAimingPose).getAngle();
-    double tangentialVelocity = -fieldRelativeVelocity.rotateBy(setpointAngle.unaryMinus()).getY();
+    double tangentialVelocity =
+        -robotFieldRelativeVelocitySupplier.get().rotateBy(setpointAngle.unaryMinus()).getY();
     double radialVelocity = tangentialVelocity / effectiveDistanceToSpeaker;
+    stateCache =
+        new StateCache(
+            setpointAngle,
+            radialVelocity,
+            shooterSpeedMap.get(effectiveDistanceToSpeaker),
+            new Rotation2d(shooterAngleMap.get(effectiveDistanceToSpeaker)));
+
+    Logger.recordOutput("RobotState/MegaTag 1 Pose", visionPrimaryPosesSupplier.get());
+    Logger.recordOutput("RobotState/MegaTag 2 Pose", visionSecondaryPosesSupplier.get());
+    Logger.recordOutput("RobotState/Estimated Pose", poseEstimator.getEstimatedPosition());
+    Logger.recordOutput("RobotState/StateCache/Robot Angle Setpoint", setpointAngle);
     Logger.recordOutput(
-        "RobotState/AimingParameters/Effective Distance to Speaker", effectiveDistanceToSpeaker);
+        "RobotState/StateCache/Effective Distance to Speaker", effectiveDistanceToSpeaker);
     Logger.recordOutput(
-        "RobotState/AimingParameters/Effective Aiming Pose",
+        "RobotState/StateCache/Effective Aiming Pose",
         new Pose2d(effectiveAimingPose, new Rotation2d()));
-    Logger.recordOutput("RobotState/AimingParameters/Robot Angle", setpointAngle);
-    return new AimingParameters(
-        setpointAngle,
-        radialVelocity,
-        shooterSpeedMap.get(effectiveDistanceToSpeaker),
-        new Rotation2d(shooterAngleMap.get(effectiveDistanceToSpeaker)));
+  }
+
+  public static Pose2d getRobotPose() {
+    return poseEstimator.getEstimatedPosition();
+  }
+
+  public static void resetRobotPose(Pose2d pose) {
+    poseEstimator.resetPosition(robotHeadingSupplier.get(), modulePositionSupplier.get(), pose);
   }
 
   public static Rotation2d getTargetGyroOffset(Pose2d targetPose) {
@@ -177,22 +185,6 @@ public class RobotState {
     return shooter.atGoal() && hood.atGoal();
   }
 
-  public static Command increaseFlywheelVelocity() {
-    return Commands.runOnce(() -> flywheelOffset += 10);
-  }
-
-  public static Command decreaseFlywheelVelocity() {
-    return Commands.runOnce(() -> flywheelOffset -= 10);
-  }
-
-  public static Command increaseHoodAngle() {
-    return Commands.runOnce(() -> hoodOffset += Units.degreesToRadians(0.25));
-  }
-
-  public static Command decreaseHoodAngle() {
-    return Commands.runOnce(() -> hoodOffset -= Units.degreesToRadians(0.25));
-  }
-
-  public static record AimingParameters(
+  public static record StateCache(
       Rotation2d robotAngle, double radialVelocity, double shooterSpeed, Rotation2d shooterAngle) {}
 }

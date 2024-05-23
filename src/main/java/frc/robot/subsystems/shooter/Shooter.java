@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState;
-import frc.robot.RobotState.AimingParameters;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.LinearProfile;
 import java.util.function.Supplier;
@@ -200,11 +199,10 @@ public class Shooter extends SubsystemBase {
       Supplier<Translation2d> robotPoseSupplier, Supplier<Translation2d> velocitySupplier) {
     return runEnd(
         () -> {
-          AimingParameters aimingParameters = RobotState.poseCalculation(velocitySupplier.get());
           if (spinDirection.equals(SpinDirection.NONE)) {
             spinDirection = SpinDirection.CLOCKWISE;
           }
-          Rotation2d effectiveRobotAngle = aimingParameters.robotAngle();
+          Rotation2d effectiveRobotAngle = RobotState.getStateCache().robotAngle();
 
           Translation2d speakerPose =
               AllianceFlipUtil.apply(FieldConstants.Speaker.centerSpeakerOpening.toTranslation2d());
@@ -224,7 +222,7 @@ public class Shooter extends SubsystemBase {
             }
           }
 
-          setSpinVelocity(RobotState.poseCalculation(velocitySupplier.get()).shooterSpeed());
+          setSpinVelocity(RobotState.getStateCache().shooterSpeed());
         },
         () -> {
           stop();
