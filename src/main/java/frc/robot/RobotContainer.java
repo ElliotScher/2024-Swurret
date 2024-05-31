@@ -30,14 +30,6 @@ import frc.robot.Constants.Mode;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.CompositeCommands;
 import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.accelerator.Accelerator;
-import frc.robot.subsystems.accelerator.AcceleratorIO;
-import frc.robot.subsystems.accelerator.AcceleratorIOSim;
-import frc.robot.subsystems.accelerator.AcceleratorIOTalonFX;
-import frc.robot.subsystems.climber.Climber;
-import frc.robot.subsystems.climber.ClimberIO;
-import frc.robot.subsystems.climber.ClimberIOSim;
-import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.GyroIO;
@@ -45,60 +37,23 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.hood.Hood;
-import frc.robot.subsystems.hood.HoodIO;
-import frc.robot.subsystems.hood.HoodIOSim;
-import frc.robot.subsystems.hood.HoodIOTalonFX;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOSim;
-import frc.robot.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.subsystems.kicker.Kicker;
-import frc.robot.subsystems.kicker.KickerIO;
-import frc.robot.subsystems.kicker.KickerIOSim;
-import frc.robot.subsystems.kicker.KickerIOTalonFX;
-import frc.robot.subsystems.serializer.Serializer;
-import frc.robot.subsystems.serializer.SerializerIO;
-import frc.robot.subsystems.serializer.SerializerIOSim;
-import frc.robot.subsystems.serializer.SerializerIOTalonFX;
-import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.ShooterIO;
-import frc.robot.subsystems.shooter.ShooterIOSim;
-import frc.robot.subsystems.shooter.ShooterIOTalonFX;
 import frc.robot.subsystems.vision.CameraIO;
 import frc.robot.subsystems.vision.CameraIOLimelight3;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
-import frc.robot.util.TrackingMode;
-import java.util.Map;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 public class RobotContainer {
   // Subsystems
   private Drive drive;
-  private Shooter shooter;
-  private Hood hood;
-  private Intake intake;
-  private Serializer serializer;
-  private Kicker kicker;
-  private Accelerator accelerator;
-  private Climber climber;
   private Vision vision;
 
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
-  private final CommandXboxController operator = new CommandXboxController(1);
-
-  // Tunable Numbers
-  private final LoggedDashboardNumber autoDelay = new LoggedDashboardNumber("Auto Delay");
-
-  // Note Tracking
-  private static boolean isNoteTracking = false;
 
   // Dashboard Inputs
-  private LoggedDashboardChooser<String> autoChooser;
+  private LoggedDashboardChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -113,13 +68,6 @@ public class RobotContainer {
                   new ModuleIOTalonFX(1),
                   new ModuleIOTalonFX(2),
                   new ModuleIOTalonFX(3));
-          shooter = new Shooter(new ShooterIOTalonFX());
-          hood = new Hood(new HoodIOTalonFX());
-          intake = new Intake(new IntakeIOTalonFX());
-          serializer = new Serializer(new SerializerIOTalonFX());
-          kicker = new Kicker(new KickerIOTalonFX());
-          accelerator = new Accelerator(new AcceleratorIOTalonFX());
-          climber = new Climber(new ClimberIOTalonFX());
           vision =
               new Vision(
                   new CameraIOLimelight3(0),
@@ -147,13 +95,6 @@ public class RobotContainer {
                   new ModuleIOSim(),
                   new ModuleIOSim(),
                   new ModuleIOSim());
-          shooter = new Shooter(new ShooterIOSim());
-          hood = new Hood(new HoodIOSim());
-          intake = new Intake(new IntakeIOSim());
-          serializer = new Serializer(new SerializerIOSim());
-          kicker = new Kicker(new KickerIOSim());
-          accelerator = new Accelerator(new AcceleratorIOSim());
-          climber = new Climber(new ClimberIOSim());
           break;
       }
     }
@@ -167,27 +108,6 @@ public class RobotContainer {
               new ModuleIO() {},
               new ModuleIO() {},
               new ModuleIO() {});
-    }
-    if (shooter == null) {
-      shooter = new Shooter(new ShooterIO() {});
-    }
-    if (hood == null) {
-      hood = new Hood(new HoodIO() {});
-    }
-    if (intake == null) {
-      intake = new Intake(new IntakeIO() {});
-    }
-    if (serializer == null) {
-      serializer = new Serializer(new SerializerIO() {});
-    }
-    if (kicker == null) {
-      kicker = new Kicker(new KickerIO() {});
-    }
-    if (accelerator == null) {
-      accelerator = new Accelerator(new AcceleratorIO() {});
-    }
-    if (climber == null) {
-      climber = new Climber(new ClimberIO() {});
     }
     if (vision == null) {
       vision =
@@ -221,13 +141,7 @@ public class RobotContainer {
 
     // Configure auto choices.
     autoChooser = new LoggedDashboardChooser<>("Auto Routines");
-    for (String routine : AutoRoutines.autoList) {
-      if (routine.equals(AutoRoutines.autoList.get(0))) {
-        autoChooser.addDefaultOption(routine, routine);
-      } else {
-        autoChooser.addOption(routine, routine);
-      }
-    }
+    autoChooser.addDefaultOption("None", AutoRoutines.none());
 
     // Configure RobotState
     new RobotState(
@@ -278,45 +192,9 @@ public class RobotContainer {
             () -> -driver.getRightX(),
             driver.rightBumper()));
     driver.start().onTrue(CompositeCommands.resetHeading());
-    driver
-        .rightTrigger()
-        .whileTrue(CompositeCommands.getSourceFeedCommand(shooter, hood, accelerator, kicker));
-    driver.leftTrigger().whileTrue(CompositeCommands.getOuttakeCommand(intake, serializer, kicker));
-    driver
-        .leftBumper()
-        .whileTrue(CompositeCommands.getCollectCommand(intake, serializer))
-        .onFalse(intake.retractIntake());
-    driver
-        .rightBumper()
-        .whileTrue(CompositeCommands.getPosePrepShooterCommand(drive, hood, shooter, accelerator));
-    driver
-        .rightBumper()
-        .and(() -> RobotState.shooterReady(hood, shooter))
-        .whileTrue(
-            Commands.waitSeconds(0.25)
-                .andThen(CompositeCommands.getShootCommand(intake, serializer, kicker))
-                .withTimeout(0.5));
-    driver.b().whileTrue(CompositeCommands.getShootCommand(intake, serializer, kicker));
-    driver.a().whileTrue(intake.singleActuation());
-
-    operator
-        .rightBumper()
-        .whileTrue(CompositeCommands.getAmpFeedCommand(shooter, hood, accelerator, kicker));
-    operator.y().whileTrue(CompositeCommands.increaseFlywheelVelocity());
-    operator.a().whileTrue(CompositeCommands.decreaseFlywheelVelocity());
-    operator.povUp().onTrue(climber.preClimb());
-    operator.povDown().onTrue(climber.climbAutomatic());
-    operator.back().onTrue(climber.zero());
-    operator.leftBumper().onTrue(CompositeCommands.decreaseHoodAngle());
-    operator.leftTrigger().onTrue(CompositeCommands.increaseHoodAngle());
-    operator.start().onTrue(Commands.runOnce(() -> isNoteTracking = !isNoteTracking));
   }
 
   public Command getAutonomousCommand() {
-    Map<String, Command> autoMap =
-        AutoRoutines.getAutoList(drive, intake, serializer, kicker, TrackingMode.NOTES);
-    return Commands.parallel(
-        Commands.waitSeconds(autoDelay.get()).andThen(autoMap.get(autoChooser.get())),
-        CompositeCommands.getPosePrepShooterCommand(drive, hood, shooter, accelerator));
+    return Commands.none();
   }
 }

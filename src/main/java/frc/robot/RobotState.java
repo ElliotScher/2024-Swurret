@@ -9,8 +9,6 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.drive.DriveConstants;
-import frc.robot.subsystems.hood.Hood;
-import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.CameraType;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.Alert;
@@ -53,30 +51,14 @@ public class RobotState {
   static {
     // Units: radians per second
     shooterSpeedMap.put(2.16, 800.0);
-    shooterSpeedMap.put(2.45, 800.0);
-    shooterSpeedMap.put(2.69, 800.0);
-    shooterAngleMap.put(2.84, 800.0);
-    shooterSpeedMap.put(3.19, 800.0);
-    shooterSpeedMap.put(3.52, 800.0);
-    shooterSpeedMap.put(3.85, 900.0);
     shooterSpeedMap.put(4.29, 900.0);
 
     // Units: radians
     shooterAngleMap.put(2.16, 0.05);
-    shooterAngleMap.put(2.45, 0.05);
-    shooterAngleMap.put(2.69, 0.16);
-    shooterAngleMap.put(2.84, 0.32);
-    shooterAngleMap.put(3.19, 0.39);
-    shooterAngleMap.put(3.52, 0.45);
-    shooterAngleMap.put(3.85, 0.44);
     shooterAngleMap.put(4.29, 0.45);
 
     // Units: seconds
     timeOfFlightMap.put(2.50, (4.42 - 4.24));
-    timeOfFlightMap.put(2.75, (2.56 - 2.33));
-    timeOfFlightMap.put(3.00, (3.43 - 3.18));
-    timeOfFlightMap.put(3.25, (3.20 - 2.94));
-    timeOfFlightMap.put(3.50, (2.64 - 2.42));
     timeOfFlightMap.put(4.0, (2.60 - 2.32));
   }
 
@@ -156,8 +138,8 @@ public class RobotState {
             shooterSpeedMap.get(effectiveDistanceToSpeaker),
             new Rotation2d(shooterAngleMap.get(effectiveDistanceToSpeaker)));
 
-    Logger.recordOutput("RobotState/MegaTag 1 Pose", visionPrimaryPosesSupplier.get());
-    Logger.recordOutput("RobotState/MegaTag 2 Pose", visionSecondaryPosesSupplier.get());
+    Logger.recordOutput("RobotState/Primary Poses", visionPrimaryPosesSupplier.get());
+    Logger.recordOutput("RobotState/Secondary Pose", visionSecondaryPosesSupplier.get());
     Logger.recordOutput("RobotState/Estimated Pose", poseEstimator.getEstimatedPosition());
     Logger.recordOutput("RobotState/StateCache/Robot Angle Setpoint", setpointAngle);
     Logger.recordOutput(
@@ -179,10 +161,6 @@ public class RobotState {
     return Rotation2d.fromRadians(
         Math.atan2(
             targetPose.getY() - getRobotPose().getY(), targetPose.getX() - getRobotPose().getX()));
-  }
-
-  public static boolean shooterReady(Hood hood, Shooter shooter) {
-    return shooter.atGoal() && hood.atGoal();
   }
 
   public static record StateCache(

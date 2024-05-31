@@ -88,7 +88,6 @@ public final class DriveCommands {
               new Pose2d(new Translation2d(), linearDirection)
                   .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
                   .getTranslation();
-          //
           // Configure PID
           aimController.setD(DriveConstants.AUTO_AIM_KD.get());
           aimController.setP(DriveConstants.AUTO_AIM_KP.get());
