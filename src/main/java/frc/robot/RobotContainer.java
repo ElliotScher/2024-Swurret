@@ -224,7 +224,7 @@ public class RobotContainer {
         .withPosition(0, 0)
         .withSize(2, 2);
     Shuffleboard.getTab("Teleoperated")
-        .addNumber("Hood Offset", RobotState::getSpeakerShotOffset)
+        .addNumber("Hood Offset", RobotState::getSpeakerAngleOffset)
         .withPosition(0, 0)
         .withSize(1, 1);
     Shuffleboard.getTab("Teleoperated")
@@ -253,6 +253,7 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(
             CompositeCommands.getFeedCommand(intake, serializer, turret, feeder, hood, shooter));
+    driver.a().whileTrue(hood.testPosition());
   }
 
   public void updateMechanism3d() {

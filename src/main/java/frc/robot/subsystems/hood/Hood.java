@@ -1,6 +1,5 @@
 package frc.robot.subsystems.hood;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
@@ -61,12 +60,7 @@ public class Hood extends SubsystemBase {
   }
 
   private void setPosition(double positionRad) {
-    double position =
-        MathUtil.clamp(
-            positionRad + RobotState.getSpeakerShotOffset(),
-            HoodConstants.MIN_POSITION.get(),
-            HoodConstants.MAX_POSITION.get());
-    profiledFeedback.setGoal(position);
+    profiledFeedback.setGoal(positionRad + RobotState.getSpeakerAngleOffset());
   }
 
   public Rotation2d getPosition() {
@@ -89,5 +83,9 @@ public class Hood extends SubsystemBase {
 
   public Command setAmpPosition() {
     return Commands.run(() -> setPosition(HoodConstants.AMP_POSITION.get()));
+  }
+
+  public Command testPosition() {
+    return Commands.run(() -> setPosition(Math.PI));
   }
 }

@@ -14,7 +14,7 @@ public class Mechanism3d {
     Pose3d hoodPose =
         new Pose3d(
             new Translation3d(),
-            new Rotation3d(0.0, hoodAngle.getRadians(), turretAngle.getRadians()));
+            new Rotation3d(hoodAngle.getRadians(), 0.0, turretAngle.getRadians()));
 
     return new Pose3d[] {turretPose, hoodPose};
   }

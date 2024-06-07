@@ -72,7 +72,7 @@ public final class DriveConstants {
     CANIVORE = "drive";
     PIGEON_2_DEVICE_ID = 1;
     ODOMETRY_STANDARD_DEVIATIONS = VecBuilder.fill(0.0, 0.0, 0.0);
-    DRIVER_DEADBAND = 0.1;
+    DRIVER_DEADBAND = 0.25;
     ODOMETRY_LOCK = new ReentrantLock();
     switch (Constants.ROBOT) {
       case ROBOT_SPARK_FLEX:

@@ -10,7 +10,7 @@ public class HoodIOSim implements HoodIO {
       new SingleJointedArmSim(
           HoodConstants.MOTOR_CONFIG,
           HoodConstants.GEAR_RATIO,
-          HoodConstants.GEAR_RATIO,
+          HoodConstants.MOMENT_OF_INERTIA,
           HoodConstants.ARM_LENGTH,
           HoodConstants.MINIMUM_ANGLE.getRadians(),
           HoodConstants.MAXIMUM_ANGLE.getRadians(),

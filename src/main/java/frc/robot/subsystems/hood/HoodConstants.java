@@ -55,7 +55,7 @@ public class HoodConstants {
     MINIMUM_ANGLE = Rotation2d.fromDegrees(0.0);
     MAXIMUM_ANGLE = Rotation2d.fromDegrees(180.0);
     SIMULATE_GRAVITY = true;
-    STARTING_POSITION = Rotation2d.fromDegrees(90.0);
+    STARTING_POSITION = Rotation2d.fromDegrees(0.0);
     GEAR_RATIO = 220.0 / 18.0;
     MOMENT_OF_INERTIA = 0.004;
     switch (Constants.ROBOT) {

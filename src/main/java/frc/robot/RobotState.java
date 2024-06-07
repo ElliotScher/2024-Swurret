@@ -50,7 +50,7 @@ public class RobotState {
           new Rotation2d());
 
   @Getter @Setter private static double speakerFlywheelOffset = 0.0;
-  @Getter @Setter private static double speakerShotOffset = 0.0;
+  @Getter @Setter private static double speakerAngleOffset = 0.0;
 
   private static SwerveDrivePoseEstimator poseEstimator;
 
@@ -73,8 +73,8 @@ public class RobotState {
     feedShotSpeedMap.put(1.0, 5.0);
 
     // Units: radians
-    speakerShotAngleMap.put(2.16, 0.05);
-    speakerShotAngleMap.put(4.29, 0.45);
+    speakerShotAngleMap.put(0.0, -Math.PI);
+    speakerShotAngleMap.put(4.29, Math.PI);
 
     // Units: radians
     feedShotAngleMap.put(0.0, 0.0);
