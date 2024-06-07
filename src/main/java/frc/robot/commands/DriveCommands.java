@@ -31,8 +31,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.DriveConstants;
+import frc.robot.subsystems.drive.drive.Drive;
+import frc.robot.subsystems.drive.drive.DriveConstants;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.TrackingMode;
 import java.util.Optional;
@@ -105,7 +105,7 @@ public final class DriveCommands {
 
           Pose2d visionPose = RobotState.getRobotPose();
           measuredGyroAngle = visionPose.getRotation();
-          targetGyroAngle = Optional.of(RobotState.getStateCache().robotAngle());
+          targetGyroAngle = Optional.of(RobotState.getStateCache().speakerTurretAngle());
           feedForwardRadialVelocity = RobotState.getStateCache().radialVelocity();
           ChassisSpeeds chassisSpeeds =
               ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -152,7 +152,7 @@ public final class DriveCommands {
 
               Pose2d visionPose = RobotState.getRobotPose();
               measuredGyroAngle = visionPose.getRotation();
-              targetGyroAngle = Optional.of(RobotState.getStateCache().robotAngle());
+              targetGyroAngle = Optional.of(RobotState.getStateCache().speakerTurretAngle());
               feedForwardRadialVelocity = RobotState.getStateCache().radialVelocity();
               ChassisSpeeds chassisSpeeds =
                   ChassisSpeeds.fromFieldRelativeSpeeds(

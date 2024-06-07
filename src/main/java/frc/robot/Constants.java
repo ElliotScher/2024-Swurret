@@ -18,14 +18,14 @@ import edu.wpi.first.wpilibj.RobotBase;
 public final class Constants {
   public static final boolean TUNING_MODE = true;
   public static final double LOOP_PERIOD_SECS = 0.02;
-  public static final RobotType ROBOT = RobotType.ROBOT_SIM;
+  public static final RobotType ROBOT = RobotType.ROBOT_SIM_NEO;
 
   public static Mode getMode() {
     switch (ROBOT) {
-      case SNAPBACK:
+      case ROBOT_TALONFX:
         return RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
 
-      case ROBOT_SIM:
+      case ROBOT_SIM_VORTEX:
         return Mode.SIM;
 
       default:
@@ -40,14 +40,19 @@ public final class Constants {
   }
 
   public static enum RobotType {
-    SNAPBACK,
-    ROBOT_2K24_TEST,
-    ROBOT_SIM
+    ROBOT_SPARK_FLEX,
+    ROBOT_TALONFX,
+    ROBOT_SIM_VORTEX,
+    ROBOT_SIM_NEO,
+    ROBOT_SIM_FALCON500,
+    ROBOT_SIM_FALCON500_FOC,
+    ROBOT_SIM_KRAKEN_X60,
+    ROBOT_SIM_KRAKEN_X60_FOC
   }
 
   /** Checks whether the robot the correct mode is selected when deploying. */
   public static void main(String... args) {
-    if (ROBOT == RobotType.ROBOT_SIM) {
+    if (ROBOT == RobotType.ROBOT_SIM_VORTEX) {
       System.err.println("Cannot deploy, invalid mode selected: " + ROBOT.toString());
       System.exit(1);
     }

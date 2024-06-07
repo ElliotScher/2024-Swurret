@@ -24,29 +24,62 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.CompositeCommands;
 import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.DriveConstants;
-import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.drive.drive.Drive;
+import frc.robot.subsystems.drive.drive.DriveConstants;
+import frc.robot.subsystems.drive.gyro.GyroIO;
+import frc.robot.subsystems.drive.gyro.GyroIONavX;
+import frc.robot.subsystems.drive.gyro.GyroIOPigeon2;
+import frc.robot.subsystems.drive.module.ModuleIO;
+import frc.robot.subsystems.drive.module.ModuleIOSim;
+import frc.robot.subsystems.drive.module.ModuleIOSparkFlex;
+import frc.robot.subsystems.drive.module.ModuleIOTalonFX;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIOSim;
+import frc.robot.subsystems.feeder.FeederIOSparkFlex;
+import frc.robot.subsystems.feeder.FeederIOTalonFX;
+import frc.robot.subsystems.hood.Hood;
+import frc.robot.subsystems.hood.HoodIOSim;
+import frc.robot.subsystems.hood.HoodIOSparkFlex;
+import frc.robot.subsystems.hood.HoodIOTalonFX;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.IntakeIOSparkFlex;
+import frc.robot.subsystems.intake.IntakeIOTalonFX;
+import frc.robot.subsystems.serializer.Serializer;
+import frc.robot.subsystems.serializer.SerializerIOSim;
+import frc.robot.subsystems.serializer.SerializerIOSparkFlex;
+import frc.robot.subsystems.serializer.SerializerIOTalonFX;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterIOSim;
+import frc.robot.subsystems.shooter.ShooterIOSparkFlex;
+import frc.robot.subsystems.shooter.ShooterIOTalonFX;
+import frc.robot.subsystems.turret.Turret;
+import frc.robot.subsystems.turret.TurretIOSim;
+import frc.robot.subsystems.turret.TurretIOSparkFlex;
+import frc.robot.subsystems.turret.TurretIOTalonFX;
 import frc.robot.subsystems.vision.CameraIO;
-import frc.robot.subsystems.vision.CameraIOLimelight3;
+import frc.robot.subsystems.vision.CameraIOLimelight3G;
+import frc.robot.subsystems.vision.CameraIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.Mechanism3d;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
   // Subsystems
   private Drive drive;
+  private Intake intake;
+  private Serializer serializer;
+  private Turret turret;
+  private Feeder feeder;
+  private Hood hood;
+  private Shooter shooter;
   private Vision vision;
 
   // Controller
@@ -59,7 +92,29 @@ public class RobotContainer {
   public RobotContainer() {
     if (Constants.getMode() != Mode.REPLAY) {
       switch (Constants.ROBOT) {
-        case SNAPBACK:
+        case ROBOT_SPARK_FLEX:
+          // Test robot, instantiate hardware IO implementations
+          drive =
+              new Drive(
+                  new GyroIONavX(),
+                  new ModuleIOSparkFlex(0),
+                  new ModuleIOSparkFlex(1),
+                  new ModuleIOSparkFlex(2),
+                  new ModuleIOSparkFlex(3));
+          intake = new Intake(new IntakeIOTalonFX());
+          serializer = new Serializer(new SerializerIOTalonFX());
+          turret = new Turret(new TurretIOTalonFX());
+          feeder = new Feeder(new FeederIOTalonFX());
+          hood = new Hood(new HoodIOTalonFX());
+          shooter = new Shooter(new ShooterIOTalonFX());
+          vision =
+              new Vision(
+                  new CameraIOLimelight3G(0),
+                  new CameraIOLimelight3G(1),
+                  new CameraIOLimelight3G(2),
+                  new CameraIOLimelight3G(3));
+          break;
+        case ROBOT_TALONFX:
           // Snapback, instantiate hardware IO implementations
           drive =
               new Drive(
@@ -68,26 +123,25 @@ public class RobotContainer {
                   new ModuleIOTalonFX(1),
                   new ModuleIOTalonFX(2),
                   new ModuleIOTalonFX(3));
+          intake = new Intake(new IntakeIOSim());
+          serializer = new Serializer(new SerializerIOSim());
+          turret = new Turret(new TurretIOSim());
+          feeder = new Feeder(new FeederIOSim());
+          hood = new Hood(new HoodIOSim());
+          shooter = new Shooter(new ShooterIOSim());
           vision =
               new Vision(
-                  new CameraIOLimelight3(0),
-                  new CameraIOLimelight3(1),
-                  new CameraIOLimelight3(2),
-                  new CameraIOLimelight3(3));
+                  new CameraIOLimelight3G(0),
+                  new CameraIOLimelight3G(1),
+                  new CameraIOLimelight3G(2),
+                  new CameraIOLimelight3G(3));
           break;
-        case ROBOT_2K24_TEST:
-          // Test robot, instantiate hardware IO implementations
-          drive =
-              new Drive(
-                  new GyroIOPigeon2(),
-                  new ModuleIOTalonFX(0),
-                  new ModuleIOTalonFX(1),
-                  new ModuleIOTalonFX(2),
-                  new ModuleIOTalonFX(3));
-          break;
-
-        case ROBOT_SIM:
-          // Sim robot, instantiate physics sim IO implementations
+        case ROBOT_SIM_NEO:
+        case ROBOT_SIM_VORTEX:
+        case ROBOT_SIM_FALCON500:
+        case ROBOT_SIM_FALCON500_FOC:
+        case ROBOT_SIM_KRAKEN_X60:
+        case ROBOT_SIM_KRAKEN_X60_FOC:
           drive =
               new Drive(
                   new GyroIO() {},
@@ -95,7 +149,15 @@ public class RobotContainer {
                   new ModuleIOSim(),
                   new ModuleIOSim(),
                   new ModuleIOSim());
-          break;
+          intake = new Intake(new IntakeIOSparkFlex());
+          serializer = new Serializer(new SerializerIOSparkFlex());
+          turret = new Turret(new TurretIOSparkFlex());
+          feeder = new Feeder(new FeederIOSparkFlex());
+          hood = new Hood(new HoodIOSparkFlex());
+          shooter = new Shooter(new ShooterIOSparkFlex());
+          vision =
+              new Vision(
+                  new CameraIOSim(0), new CameraIOSim(1), new CameraIOSim(2), new CameraIOSim(3));
       }
     }
 
@@ -114,7 +176,7 @@ public class RobotContainer {
           new Vision(new CameraIO() {}, new CameraIO() {}, new CameraIO() {}, new CameraIO() {});
     }
 
-    // Configure autobuilder
+    // Configure autobuilder.
     AutoBuilder.configureHolonomic(
         RobotState::getRobotPose,
         RobotState::resetRobotPose,
@@ -163,11 +225,11 @@ public class RobotContainer {
         .withPosition(0, 0)
         .withSize(2, 2);
     Shuffleboard.getTab("Teleoperated")
-        .addNumber("Hood Offset", RobotState::getHoodOffset)
+        .addNumber("Hood Offset", RobotState::getSpeakerShotOffset)
         .withPosition(0, 0)
         .withSize(1, 1);
     Shuffleboard.getTab("Teleoperated")
-        .addNumber("Flywheel Offset", RobotState::getFlywheelOffset)
+        .addNumber("Flywheel Offset", RobotState::getSpeakerFlywheelOffset)
         .withPosition(0, 1)
         .withSize(1, 1);
     Shuffleboard.getTab("Teleoperated")
@@ -191,10 +253,15 @@ public class RobotContainer {
             () -> -driver.getLeftX(),
             () -> -driver.getRightX(),
             driver.rightBumper()));
-    driver.start().onTrue(CompositeCommands.resetHeading());
+    driver.start().onTrue(CompositeCommands.resetHeading(drive));
+  }
+
+  public void updateMechanism3d() {
+    Logger.recordOutput(
+        "Mechanism3d", Mechanism3d.getPoses(hood.getPosition(), turret.getPosition()));
   }
 
   public Command getAutonomousCommand() {
-    return Commands.none();
+    return AutoRoutines.exampleAuto(drive);
   }
 }

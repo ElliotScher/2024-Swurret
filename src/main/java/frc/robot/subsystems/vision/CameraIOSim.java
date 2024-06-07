@@ -1,3 +1,5 @@
 package frc.robot.subsystems.vision;
 
-public class CameraIOSim implements CameraIO {}
+public class CameraIOSim implements CameraIO {
+  public CameraIOSim(int index) {}
+}

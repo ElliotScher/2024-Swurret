@@ -1,0 +1,46 @@
+{
+  "name": "2024 Swurret",
+  "sourceUrl": "",
+  "rotations": [
+    {
+      "axis": "x",
+      "degrees": 90
+    },
+    {
+      "axis": "z",
+      "degrees": 90
+    }
+  ],
+  "position": [
+    0,
+    0,
+    0.085
+  ],
+  "cameras": [],
+  "components": [
+    {
+      "zeroedRotations": [
+        0,
+        0,
+        0
+      ],
+      "zeroedPosition": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "zeroedRotations": [
+        0,
+        0,
+        0
+      ],
+      "zeroedPosition": [
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}
