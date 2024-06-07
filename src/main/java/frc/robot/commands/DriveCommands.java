@@ -33,9 +33,7 @@ import frc.robot.FieldConstants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.drive.Drive;
 import frc.robot.subsystems.drive.drive.DriveConstants;
-import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.TrackingMode;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -47,11 +45,9 @@ public final class DriveCommands {
    */
   public static final Command joystickDrive(
       Drive drive,
-      Vision aprilTagVision,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
-      DoubleSupplier omegaSupplier,
-      BooleanSupplier aprilTagTracking) {
+      DoubleSupplier omegaSupplier) {
 
     return Commands.run(
         () -> {
@@ -68,11 +64,6 @@ public final class DriveCommands {
           // Square values
           linearMagnitude = linearMagnitude * linearMagnitude;
 
-          if (aprilTagTracking.getAsBoolean()) {
-            linearMagnitude =
-                Math.min(linearMagnitude, 0.33); // change this to smaller for shoot on the move.
-          }
-
           // Calcaulate new linear velocity
           Translation2d linearVelocity =
               new Pose2d(new Translation2d(), linearDirection)
@@ -83,19 +74,15 @@ public final class DriveCommands {
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
                   && DriverStation.getAlliance().get() == Alliance.Red;
-          double feedForwardRadialVelocity = 0.0;
 
           double robotRelativeXVel = linearVelocity.getX() * DriveConstants.MAX_LINEAR_VELOCITY;
           double robotRelativeYVel = linearVelocity.getY() * DriveConstants.MAX_ANGULAR_VELOCITY;
 
-          feedForwardRadialVelocity = RobotState.getStateCache().radialVelocity();
           ChassisSpeeds chassisSpeeds =
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   robotRelativeXVel,
                   robotRelativeYVel,
-                  (aprilTagTracking.getAsBoolean())
-                      ? feedForwardRadialVelocity
-                      : omega * DriveConstants.MAX_ANGULAR_VELOCITY,
+                  omega * DriveConstants.MAX_ANGULAR_VELOCITY,
                   isFlipped
                       ? drive.getRotation().plus(new Rotation2d(Math.PI))
                       : drive.getRotation());

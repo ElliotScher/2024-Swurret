@@ -100,12 +100,12 @@ public class RobotContainer {
                   new ModuleIOSparkFlex(1),
                   new ModuleIOSparkFlex(2),
                   new ModuleIOSparkFlex(3));
-          intake = new Intake(new IntakeIOTalonFX());
-          serializer = new Serializer(new SerializerIOTalonFX());
-          turret = new Turret(new TurretIOTalonFX());
-          feeder = new Feeder(new FeederIOTalonFX());
-          hood = new Hood(new HoodIOTalonFX());
-          shooter = new Shooter(new ShooterIOTalonFX());
+          intake = new Intake(new IntakeIOSparkFlex());
+          serializer = new Serializer(new SerializerIOSparkFlex());
+          turret = new Turret(new TurretIOSparkFlex());
+          feeder = new Feeder(new FeederIOSparkFlex());
+          hood = new Hood(new HoodIOSparkFlex());
+          shooter = new Shooter(new ShooterIOSparkFlex());
           vision =
               new Vision(
                   new CameraIOLimelight3G(0),
@@ -122,12 +122,12 @@ public class RobotContainer {
                   new ModuleIOTalonFX(1),
                   new ModuleIOTalonFX(2),
                   new ModuleIOTalonFX(3));
-          intake = new Intake(new IntakeIOSim());
-          serializer = new Serializer(new SerializerIOSim());
-          turret = new Turret(new TurretIOSim());
-          feeder = new Feeder(new FeederIOSim());
-          hood = new Hood(new HoodIOSim());
-          shooter = new Shooter(new ShooterIOSim());
+          intake = new Intake(new IntakeIOTalonFX());
+          serializer = new Serializer(new SerializerIOTalonFX());
+          turret = new Turret(new TurretIOTalonFX());
+          feeder = new Feeder(new FeederIOTalonFX());
+          hood = new Hood(new HoodIOTalonFX());
+          shooter = new Shooter(new ShooterIOTalonFX());
           vision =
               new Vision(
                   new CameraIOLimelight3G(0),
@@ -148,12 +148,12 @@ public class RobotContainer {
                   new ModuleIOSim(),
                   new ModuleIOSim(),
                   new ModuleIOSim());
-          intake = new Intake(new IntakeIOSparkFlex());
-          serializer = new Serializer(new SerializerIOSparkFlex());
-          turret = new Turret(new TurretIOSparkFlex());
-          feeder = new Feeder(new FeederIOSparkFlex());
-          hood = new Hood(new HoodIOSparkFlex());
-          shooter = new Shooter(new ShooterIOSparkFlex());
+          intake = new Intake(new IntakeIOSim());
+          serializer = new Serializer(new SerializerIOSim());
+          turret = new Turret(new TurretIOSim());
+          feeder = new Feeder(new FeederIOSim());
+          hood = new Hood(new HoodIOSim());
+          shooter = new Shooter(new ShooterIOSim());
           vision =
               new Vision(
                   new CameraIOSim(0), new CameraIOSim(1), new CameraIOSim(2), new CameraIOSim(3));
@@ -236,12 +236,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive,
-            vision,
-            () -> -driver.getLeftY(),
-            () -> -driver.getLeftX(),
-            () -> -driver.getRightX(),
-            driver.rightBumper()));
+            drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
     driver.y().onTrue(CompositeCommands.resetHeading(drive));
     driver.leftBumper().whileTrue(CompositeCommands.getCollectCommand(intake, serializer, feeder));
     driver
@@ -262,7 +257,7 @@ public class RobotContainer {
 
   public void updateMechanism3d() {
     Logger.recordOutput(
-        "Mechanism3d", Mechanism3d.getPoses(hood.getPosition(), turret.getPosition()));
+        "Mechanism3d", Mechanism3d.getPoses(turret.getPosition(), hood.getPosition()));
   }
 
   public Command getAutonomousCommand() {
