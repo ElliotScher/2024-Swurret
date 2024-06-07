@@ -35,7 +35,6 @@ import frc.robot.subsystems.drive.drive.Drive;
 import frc.robot.subsystems.drive.drive.DriveConstants;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.TrackingMode;
-import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
@@ -53,15 +52,6 @@ public final class DriveCommands {
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier,
       BooleanSupplier aprilTagTracking) {
-
-    @SuppressWarnings({"resource"})
-    PIDController aimController =
-        new PIDController(
-            DriveConstants.AUTO_AIM_KP.get(),
-            0,
-            DriveConstants.AUTO_AIM_KD.get(),
-            Constants.LOOP_PERIOD_SECS);
-    aimController.enableContinuousInput(-Math.PI, Math.PI);
 
     return Commands.run(
         () -> {
@@ -88,33 +78,23 @@ public final class DriveCommands {
               new Pose2d(new Translation2d(), linearDirection)
                   .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
                   .getTranslation();
-          // Configure PID
-          aimController.setD(DriveConstants.AUTO_AIM_KD.get());
-          aimController.setP(DriveConstants.AUTO_AIM_KP.get());
 
           // Get robot relative vel
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
                   && DriverStation.getAlliance().get() == Alliance.Red;
-          Optional<Rotation2d> targetGyroAngle = Optional.empty();
-          Rotation2d measuredGyroAngle = drive.getRotation();
           double feedForwardRadialVelocity = 0.0;
 
           double robotRelativeXVel = linearVelocity.getX() * DriveConstants.MAX_LINEAR_VELOCITY;
           double robotRelativeYVel = linearVelocity.getY() * DriveConstants.MAX_ANGULAR_VELOCITY;
 
-          Pose2d visionPose = RobotState.getRobotPose();
-          measuredGyroAngle = visionPose.getRotation();
-          targetGyroAngle = Optional.of(RobotState.getStateCache().speakerTurretAngle());
           feedForwardRadialVelocity = RobotState.getStateCache().radialVelocity();
           ChassisSpeeds chassisSpeeds =
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   robotRelativeXVel,
                   robotRelativeYVel,
-                  (aprilTagTracking.getAsBoolean()) && targetGyroAngle.isPresent()
+                  (aprilTagTracking.getAsBoolean())
                       ? feedForwardRadialVelocity
-                          + aimController.calculate(
-                              measuredGyroAngle.getRadians(), targetGyroAngle.get().getRadians())
                       : omega * DriveConstants.MAX_ANGULAR_VELOCITY,
                   isFlipped
                       ? drive.getRotation().plus(new Rotation2d(Math.PI))
@@ -124,60 +104,6 @@ public final class DriveCommands {
           drive.runVelocity(chassisSpeeds);
         },
         drive);
-  }
-
-  public static final Command aimTowardsTarget(Drive drive) {
-    @SuppressWarnings({"resource"})
-    PIDController aimController =
-        new PIDController(
-            DriveConstants.AUTO_AIM_KP.get(),
-            0,
-            DriveConstants.AUTO_AIM_KD.get(),
-            Constants.LOOP_PERIOD_SECS);
-    aimController.enableContinuousInput(-Math.PI, Math.PI);
-    aimController.setTolerance(0.017);
-
-    return Commands.run(
-            () -> {
-              aimController.setD(DriveConstants.AUTO_AIM_KD.get());
-              aimController.setP(DriveConstants.AUTO_AIM_KP.get());
-
-              // Get robot relative vel
-              boolean isFlipped =
-                  DriverStation.getAlliance().isPresent()
-                      && DriverStation.getAlliance().get() == Alliance.Red;
-              Optional<Rotation2d> targetGyroAngle = Optional.empty();
-              Rotation2d measuredGyroAngle = drive.getRotation();
-              double feedForwardRadialVelocity = 0.0;
-
-              Pose2d visionPose = RobotState.getRobotPose();
-              measuredGyroAngle = visionPose.getRotation();
-              targetGyroAngle = Optional.of(RobotState.getStateCache().speakerTurretAngle());
-              feedForwardRadialVelocity = RobotState.getStateCache().radialVelocity();
-              ChassisSpeeds chassisSpeeds =
-                  ChassisSpeeds.fromFieldRelativeSpeeds(
-                      0,
-                      0,
-                      feedForwardRadialVelocity
-                          + (targetGyroAngle.isPresent()
-                              ? aimController.calculate(
-                                  measuredGyroAngle.getRadians(),
-                                  targetGyroAngle.get().getRadians())
-                              : 0),
-                      isFlipped
-                          ? RobotState.getRobotPose().getRotation().plus(new Rotation2d(Math.PI))
-                          : RobotState.getRobotPose().getRotation());
-
-              // Convert to field relative speeds & send command
-              drive.runVelocity(chassisSpeeds);
-            },
-            drive)
-        .until(() -> aimController.atSetpoint())
-        .finallyDo(
-            () -> {
-              drive.stop();
-              aimController.reset();
-            });
   }
 
   public static final Command moveTowardsTarget(

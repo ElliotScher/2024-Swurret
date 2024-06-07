@@ -242,7 +242,7 @@ public class RobotContainer {
             () -> -driver.getLeftX(),
             () -> -driver.getRightX(),
             driver.rightBumper()));
-    driver.start().onTrue(CompositeCommands.resetHeading(drive));
+    driver.y().onTrue(CompositeCommands.resetHeading(drive));
     driver.leftBumper().whileTrue(CompositeCommands.getCollectCommand(intake, serializer, feeder));
     driver
         .rightBumper()

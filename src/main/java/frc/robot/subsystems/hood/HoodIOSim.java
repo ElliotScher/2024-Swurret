@@ -27,6 +27,6 @@ public class HoodIOSim implements HoodIO {
   @Override
   public void setVoltage(double volts) {
     appliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
-    motorSim.setInputVoltage(volts);
+    motorSim.setInputVoltage(appliedVolts);
   }
 }
