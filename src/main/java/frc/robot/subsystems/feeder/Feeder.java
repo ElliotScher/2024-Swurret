@@ -23,6 +23,10 @@ public class Feeder extends SubsystemBase {
     Logger.processInputs("Feeder", inputs);
   }
 
+  public boolean hasNote() {
+    return sensor.get();
+  }
+
   public Command intake() {
     return Commands.run(() -> io.setVoltage(12.0)).until(() -> sensor.get());
   }

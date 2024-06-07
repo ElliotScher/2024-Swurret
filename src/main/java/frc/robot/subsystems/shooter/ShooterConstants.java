@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
 
@@ -21,6 +22,7 @@ public class ShooterConstants {
       new LoggedTunableNumber("Shooter/Max Acceleration");
   public static final LoggedTunableNumber IDLE_SPEED =
       new LoggedTunableNumber("Shooter/Default Speed");
+  public static final LoggedTunableNumber AMP_SPEED = new LoggedTunableNumber("Shooter/Amp Speed");
   public static final LoggedTunableNumber GOAL_TOLERANCE =
       new LoggedTunableNumber("Shooter/Goal Tolerance");
 
@@ -74,6 +76,7 @@ public class ShooterConstants {
         KS_RIGHT.initDefault(0.15054);
         KV_RIGHT.initDefault(0.0068511);
         KA_RIGHT.initDefault(0.0011501);
+        AMP_SPEED.initDefault(Units.rotationsPerMinuteToRadiansPerSecond(100));
         break;
       case ROBOT_TALONFX:
         MOTOR_CONFIG = DCMotor.getNeoVortex(1);
@@ -89,6 +92,8 @@ public class ShooterConstants {
         KS_RIGHT.initDefault(0.15054);
         KV_RIGHT.initDefault(0.0068511);
         KA_RIGHT.initDefault(0.0011501);
+        AMP_SPEED.initDefault(Units.rotationsPerMinuteToRadiansPerSecond(100));
+
         break;
       case ROBOT_SIM_NEO:
         MOTOR_CONFIG = DCMotor.getNEO(1);
@@ -104,6 +109,8 @@ public class ShooterConstants {
         KS_RIGHT.initDefault(0.15054);
         KV_RIGHT.initDefault(0.0068511);
         KA_RIGHT.initDefault(0.0011501);
+        AMP_SPEED.initDefault(Units.rotationsPerMinuteToRadiansPerSecond(100));
+
         break;
       case ROBOT_SIM_VORTEX:
         MOTOR_CONFIG = DCMotor.getNeoVortex(1);
@@ -119,6 +126,8 @@ public class ShooterConstants {
         KS_RIGHT.initDefault(0.15054);
         KV_RIGHT.initDefault(0.0068511);
         KA_RIGHT.initDefault(0.0011501);
+        AMP_SPEED.initDefault(Units.rotationsPerMinuteToRadiansPerSecond(100));
+
         break;
       case ROBOT_SIM_FALCON500:
         MOTOR_CONFIG = DCMotor.getFalcon500(1);
@@ -134,6 +143,8 @@ public class ShooterConstants {
         KS_RIGHT.initDefault(0.15054);
         KV_RIGHT.initDefault(0.0068511);
         KA_RIGHT.initDefault(0.0011501);
+        AMP_SPEED.initDefault(Units.rotationsPerMinuteToRadiansPerSecond(100));
+
         break;
       case ROBOT_SIM_FALCON500_FOC:
         MOTOR_CONFIG = DCMotor.getFalcon500Foc(1);
@@ -149,6 +160,8 @@ public class ShooterConstants {
         KS_RIGHT.initDefault(0.15054);
         KV_RIGHT.initDefault(0.0068511);
         KA_RIGHT.initDefault(0.0011501);
+        AMP_SPEED.initDefault(Units.rotationsPerMinuteToRadiansPerSecond(100));
+
         break;
       case ROBOT_SIM_KRAKEN_X60:
         MOTOR_CONFIG = DCMotor.getKrakenX60(1);
@@ -164,6 +177,8 @@ public class ShooterConstants {
         KS_RIGHT.initDefault(0.15054);
         KV_RIGHT.initDefault(0.0068511);
         KA_RIGHT.initDefault(0.0011501);
+        AMP_SPEED.initDefault(Units.rotationsPerMinuteToRadiansPerSecond(100));
+
         break;
       case ROBOT_SIM_KRAKEN_X60_FOC:
         MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
@@ -179,6 +194,8 @@ public class ShooterConstants {
         KS_RIGHT.initDefault(0.15054);
         KV_RIGHT.initDefault(0.0068511);
         KA_RIGHT.initDefault(0.0011501);
+        AMP_SPEED.initDefault(Units.rotationsPerMinuteToRadiansPerSecond(100));
+
         break;
       default:
         MOTOR_CONFIG = DCMotor.getNeoVortex(1);

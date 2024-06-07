@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
+import frc.robot.subsystems.hood.HoodConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class Turret extends SubsystemBase {
@@ -24,10 +25,11 @@ public class Turret extends SubsystemBase {
   public Turret(TurretIO io) {
     this.io = io;
     setDefaultCommand(
-        run(
+        Commands.run(
             () -> {
-              setShootPosition();
-            }));
+              setFeedPosition();
+            },
+            this));
   }
 
   @Override
@@ -99,34 +101,31 @@ public class Turret extends SubsystemBase {
     return finalPosition;
   }
 
+  private void setPosition(double positionRad) {
+    profiledFeedback.setGoal(calculateFinalPosition(inputs.position.getRadians(), positionRad));
+  }
+
+  public boolean atGoal() {
+    return Math.abs(profiledFeedback.getGoal().position - profiledFeedback.getSetpoint().position)
+        <= HoodConstants.GOAL_TOLERANCE.get();
+  }
+
   public Rotation2d getPosition() {
     return inputs.position;
   }
 
   public Command setShootPosition() {
-    return Commands.runOnce(
-        () ->
-            profiledFeedback.setGoal(
-                calculateFinalPosition(
-                    inputs.position.getRadians(),
-                    RobotState.getStateCache().speakerTurretAngle().getRadians())));
-  }
-
-  public Command setFeedPosition() {
-    return Commands.runOnce(
-        () ->
-            profiledFeedback.setGoal(
-                calculateFinalPosition(
-                    inputs.position.getRadians(),
-                    RobotState.getStateCache().feedTurretAngle().getRadians())));
+    return Commands.run(
+        () -> setPosition(RobotState.getStateCache().speakerTurretAngle().getRadians()));
   }
 
   public Command setAmpPosition() {
-    return Commands.runOnce(
-        () ->
-            profiledFeedback.setGoal(
-                calculateFinalPosition(
-                    inputs.position.getRadians(),
-                    RobotState.getStateCache().ampTurretAngle().getRadians())));
+    return Commands.run(
+        () -> setPosition(RobotState.getStateCache().ampTurretAngle().getRadians()));
+  }
+
+  public Command setFeedPosition() {
+    return Commands.run(
+        () -> setPosition(RobotState.getStateCache().feedTurretAngle().getRadians()));
   }
 }

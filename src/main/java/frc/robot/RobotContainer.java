@@ -18,7 +18,6 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -232,16 +231,6 @@ public class RobotContainer {
         .addNumber("Flywheel Offset", RobotState::getSpeakerFlywheelOffset)
         .withPosition(0, 1)
         .withSize(1, 1);
-    Shuffleboard.getTab("Teleoperated")
-        .add("Shooter View", CameraServer.addSwitchedCamera("limelight-shooter").getSource())
-        .withPosition(1, 0)
-        .withSize(5, 5)
-        .withWidget("Camera Stream");
-    Shuffleboard.getTab("Teleoperated")
-        .add("Intake View", CameraServer.addSwitchedCamera("limelight-intake").getSource())
-        .withPosition(6, 0)
-        .withSize(5, 5)
-        .withWidget("Camera Stream");
   }
 
   private void configureButtonBindings() {
@@ -254,6 +243,21 @@ public class RobotContainer {
             () -> -driver.getRightX(),
             driver.rightBumper()));
     driver.start().onTrue(CompositeCommands.resetHeading(drive));
+    driver.leftBumper().whileTrue(CompositeCommands.getCollectCommand(intake, serializer, feeder));
+    driver
+        .rightBumper()
+        .whileTrue(
+            CompositeCommands.getShootSpeakerCommand(
+                intake, serializer, turret, feeder, hood, shooter));
+    driver
+        .leftTrigger()
+        .whileTrue(
+            CompositeCommands.getShootAmpCommand(
+                intake, serializer, turret, feeder, hood, shooter));
+    driver
+        .rightTrigger()
+        .whileTrue(
+            CompositeCommands.getFeedCommand(intake, serializer, turret, feeder, hood, shooter));
   }
 
   public void updateMechanism3d() {

@@ -10,6 +10,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.drive.drive.Drive;
 import frc.robot.subsystems.drive.drive.DriveConstants;
+import frc.robot.subsystems.hood.Hood;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.turret.Turret;
 import frc.robot.subsystems.vision.CameraType;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.Alert;
@@ -198,6 +201,10 @@ public class RobotState {
     return Rotation2d.fromRadians(
         Math.atan2(
             targetPose.getY() - getRobotPose().getY(), targetPose.getX() - getRobotPose().getX()));
+  }
+
+  public static boolean shooterReady(Turret turret, Hood hood, Shooter shooter) {
+    return turret.atGoal() && hood.atGoal() && shooter.atGoal();
   }
 
   public static record StateCache(

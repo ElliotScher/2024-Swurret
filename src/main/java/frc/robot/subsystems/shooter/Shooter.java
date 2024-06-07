@@ -160,22 +160,34 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command runVelocity() {
-    return runEnd(
+    return Commands.runEnd(
         () -> {
           setSpinVelocity(ShooterConstants.IDLE_SPEED.get());
         },
         () -> {
           stop();
+        },
+        this);
+  }
+
+  public Command setSpeakerSpeed() {
+    return Commands.run(
+        () -> {
+          setSpinVelocity(RobotState.getStateCache().speakerShotSpeed());
         });
   }
 
   public Command setFeedSpeed() {
-    return runEnd(
+    return Commands.run(
         () -> {
           setSpinVelocity(RobotState.getStateCache().feedShotSpeed());
-        },
+        });
+  }
+
+  public Command setAmpSpeed() {
+    return Commands.run(
         () -> {
-          stop();
+          setSpinVelocity(ShooterConstants.AMP_SPEED.get());
         });
   }
 

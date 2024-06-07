@@ -3,13 +3,12 @@ package frc.robot.subsystems.hood;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
-import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Hood extends SubsystemBase {
@@ -25,10 +24,11 @@ public class Hood extends SubsystemBase {
   public Hood(HoodIO io) {
     this.io = io;
     setDefaultCommand(
-        run(
+        Commands.run(
             () -> {
               setPosition(HoodConstants.STOWED_POSITION.get());
-            }));
+            },
+            this));
   }
 
   @Override
@@ -78,18 +78,16 @@ public class Hood extends SubsystemBase {
         <= HoodConstants.GOAL_TOLERANCE.get();
   }
 
-  public Command setFeed() {
-    return runEnd(
-        () -> setPosition(RobotState.getStateCache().feedHoodAngle().getRadians()),
-        () -> setPosition(HoodConstants.STOWED_POSITION.get()));
+  public Command setSpeakerPosition() {
+    return Commands.run(
+        () -> setPosition(RobotState.getStateCache().speakerHoodAngle().getRadians()));
   }
 
-  public Command setPosition(
-      Supplier<Translation2d> robotPoseSupplier, Supplier<Translation2d> velocitySupplier) {
-    return runEnd(
-        () -> {
-          setPosition(RobotState.getStateCache().speakerHoodAngle().getRadians());
-        },
-        () -> setPosition(HoodConstants.STOWED_POSITION.get()));
+  public Command setFeedPosition() {
+    return Commands.run(() -> setPosition(RobotState.getStateCache().feedHoodAngle().getRadians()));
+  }
+
+  public Command setAmpPosition() {
+    return Commands.run(() -> setPosition(HoodConstants.AMP_POSITION.get()));
   }
 }
