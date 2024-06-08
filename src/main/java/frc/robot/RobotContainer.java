@@ -240,7 +240,7 @@ public class RobotContainer {
     driver.y().onTrue(CompositeCommands.resetHeading(drive));
     driver.leftBumper().whileTrue(CompositeCommands.getCollectCommand(intake, serializer, feeder));
     driver
-        .rightBumper()
+        .a()
         .whileTrue(
             CompositeCommands.getShootSpeakerCommand(
                 intake, serializer, turret, feeder, hood, shooter));
@@ -253,7 +253,6 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(
             CompositeCommands.getFeedCommand(intake, serializer, turret, feeder, hood, shooter));
-    driver.a().whileTrue(hood.testPosition());
   }
 
   public void updateMechanism3d() {
