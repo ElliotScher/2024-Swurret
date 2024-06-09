@@ -240,7 +240,7 @@ public class RobotContainer {
     driver.y().onTrue(CompositeCommands.resetHeading(drive));
     driver.leftBumper().whileTrue(CompositeCommands.getCollectCommand(intake, serializer, feeder));
     driver
-        .a()
+        .rightBumper()
         .whileTrue(
             CompositeCommands.getShootSpeakerCommand(
                 intake, serializer, turret, feeder, hood, shooter));

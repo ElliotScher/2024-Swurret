@@ -5,10 +5,6 @@
     {
       "axis": "x",
       "degrees": 90
-    },
-    {
-      "axis": "z",
-      "degrees": 90
     }
   ],
   "position": [
@@ -20,34 +16,20 @@
   "components": [
     {
       "zeroedRotations": [
-        {
-          "axis": "x",
-          "degrees": 90
-        },
-        {
-          "axis": "z",
-          "degrees": 90
-        }
+      {"axis": "x", "degrees": 90}
       ],
       "zeroedPosition": [
-        0.112125,
         0,
-        -0.2515
+        0,
+        0.085
       ]
     },
     {
       "zeroedRotations": [
-        {
-          "axis": "x",
-          "degrees": 90
-        },
-        {
-          "axis": "z",
-          "degrees": 90
-        }
+      {"axis": "x", "degrees": 90}
       ],
       "zeroedPosition": [
-        0.112125,
+        0,
         0,
         -0.2515
       ]
