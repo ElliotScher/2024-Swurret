@@ -9,11 +9,11 @@ public class Mechanism3d {
 
   public static final Pose3d[] getPoses(Rotation2d turretAngle, Rotation2d hoodAngle) {
     Pose3d turretPose =
-        new Pose3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, turretAngle.getRadians()));
+        new Pose3d(0.0, 0.089667, 0.0, new Rotation3d(0.0, 0.0, turretAngle.getRadians()));
     Pose3d hoodPose =
         new Pose3d(
             0.0,
-            0.0,
+            0.089667,
             0.2515 + 0.085,
             new Rotation3d(hoodAngle.getRadians(), 0.0, turretAngle.getRadians()));
 
