@@ -152,6 +152,14 @@ public class Shooter extends SubsystemBase {
     return Math.max(inputs.leftVelocityRadPerSec, inputs.rightVelocityRadPerSec);
   }
 
+  public double getLeftSpeed() {
+    return inputs.leftVelocityRadPerSec;
+  }
+
+  public double getRightSpeed() {
+    return inputs.rightVelocityRadPerSec;
+  }
+
   public boolean atGoal() {
     return (Math.abs(leftProfile.getGoal() - leftFeedback.getSetpoint())
             <= ShooterConstants.GOAL_TOLERANCE.get())

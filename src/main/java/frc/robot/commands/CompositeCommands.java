@@ -68,8 +68,7 @@ public class CompositeCommands {
       Shooter shooter) {
     return Commands.parallel(
         runSpeakerTarget(turret, hood, shooter),
-        getShootCommand(intake, serializer, feeder)
-            .onlyIf(() -> RobotState.shooterReady(turret, hood, shooter)));
+        getShootCommand(intake, serializer, feeder).onlyIf(() -> RobotState.shooterReady()));
   }
 
   public static final Command getShootAmpCommand(
@@ -81,8 +80,7 @@ public class CompositeCommands {
       Shooter shooter) {
     return Commands.parallel(
         runAmpTarget(turret, hood, shooter),
-        getShootCommand(intake, serializer, feeder)
-            .onlyIf(() -> RobotState.shooterReady(turret, hood, shooter)));
+        getShootCommand(intake, serializer, feeder).onlyIf(() -> RobotState.shooterReady()));
   }
 
   public static final Command getFeedCommand(
@@ -94,8 +92,7 @@ public class CompositeCommands {
       Shooter shooter) {
     return Commands.parallel(
         runFeedTarget(turret, hood, shooter),
-        getShootCommand(intake, serializer, feeder)
-            .onlyIf(() -> RobotState.shooterReady(turret, hood, shooter)));
+        getShootCommand(intake, serializer, feeder).onlyIf(() -> RobotState.shooterReady()));
   }
 
   public static final Command getChoreoCommand(Drive drive, String trajectory) {

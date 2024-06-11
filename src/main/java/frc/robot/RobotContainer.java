@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.Mode;
+import frc.robot.Constants.RobotType;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.CompositeCommands;
 import frc.robot.commands.DriveCommands;
@@ -67,6 +68,7 @@ import frc.robot.subsystems.vision.CameraIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.Mechanism3d;
+import frc.robot.util.physics.SimulatorManager;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -213,7 +215,10 @@ public class RobotContainer {
         vision::getPrimaryVisionPoses,
         vision::getSecondaryVisionPoses,
         vision::getPrimaryPoseTimestamps,
-        vision::getSecondaryPoseTimestamps);
+        vision::getSecondaryPoseTimestamps,
+        turret::atGoal,
+        hood::atGoal,
+        shooter::atGoal);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -240,19 +245,24 @@ public class RobotContainer {
     driver.y().onTrue(CompositeCommands.resetHeading(drive));
     driver.leftBumper().whileTrue(CompositeCommands.getCollectCommand(intake, serializer, feeder));
     driver
-        .a()
+        .rightBumper()
         .whileTrue(
             CompositeCommands.getShootSpeakerCommand(
                 intake, serializer, turret, feeder, hood, shooter));
     driver
-        .x()
+        .leftTrigger()
         .whileTrue(
             CompositeCommands.getShootAmpCommand(
                 intake, serializer, turret, feeder, hood, shooter));
     driver
-        .b()
+        .rightTrigger()
         .whileTrue(
             CompositeCommands.getFeedCommand(intake, serializer, turret, feeder, hood, shooter));
+
+    if (!(Constants.ROBOT.equals(RobotType.ROBOT_TALONFX)
+        || Constants.ROBOT.equals(RobotType.ROBOT_SPARK_FLEX))) {
+      driver.a().onTrue(SimulatorManager.manualShootNote(turret, hood, shooter));
+    }
   }
 
   public void updateMechanism3d() {

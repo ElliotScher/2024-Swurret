@@ -10,14 +10,13 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.drive.drive.Drive;
 import frc.robot.subsystems.drive.drive.DriveConstants;
-import frc.robot.subsystems.hood.Hood;
-import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.turret.Turret;
 import frc.robot.subsystems.vision.CameraType;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.physics.SimulatorManager;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
@@ -62,27 +61,29 @@ public class RobotState {
   private static Supplier<Pose3d[]> visionSecondaryPosesSupplier;
   private static Supplier<double[]> visionPrimaryPoseTimestampsSupplier;
   private static Supplier<double[]> visionSecondaryPoseTimestampsSupplier;
+  private static BooleanSupplier turretShotReadySupplier;
+  private static BooleanSupplier hoodShotReadySupplier;
+  private static BooleanSupplier shooterShotReadySupplier;
 
   static {
     // Units: radians per second
-    speakerShotSpeedMap.put(2.16, 800.0);
-    speakerShotSpeedMap.put(4.29, 900.0);
+    speakerShotSpeedMap.put(0.0, 1000.0);
+    speakerShotSpeedMap.put(10.0, 1000.0);
 
     // Units: radians per second
-    feedShotSpeedMap.put(0.0, 0.0);
-    feedShotSpeedMap.put(1.0, 5.0);
+    feedShotSpeedMap.put(0.0, 100.0);
+    feedShotSpeedMap.put(10.0, 1000.0);
 
     // Units: radians
-    speakerShotAngleMap.put(0.0, -Math.PI);
-    speakerShotAngleMap.put(4.29, Math.PI);
+    speakerShotAngleMap.put(0.0, 0.0);
+    speakerShotAngleMap.put(10.0, Math.PI);
 
     // Units: radians
     feedShotAngleMap.put(0.0, 0.0);
     feedShotAngleMap.put(0.0, 0.0);
 
     // Units: seconds
-    timeOfFlightMap.put(2.50, (4.42 - 4.24));
-    timeOfFlightMap.put(4.0, (2.60 - 2.32));
+    timeOfFlightMap.put(0.0, 0.0);
   }
 
   public RobotState(
@@ -93,7 +94,10 @@ public class RobotState {
       Supplier<Pose3d[]> visionPrimaryPosesSupplier,
       Supplier<Pose3d[]> visionSecondaryPosesSupplier,
       Supplier<double[]> visionPrimaryPoseTimestampsSupplier,
-      Supplier<double[]> visionSecondaryPoseTimestampsSupplier) {
+      Supplier<double[]> visionSecondaryPoseTimestampsSupplier,
+      BooleanSupplier turretShotReadySupplier,
+      BooleanSupplier hoodShotReadySupplier,
+      BooleanSupplier shooterShotReadySupplier) {
     RobotState.robotHeadingSupplier = robotHeadingSupplier;
     RobotState.robotFieldRelativeVelocitySupplier = robotFieldRelativeVelocitySupplier;
     RobotState.modulePositionSupplier = modulePositionSupplier;
@@ -102,6 +106,9 @@ public class RobotState {
     RobotState.visionSecondaryPosesSupplier = visionSecondaryPosesSupplier;
     RobotState.visionPrimaryPoseTimestampsSupplier = visionPrimaryPoseTimestampsSupplier;
     RobotState.visionSecondaryPoseTimestampsSupplier = visionSecondaryPoseTimestampsSupplier;
+    RobotState.turretShotReadySupplier = turretShotReadySupplier;
+    RobotState.hoodShotReadySupplier = hoodShotReadySupplier;
+    RobotState.shooterShotReadySupplier = shooterShotReadySupplier;
 
     poseEstimator =
         new SwerveDrivePoseEstimator(
@@ -111,6 +118,12 @@ public class RobotState {
             new Pose2d(),
             DriveConstants.ODOMETRY_STANDARD_DEVIATIONS,
             VisionConstants.DEFAULT_STANDARD_DEVIATIONS);
+
+    if (!(Constants.ROBOT.equals(Constants.RobotType.ROBOT_TALONFX)
+        || Constants.ROBOT.equals(Constants.RobotType.ROBOT_SPARK_FLEX))) {
+
+      new SimulatorManager();
+    }
   }
 
   public static void periodic() {
@@ -163,8 +176,9 @@ public class RobotState {
             speakerShotSpeedMap.get(effectiveDistanceToSpeaker),
             new Rotation2d(speakerShotAngleMap.get(effectiveDistanceToSpeaker)),
             feedShotSpeedMap.get(0.0),
-            // new Rotation2d(feedShotAngleMap.get(0.0)));
             new Rotation2d(0.0));
+
+    SimulatorManager.periodic();
 
     Logger.recordOutput("RobotState/Primary Poses", visionPrimaryPosesSupplier.get());
     Logger.recordOutput("RobotState/Secondary Pose", visionSecondaryPosesSupplier.get());
@@ -193,8 +207,10 @@ public class RobotState {
             targetPose.getY() - getRobotPose().getY(), targetPose.getX() - getRobotPose().getX()));
   }
 
-  public static boolean shooterReady(Turret turret, Hood hood, Shooter shooter) {
-    return turret.atGoal() && hood.atGoal() && shooter.atGoal();
+  public static boolean shooterReady() {
+    return turretShotReadySupplier.getAsBoolean()
+        && hoodShotReadySupplier.getAsBoolean()
+        && shooterShotReadySupplier.getAsBoolean();
   }
 
   public static record StateCache(
