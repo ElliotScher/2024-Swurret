@@ -245,12 +245,12 @@ public class RobotContainer {
             CompositeCommands.getShootSpeakerCommand(
                 intake, serializer, turret, feeder, hood, shooter));
     driver
-        .leftTrigger()
+        .x()
         .whileTrue(
             CompositeCommands.getShootAmpCommand(
                 intake, serializer, turret, feeder, hood, shooter));
     driver
-        .rightTrigger()
+        .b()
         .whileTrue(
             CompositeCommands.getFeedCommand(intake, serializer, turret, feeder, hood, shooter));
   }

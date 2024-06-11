@@ -60,6 +60,8 @@ public class Turret extends SubsystemBase {
 
     Logger.recordOutput("Turret/Goal", profiledFeedback.getGoal().position);
     Logger.recordOutput("Turret/Setpoint", profiledFeedback.getSetpoint().position);
+    Logger.recordOutput("Turret/Sine", inputs.position.getSin());
+    Logger.recordOutput("Turret/Cosine", inputs.position.getCos());
   }
 
   // Normalize the angle to be within [-(2.0 * Math.PI), (2.0 * Math.PI))

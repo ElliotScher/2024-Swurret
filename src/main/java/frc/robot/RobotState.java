@@ -163,7 +163,8 @@ public class RobotState {
             speakerShotSpeedMap.get(effectiveDistanceToSpeaker),
             new Rotation2d(speakerShotAngleMap.get(effectiveDistanceToSpeaker)),
             feedShotSpeedMap.get(0.0),
-            new Rotation2d(feedShotAngleMap.get(0.0)));
+            // new Rotation2d(feedShotAngleMap.get(0.0)));
+            new Rotation2d(0.0));
 
     Logger.recordOutput("RobotState/Primary Poses", visionPrimaryPosesSupplier.get());
     Logger.recordOutput("RobotState/Secondary Pose", visionSecondaryPosesSupplier.get());
