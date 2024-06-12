@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shooter;
 
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
@@ -37,14 +36,14 @@ public class ShooterConstants {
   public static final double RAMP_RATE_SECONDS;
   public static final double STEP_VOLTAGE;
   public static final double SYSID_TIMEOUT;
+  public static final double WHEEL_DIAMETER;
+  public static final double FLOOR_TO_HOOD_PIVOT;
 
   public static final int CAN_TIMEOUT;
   public static final double NOMINAL_VOLTAGE;
   public static final int VELOCITY_MEASUREMENT_PERIOD;
   public static final int VELOCITY_AVERAGE_DEPTH;
   public static final int CURRENT_LIMIT;
-
-  public static final Transform3d ROBOT_TO_SHOOTER_TRANSFORM;
 
   static {
     LEFT_DEVICE_ID = 16;
@@ -64,7 +63,8 @@ public class ShooterConstants {
     NOMINAL_VOLTAGE = 12.0;
     VELOCITY_MEASUREMENT_PERIOD = 10;
     VELOCITY_AVERAGE_DEPTH = 2;
-    ROBOT_TO_SHOOTER_TRANSFORM = new Transform3d();
+    WHEEL_DIAMETER = 4.0;
+    FLOOR_TO_HOOD_PIVOT = 0.33625;
     switch (Constants.ROBOT) {
       case ROBOT_SPARK_FLEX:
         MOTOR_CONFIG = DCMotor.getNeoVortex(1);

@@ -116,6 +116,10 @@ public class Turret extends SubsystemBase {
     return inputs.position;
   }
 
+  public Rotation2d getFieldRelativePosition(Rotation2d robotRotation) {
+    return robotRotation.minus(inputs.position);
+  }
+
   public Command setShootPosition() {
     return Commands.run(
         () -> setPosition(RobotState.getStateCache().speakerTurretAngle().getRadians()));

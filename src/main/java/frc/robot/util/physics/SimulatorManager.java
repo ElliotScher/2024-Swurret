@@ -22,7 +22,7 @@ public class SimulatorManager {
     return Commands.runOnce(
             () ->
                 NoteShotSimulator.shootNote(
-                    turret::getPosition,
+                    () -> turret.getFieldRelativePosition(RobotState.getRobotPose().getRotation()),
                     hood::getPosition,
                     shooter::getLeftSpeed,
                     shooter::getRightSpeed))

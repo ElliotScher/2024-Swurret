@@ -245,7 +245,7 @@ public class RobotContainer {
     driver.y().onTrue(CompositeCommands.resetHeading(drive));
     driver.leftBumper().whileTrue(CompositeCommands.getCollectCommand(intake, serializer, feeder));
     driver
-        .rightBumper()
+        .a()
         .whileTrue(
             CompositeCommands.getShootSpeakerCommand(
                 intake, serializer, turret, feeder, hood, shooter));
@@ -261,7 +261,7 @@ public class RobotContainer {
 
     if (!(Constants.ROBOT.equals(RobotType.ROBOT_TALONFX)
         || Constants.ROBOT.equals(RobotType.ROBOT_SPARK_FLEX))) {
-      driver.a().onTrue(SimulatorManager.manualShootNote(turret, hood, shooter));
+      driver.b().onTrue(SimulatorManager.manualShootNote(turret, hood, shooter));
     }
   }
 
