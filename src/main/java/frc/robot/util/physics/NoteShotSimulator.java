@@ -6,7 +6,9 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.FieldConstants;
 import frc.robot.subsystems.shooter.ShooterConstants;
+import frc.robot.util.AllianceFlipUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
@@ -93,7 +95,17 @@ public class NoteShotSimulator {
   }
 
   private static boolean noteScored(NoteState note) {
-    // create bounding box for speaker and check if note pose is in that box
-    return false;
+    return (AllianceFlipUtil.apply(FieldConstants.Speaker.topLeftSpeaker.toTranslation2d()).getX()
+                < note.getNotePose().getX()
+            && note.getNotePose().getX()
+                < AllianceFlipUtil.apply(FieldConstants.Speaker.topRightSpeaker.toTranslation2d())
+                    .getX())
+        && (AllianceFlipUtil.apply(FieldConstants.Speaker.topLeftSpeaker.toTranslation2d()).getY()
+                < note.getNotePose().getY()
+            && note.getNotePose().getY()
+                < AllianceFlipUtil.apply(FieldConstants.Speaker.bottomLeftSpeaker.toTranslation2d())
+                    .getY())
+        && (FieldConstants.Speaker.topLeftSpeaker.getZ() < note.getNotePose().getZ()
+            && note.getNotePose().getZ() < FieldConstants.Speaker.bottomLeftSpeaker.getZ());
   }
 }
