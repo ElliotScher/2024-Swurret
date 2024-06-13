@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +55,8 @@ public class NoteShotSimulator {
             (leftFlywheelLinearSpeed - rightFlywheelLinearSpeed)
                 / (2.0 * NoteConstants.NOTE_RADIUS));
 
-    double noteLinearVelocityX = turretPosition.get().getCos() * noteSpeed;
-    double noteLinearVelocityY = turretPosition.get().getSin() * noteSpeed;
+    double noteLinearVelocityX = -turretPosition.get().getSin() * noteSpeed;
+    double noteLinearVelocityY = turretPosition.get().getCos() * noteSpeed;
     double noteLinearVelocityZ = hoodPosition.get().getSin() * noteSpeed;
 
     double angularVelocityYaw = 0.0;
@@ -72,16 +73,18 @@ public class NoteShotSimulator {
                     new Transform3d(
                         new Translation3d(0.0, 0.0, ShooterConstants.FLOOR_TO_HOOD_PIVOT),
                         new Rotation3d(
-                            0.0,
-                            hoodPosition.get().getRadians(),
-                            turretPosition.get().getRadians()))),
+                            (Units.degreesToRadians(90) - hoodPosition.get().getRadians())
+                                * turretPosition.get().getCos(),
+                            (Units.degreesToRadians(90) - hoodPosition.get().getRadians())
+                                * turretPosition.get().getSin(),
+                            Units.degreesToRadians(180)))),
             noteLinearVelocityX,
             noteLinearVelocityY,
             noteLinearVelocityZ,
             0.0,
             0.0,
             -9.81,
-            angularVelocityYaw,
+            0.0,
             0.0,
             0.0,
             0.0,

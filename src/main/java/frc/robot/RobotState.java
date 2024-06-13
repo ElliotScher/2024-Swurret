@@ -67,8 +67,8 @@ public class RobotState {
 
   static {
     // Units: radians per second
-    speakerShotSpeedMap.put(0.0, 1000.0);
-    speakerShotSpeedMap.put(10.0, 1000.0);
+    speakerShotSpeedMap.put(0.0, 100.0);
+    speakerShotSpeedMap.put(10.0, 100.0);
 
     // Units: radians per second
     feedShotSpeedMap.put(0.0, 100.0);
