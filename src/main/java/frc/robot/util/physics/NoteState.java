@@ -55,16 +55,15 @@ public class NoteState {
   public void applyForce(LinearAxis axis, double force) {
     switch (axis) {
       case LINEAR_X:
-        noteLinearAccelerationX = force / NoteConstants.NOTE_MASS_KG;
+        noteLinearAccelerationX += force / NoteConstants.NOTE_MASS_KG;
         break;
       case LINEAR_Y:
-        noteLinearAccelerationY = force / NoteConstants.NOTE_MASS_KG;
+        noteLinearAccelerationY += force / NoteConstants.NOTE_MASS_KG;
         break;
       case LINEAR_Z:
-        noteLinearAccelerationZ = force / NoteConstants.NOTE_MASS_KG;
+        noteLinearAccelerationZ += force / NoteConstants.NOTE_MASS_KG;
         break;
     }
-    noteLinearAccelerationZ += -9.81;
   }
 
   public void clearForce(LinearAxis axis) {
@@ -76,7 +75,7 @@ public class NoteState {
         noteLinearAccelerationY = 0.0;
         break;
       case LINEAR_Z:
-        noteLinearAccelerationZ = -9.81;
+        noteLinearAccelerationZ = 0.0;
         break;
     }
   }
@@ -84,19 +83,19 @@ public class NoteState {
   public void clearForces() {
     noteLinearAccelerationX = 0.0;
     noteLinearAccelerationY = 0.0;
-    noteLinearAccelerationZ = -9.81;
+    noteLinearAccelerationZ = 0.0;
   }
 
   public void applyMoment(AngularAxis axis, double moment) {
     switch (axis) {
       case ANGULAR_YAW:
-        noteAngularAccelerationYaw = moment / NoteConstants.NOTE_MOI_YAW_KGM2;
+        noteAngularAccelerationYaw += moment / NoteConstants.NOTE_MOI_YAW_KGM2;
         break;
       case ANGULAR_PITCH:
-        noteAngularAccelerationPitch = moment / NoteConstants.NOTE_MOI_PITCH_KGM2;
+        noteAngularAccelerationPitch += moment / NoteConstants.NOTE_MOI_PITCH_KGM2;
         break;
       case ANGULAR_ROLL:
-        noteAngularAccelerationRoll = moment / NoteConstants.NOTE_MOI_ROLL_KGM2;
+        noteAngularAccelerationRoll += moment / NoteConstants.NOTE_MOI_ROLL_KGM2;
         break;
     }
   }
@@ -122,21 +121,26 @@ public class NoteState {
   }
 
   public void updateNoteState() {
-    noteLinearVelocityX += noteLinearAccelerationX * Constants.LOOP_PERIOD_SECS;
-    noteLinearVelocityY += noteLinearAccelerationY * Constants.LOOP_PERIOD_SECS;
-    noteLinearVelocityZ += noteLinearAccelerationZ * Constants.LOOP_PERIOD_SECS;
-    noteAngularVelocityYaw += noteAngularAccelerationYaw * Constants.LOOP_PERIOD_SECS;
-    noteAngularVelocityPitch += noteAngularAccelerationPitch * Constants.LOOP_PERIOD_SECS;
-    noteAngularVelocityRoll += noteAngularAccelerationRoll * Constants.LOOP_PERIOD_SECS;
-    notePose.transformBy(
-        new Transform3d(
-            new Translation3d(
-                noteLinearVelocityX * Constants.LOOP_PERIOD_SECS,
-                noteLinearVelocityY * Constants.LOOP_PERIOD_SECS,
-                noteLinearVelocityZ * Constants.LOOP_PERIOD_SECS),
-            new Rotation3d(
-                noteAngularVelocityRoll * Constants.LOOP_PERIOD_SECS,
-                noteAngularVelocityPitch * Constants.LOOP_PERIOD_SECS,
-                noteAngularVelocityYaw * Constants.LOOP_PERIOD_SECS)));
+    if (notePose.getTranslation().getZ() > 0.0) {
+      noteLinearVelocityX += noteLinearAccelerationX * Constants.LOOP_PERIOD_SECS;
+      noteLinearVelocityY += noteLinearAccelerationY * Constants.LOOP_PERIOD_SECS;
+      noteLinearVelocityZ += noteLinearAccelerationZ * Constants.LOOP_PERIOD_SECS;
+      noteAngularVelocityYaw += noteAngularAccelerationYaw * Constants.LOOP_PERIOD_SECS;
+      noteAngularVelocityPitch += noteAngularAccelerationPitch * Constants.LOOP_PERIOD_SECS;
+      noteAngularVelocityRoll += noteAngularAccelerationRoll * Constants.LOOP_PERIOD_SECS;
+      notePose =
+          notePose.transformBy(
+              new Transform3d(
+                  new Translation3d(
+                      noteLinearVelocityX * Constants.LOOP_PERIOD_SECS,
+                      noteLinearVelocityY * Constants.LOOP_PERIOD_SECS,
+                      noteLinearVelocityZ * Constants.LOOP_PERIOD_SECS),
+                  new Rotation3d(
+                      noteAngularVelocityRoll * Constants.LOOP_PERIOD_SECS,
+                      noteAngularVelocityPitch * Constants.LOOP_PERIOD_SECS,
+                      noteAngularVelocityYaw * Constants.LOOP_PERIOD_SECS)));
+    } else {
+      notePose = new Pose3d(notePose.getX(), notePose.getY(), 0.0, new Rotation3d());
+    }
   }
 }

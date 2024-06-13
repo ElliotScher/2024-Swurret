@@ -63,7 +63,7 @@ public class ShooterConstants {
     NOMINAL_VOLTAGE = 12.0;
     VELOCITY_MEASUREMENT_PERIOD = 10;
     VELOCITY_AVERAGE_DEPTH = 2;
-    WHEEL_DIAMETER = 4.0;
+    WHEEL_DIAMETER = Units.inchesToMeters(4.0);
     FLOOR_TO_HOOD_PIVOT = 0.33625;
     switch (Constants.ROBOT) {
       case ROBOT_SPARK_FLEX:

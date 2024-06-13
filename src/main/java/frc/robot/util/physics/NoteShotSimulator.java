@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,9 +70,7 @@ public class NoteShotSimulator {
                 .get()
                 .transformBy(
                     new Transform3d(
-                        0.0,
-                        0.0,
-                        ShooterConstants.FLOOR_TO_HOOD_PIVOT,
+                        new Translation3d(0.0, 0.0, ShooterConstants.FLOOR_TO_HOOD_PIVOT),
                         new Rotation3d(
                             0.0,
                             hoodPosition.get().getRadians(),
