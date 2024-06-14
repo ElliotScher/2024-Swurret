@@ -67,8 +67,8 @@ public class NoteShotSimulator {
                         new Translation3d(0.0, 0.0, ShooterConstants.FLOOR_TO_HOOD_PIVOT),
                         new Rotation3d(
                             0.0,
-                            -hoodPosition.get().getRadians() * turretPosition.get().getCos(),
-                            hoodPosition.get().getRadians() * turretPosition.get().getSin()))),
+                            hoodPosition.get().plus(Rotation2d.fromDegrees(90)).getRadians() * turretPosition.get().getCos(),
+                            0.0))),
             0.0,
             0.0,
             0.0,
