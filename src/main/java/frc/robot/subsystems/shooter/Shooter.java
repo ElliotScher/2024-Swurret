@@ -178,6 +178,10 @@ public class Shooter extends SubsystemBase {
         this);
   }
 
+  public Command setDefaultSpeed() {
+    return Commands.run(() -> setSpinVelocity(ShooterConstants.IDLE_SPEED.get()));
+  }
+
   public Command setSpeakerSpeed() {
     return Commands.run(
         () -> {

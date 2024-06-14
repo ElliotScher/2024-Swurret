@@ -84,8 +84,4 @@ public class Hood extends SubsystemBase {
   public Command setAmpPosition() {
     return Commands.run(() -> setPosition(HoodConstants.AMP_POSITION.get()));
   }
-
-  public Command testPosition() {
-    return Commands.run(() -> setPosition(Math.PI));
-  }
 }

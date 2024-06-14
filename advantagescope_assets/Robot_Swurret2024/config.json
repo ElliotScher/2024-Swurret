@@ -5,6 +5,10 @@
     {
       "axis": "x",
       "degrees": 90
+    },
+    {
+      "axis": "z",
+      "degrees": 90
     }
   ],
   "position": [
@@ -19,6 +23,10 @@
         {
           "axis": "x",
           "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": 90
         }
       ],
       "zeroedPosition": [
@@ -32,11 +40,15 @@
         {
           "axis": "x",
           "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": 90
         }
       ],
       "zeroedPosition": [
+        0.089,
         0,
-        -0.089,
         -0.25125
       ]
     }

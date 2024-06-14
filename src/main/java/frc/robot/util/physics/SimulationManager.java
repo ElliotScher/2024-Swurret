@@ -8,9 +8,9 @@ import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.turret.Turret;
 
-public class SimulatorManager {
+public class SimulationManager {
 
-  public SimulatorManager() {
+  public SimulationManager() {
     new NoteShotSimulator(() -> new Pose3d(RobotState.getRobotPose()));
   }
 

@@ -15,7 +15,7 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 import frc.robot.util.AllianceFlipUtil;
-import frc.robot.util.physics.SimulatorManager;
+import frc.robot.util.physics.SimulationManager;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import lombok.Getter;
@@ -122,7 +122,7 @@ public class RobotState {
     if (!(Constants.ROBOT.equals(Constants.RobotType.ROBOT_TALONFX)
         || Constants.ROBOT.equals(Constants.RobotType.ROBOT_SPARK_FLEX))) {
 
-      new SimulatorManager();
+      new SimulationManager();
     }
   }
 
@@ -164,10 +164,7 @@ public class RobotState {
     double effectiveDistanceToSpeaker = effectiveAimingPose.getDistance(speakerPose);
 
     Rotation2d setpointAngle =
-        speakerPose
-            .minus(effectiveAimingPose)
-            .getAngle()
-            .minus(robotHeadingSupplier.get().minus(Rotation2d.fromRadians(Math.PI / 2.0)));
+        speakerPose.minus(effectiveAimingPose).getAngle().minus(robotHeadingSupplier.get());
     stateCache =
         new StateCache(
             setpointAngle,
@@ -178,14 +175,22 @@ public class RobotState {
             feedShotSpeedMap.get(0.0),
             new Rotation2d(0.0));
 
-    SimulatorManager.periodic();
+    SimulationManager.periodic();
 
     Logger.recordOutput("RobotState/Primary Poses", visionPrimaryPosesSupplier.get());
     Logger.recordOutput("RobotState/Secondary Pose", visionSecondaryPosesSupplier.get());
     Logger.recordOutput("RobotState/Estimated Pose", poseEstimator.getEstimatedPosition());
     Logger.recordOutput(
-        "RobotState/StateCache/Effective Aiming Pose",
-        new Pose2d(effectiveAimingPose, new Rotation2d()));
+        "RobotState/Effective Aiming Pose", new Pose2d(effectiveAimingPose, new Rotation2d()));
+    Logger.recordOutput("RobotState/Effective Distance To Speaker", effectiveDistanceToSpeaker);
+    Logger.recordOutput(
+        "RobotState/StateCache/Speaker Turret Angle", stateCache.speakerTurretAngle());
+    Logger.recordOutput("RobotState/StateCache/Feed Turret Angle", stateCache.feedTurretAngle());
+    Logger.recordOutput("RobotState/StateCache/Amp Turret Angle", stateCache.ampTurretAngle());
+    Logger.recordOutput("RobotState/StateCache/Speaker Shot Speed", stateCache.speakerShotSpeed());
+    Logger.recordOutput("RobotState/StateCache/Speaker Hood Angle", stateCache.speakerHoodAngle());
+    Logger.recordOutput("RobotState/StateCache/Feed Shot Speed", stateCache.feedShotSpeed());
+    Logger.recordOutput("RobotState/StateCache/Feed Hood Angle", stateCache.feedHoodAngle());
   }
 
   public static Pose2d getRobotPose() {

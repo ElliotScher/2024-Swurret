@@ -68,7 +68,7 @@ import frc.robot.subsystems.vision.CameraIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.Mechanism3d;
-import frc.robot.util.physics.SimulatorManager;
+import frc.robot.util.physics.SimulationManager;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -245,10 +245,16 @@ public class RobotContainer {
     driver.y().onTrue(CompositeCommands.resetHeading(drive));
     driver.leftBumper().whileTrue(CompositeCommands.getCollectCommand(intake, serializer, feeder));
     driver
-        .a()
+        .leftBumper()
         .whileTrue(
             CompositeCommands.getShootSpeakerCommand(
                 intake, serializer, turret, feeder, hood, shooter));
+    driver
+        .a()
+        .whileTrue(
+            turret
+                .setShootPosition()
+                .alongWith(hood.setAmpPosition().alongWith(shooter.setDefaultSpeed())));
     driver
         .leftTrigger()
         .whileTrue(
@@ -261,7 +267,7 @@ public class RobotContainer {
 
     if (!(Constants.ROBOT.equals(RobotType.ROBOT_TALONFX)
         || Constants.ROBOT.equals(RobotType.ROBOT_SPARK_FLEX))) {
-      driver.b().onTrue(SimulatorManager.manualShootNote(turret, hood, shooter));
+      driver.b().onTrue(SimulationManager.manualShootNote(turret, hood, shooter));
     }
   }
 

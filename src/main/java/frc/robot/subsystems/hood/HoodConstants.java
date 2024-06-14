@@ -55,7 +55,7 @@ public class HoodConstants {
     MINIMUM_ANGLE = Rotation2d.fromDegrees(0.0);
     MAXIMUM_ANGLE = Rotation2d.fromDegrees(180.0);
     SIMULATE_GRAVITY = true;
-    STARTING_POSITION = Rotation2d.fromDegrees(0.0);
+    STARTING_POSITION = Rotation2d.fromDegrees(90.0);
     GEAR_RATIO = 220.0 / 18.0;
     MOMENT_OF_INERTIA = 0.004;
     switch (Constants.ROBOT) {
@@ -65,7 +65,7 @@ public class HoodConstants {
         KD.initDefault(0.01);
         MAX_VELOCITY.initDefault(50.0);
         MAX_ACCELERATION.initDefault(40.0);
-        STOWED_POSITION.initDefault(0.0);
+        STOWED_POSITION.initDefault(Units.degreesToRadians(90.0));
         AMP_POSITION.initDefault(0.3);
         MIN_POSITION.initDefault(0.0);
         MAX_POSITION.initDefault(0.75);
@@ -76,7 +76,7 @@ public class HoodConstants {
         KD.initDefault(0.01);
         MAX_VELOCITY.initDefault(50.0);
         MAX_ACCELERATION.initDefault(40.0);
-        STOWED_POSITION.initDefault(0.0);
+        STOWED_POSITION.initDefault(Units.degreesToRadians(90.0));
         AMP_POSITION.initDefault(0.3);
         MIN_POSITION.initDefault(0.0);
         MAX_POSITION.initDefault(0.75);
@@ -87,7 +87,7 @@ public class HoodConstants {
         KD.initDefault(0.01);
         MAX_VELOCITY.initDefault(50.0);
         MAX_ACCELERATION.initDefault(40.0);
-        STOWED_POSITION.initDefault(0.0);
+        STOWED_POSITION.initDefault(Units.degreesToRadians(90.0));
         AMP_POSITION.initDefault(0.3);
         MIN_POSITION.initDefault(0.0);
         MAX_POSITION.initDefault(0.75);
@@ -98,7 +98,7 @@ public class HoodConstants {
         KD.initDefault(0.01);
         MAX_VELOCITY.initDefault(50.0);
         MAX_ACCELERATION.initDefault(40.0);
-        STOWED_POSITION.initDefault(0.0);
+        STOWED_POSITION.initDefault(Units.degreesToRadians(90.0));
         AMP_POSITION.initDefault(0.3);
         MIN_POSITION.initDefault(0.0);
         MAX_POSITION.initDefault(0.75);
@@ -109,7 +109,7 @@ public class HoodConstants {
         KD.initDefault(0.01);
         MAX_VELOCITY.initDefault(50.0);
         MAX_ACCELERATION.initDefault(40.0);
-        STOWED_POSITION.initDefault(0.0);
+        STOWED_POSITION.initDefault(Units.degreesToRadians(90.0));
         AMP_POSITION.initDefault(0.3);
         MIN_POSITION.initDefault(0.0);
         MAX_POSITION.initDefault(0.75);
@@ -120,7 +120,7 @@ public class HoodConstants {
         KD.initDefault(0.01);
         MAX_VELOCITY.initDefault(50.0);
         MAX_ACCELERATION.initDefault(40.0);
-        STOWED_POSITION.initDefault(0.0);
+        STOWED_POSITION.initDefault(Units.degreesToRadians(90.0));
         AMP_POSITION.initDefault(0.3);
         MIN_POSITION.initDefault(0.0);
         MAX_POSITION.initDefault(0.75);
@@ -131,7 +131,7 @@ public class HoodConstants {
         KD.initDefault(0.01);
         MAX_VELOCITY.initDefault(50.0);
         MAX_ACCELERATION.initDefault(40.0);
-        STOWED_POSITION.initDefault(0.0);
+        STOWED_POSITION.initDefault(Units.degreesToRadians(90.0));
         AMP_POSITION.initDefault(0.3);
         MIN_POSITION.initDefault(0.0);
         MAX_POSITION.initDefault(0.75);
@@ -142,7 +142,7 @@ public class HoodConstants {
         KD.initDefault(0.01);
         MAX_VELOCITY.initDefault(50.0);
         MAX_ACCELERATION.initDefault(40.0);
-        STOWED_POSITION.initDefault(0.0);
+        STOWED_POSITION.initDefault(Units.degreesToRadians(90.0));
         AMP_POSITION.initDefault(0.3);
         MIN_POSITION.initDefault(0.0);
         MAX_POSITION.initDefault(0.75);
@@ -153,7 +153,7 @@ public class HoodConstants {
         KD.initDefault(0.01);
         MAX_VELOCITY.initDefault(50.0);
         MAX_ACCELERATION.initDefault(40.0);
-        STOWED_POSITION.initDefault(0.0);
+        STOWED_POSITION.initDefault(Units.degreesToRadians(90.0));
         AMP_POSITION.initDefault(0.3);
         MIN_POSITION.initDefault(0.0);
         MAX_POSITION.initDefault(0.75);
