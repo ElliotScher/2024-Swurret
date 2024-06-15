@@ -52,11 +52,9 @@ public class NoteShotSimulator {
 
     double noteSpeed = Math.abs((leftFlywheelLinearSpeed + rightFlywheelLinearSpeed) / 2.0);
 
-    double noteLinearVelocityX =
-        -turretPosition.get().getCos() * hoodPosition.get().getCos() * noteSpeed;
-    double noteLinearVelocityY =
-        turretPosition.get().getSin() * hoodPosition.get().getCos() * noteSpeed;
-    double noteLinearVelocityZ = hoodPosition.get().getSin() * noteSpeed;
+    double noteLinearVelocityX = turretPosition.get().getCos() * noteSpeed;
+    double noteLinearVelocityY = turretPosition.get().getSin() * noteSpeed;
+    double noteLinearVelocityZ = 0.0;
 
     notes.add(
         new NoteState(
@@ -67,11 +65,12 @@ public class NoteShotSimulator {
                         new Translation3d(0.0, 0.0, ShooterConstants.FLOOR_TO_HOOD_PIVOT),
                         new Rotation3d(
                             0.0,
-                            hoodPosition.get().plus(Rotation2d.fromDegrees(90)).getRadians() * turretPosition.get().getCos(),
-                            0.0))),
-            0.0,
-            0.0,
-            0.0,
+                            hoodPosition.get().plus(Rotation2d.fromDegrees(-90)).getRadians()
+                                * turretPosition.get().getCos(),
+                            turretPosition.get().getRadians()))),
+            noteLinearVelocityX,
+            noteLinearVelocityY,
+            noteLinearVelocityZ,
             0.0,
             0.0,
             0.0,
