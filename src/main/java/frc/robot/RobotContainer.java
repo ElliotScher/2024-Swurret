@@ -268,6 +268,7 @@ public class RobotContainer {
     if (!(Constants.ROBOT.equals(RobotType.ROBOT_TALONFX)
         || Constants.ROBOT.equals(RobotType.ROBOT_SPARK_FLEX))) {
       driver.b().onTrue(SimulationManager.manualShootNote(turret, hood, shooter));
+      driver.x().onTrue(SimulationManager.clearNotes());
     }
   }
 

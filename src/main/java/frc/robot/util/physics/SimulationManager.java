@@ -28,4 +28,8 @@ public class SimulationManager {
                     shooter::getRightSpeed))
         .onlyIf(() -> RobotState.shooterReady());
   }
+
+  public static Command clearNotes() {
+    return Commands.runOnce(() -> NoteShotSimulator.clearNotes());
+  }
 }

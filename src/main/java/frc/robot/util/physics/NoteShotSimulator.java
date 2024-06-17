@@ -75,13 +75,17 @@ public class NoteShotSimulator {
             noteLinearVelocityZ,
             0.0,
             0.0,
-            0.0,
+            -9.81,
             0.0,
             0.0,
             0.0,
             0.0,
             0.0,
             0.0));
+  }
+
+  public static void clearNotes() {
+    notes.clear();
   }
 
   private static boolean noteScored(NoteState note) {
