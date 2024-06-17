@@ -75,8 +75,15 @@ public class RobotState {
     feedShotSpeedMap.put(10.0, 1000.0);
 
     // Units: radians
-    speakerShotAngleMap.put(0.0, 0.0);
-    speakerShotAngleMap.put(10.0, Math.PI);
+    speakerShotAngleMap.put(1.1139181130517297, 0.6238716174199154);
+    speakerShotAngleMap.put(1.3166902635873354, 0.6989357029746229);
+    speakerShotAngleMap.put(1.8621314615473208, 0.8615946142464935);
+    speakerShotAngleMap.put(2.619896271754951, 0.9992479449503855);
+    speakerShotAngleMap.put(3.468856930122396, 1.1243997943189812);
+    speakerShotAngleMap.put(4.033467270551241, 1.174463298150421);
+    speakerShotAngleMap.put(4.456423523612575, 1.2095085631278288);
+    speakerShotAngleMap.put(5.319484334568816, 1.264580897682779);
+    speakerShotAngleMap.put(6.396579656928463, 1.3096410339215185);
 
     // Units: radians
     feedShotAngleMap.put(0.0, 0.0);

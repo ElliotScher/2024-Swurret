@@ -38,6 +38,7 @@ public class ShooterConstants {
   public static final double SYSID_TIMEOUT;
   public static final double WHEEL_DIAMETER;
   public static final double FLOOR_TO_HOOD_PIVOT;
+  public static final double CENTER_TO_SHOOTER_PIVOT;
 
   public static final int CAN_TIMEOUT;
   public static final double NOMINAL_VOLTAGE;
@@ -65,6 +66,7 @@ public class ShooterConstants {
     VELOCITY_AVERAGE_DEPTH = 2;
     WHEEL_DIAMETER = Units.inchesToMeters(4.0);
     FLOOR_TO_HOOD_PIVOT = 0.33625;
+    CENTER_TO_SHOOTER_PIVOT = -0.089;
     switch (Constants.ROBOT) {
       case ROBOT_SPARK_FLEX:
         MOTOR_CONFIG = DCMotor.getNeoVortex(1);
