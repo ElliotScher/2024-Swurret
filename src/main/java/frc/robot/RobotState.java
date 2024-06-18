@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.subsystems.drive.drive.Drive;
 import frc.robot.subsystems.drive.drive.DriveConstants;
 import frc.robot.subsystems.vision.CameraType;
 import frc.robot.subsystems.vision.VisionConstants;
@@ -203,11 +202,6 @@ public class RobotState {
 
   public static Pose2d getRobotPose() {
     return poseEstimator.getEstimatedPosition();
-  }
-
-  public static void resetRobotPose(Drive drive, Pose2d pose) {
-    poseEstimator.resetPosition(robotHeadingSupplier.get(), modulePositionSupplier.get(), pose);
-    drive.setPose(pose);
   }
 
   public static void resetRobotPose(Pose2d pose) {

@@ -26,10 +26,12 @@ public class CompositeCommands {
 
   public static final Command resetHeading(Drive drive) {
     return Commands.runOnce(
-            () ->
-                RobotState.resetRobotPose(
-                    drive,
-                    new Pose2d(RobotState.getRobotPose().getTranslation(), new Rotation2d())))
+            () -> {
+              RobotState.resetRobotPose(
+                  new Pose2d(RobotState.getRobotPose().getTranslation(), new Rotation2d()));
+              drive.setPose(
+                  new Pose2d(RobotState.getRobotPose().getTranslation(), new Rotation2d()));
+            })
         .ignoringDisable(true);
   }
 
@@ -98,10 +100,12 @@ public class CompositeCommands {
   public static final Command getChoreoCommand(Drive drive, String trajectory) {
     return Commands.sequence(
         Commands.runOnce(
-            () ->
-                RobotState.resetRobotPose(
-                    drive,
-                    AllianceFlipUtil.apply(Choreo.getTrajectory(trajectory).getInitialPose()))),
+            () -> {
+              drive.setPose(Choreo.getTrajectory(trajectory).getInitialPose());
+              RobotState.resetRobotPose(
+                  AllianceFlipUtil.apply(Choreo.getTrajectory(trajectory).getInitialPose()));
+            }),
+        Commands.waitSeconds(3.0),
         Choreo.choreoSwerveCommand(
             Choreo.getTrajectory(trajectory),
             () -> RobotState.getRobotPose(),
