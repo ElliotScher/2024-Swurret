@@ -175,6 +175,10 @@ public final class DriveCommands {
         .finallyDo(() -> drive.stop());
   }
 
+  public static final Command stop(Drive drive) {
+    return Commands.run(() -> drive.stopWithX());
+  }
+
   public static final Command runSysIdQuasistatic(Drive drive, Direction direction) {
     return new SysIdRoutine(
             new SysIdRoutine.Config(

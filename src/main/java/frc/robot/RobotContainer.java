@@ -278,6 +278,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return AutoRoutines.exampleAuto(drive);
+    return AutoRoutines.none();
   }
 }
