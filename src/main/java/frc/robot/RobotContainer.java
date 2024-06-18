@@ -247,8 +247,7 @@ public class RobotContainer {
     driver
         .a()
         .whileTrue(
-            CompositeCommands.getShootSpeakerCommand(
-                intake, serializer, turret, feeder, hood, shooter));
+            CompositeCommands.getFeedCommand(intake, serializer, turret, feeder, hood, shooter));
     driver
         .rightBumper()
         .whileTrue(
@@ -278,6 +277,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return AutoRoutines.none();
+    return AutoRoutines.center_abc(drive);
   }
 }
