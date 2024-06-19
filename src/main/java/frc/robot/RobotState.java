@@ -47,8 +47,8 @@ public class RobotState {
           0.0,
           new Rotation2d());
 
-  @Getter @Setter private static double speakerFlywheelOffset = 0.0;
-  @Getter @Setter private static double speakerAngleOffset = 0.0;
+  @Getter @Setter private static double speakerFlywheelCompensation = 0.0;
+  @Getter @Setter private static double speakerAngleCompensation = 0.0;
 
   private static SwerveDrivePoseEstimator poseEstimator;
 

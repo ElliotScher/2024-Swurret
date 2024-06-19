@@ -60,7 +60,7 @@ public class Hood extends SubsystemBase {
   }
 
   private void setPosition(double positionRad) {
-    profiledFeedback.setGoal(positionRad + RobotState.getSpeakerAngleOffset());
+    profiledFeedback.setGoal(positionRad + RobotState.getSpeakerAngleCompensation());
   }
 
   public Rotation2d getPosition() {

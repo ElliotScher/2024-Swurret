@@ -7,6 +7,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotState;
@@ -105,16 +107,17 @@ public class CompositeCommands {
               RobotState.resetRobotPose(
                   AllianceFlipUtil.apply(Choreo.getTrajectory(trajectory).getInitialPose()));
             }),
-        Commands.waitSeconds(3.0),
         Choreo.choreoSwerveCommand(
             Choreo.getTrajectory(trajectory),
-            () -> RobotState.getRobotPose(),
+            RobotState::getRobotPose,
             new PIDController(DriveConstants.AUTO_X_KP.get(), 0.0, DriveConstants.AUTO_X_KD.get()),
             new PIDController(DriveConstants.AUTO_Y_KP.get(), 0.0, DriveConstants.AUTO_Y_KD.get()),
             new PIDController(
                 DriveConstants.AUTO_THETA_KP.get(), 0.0, DriveConstants.AUTO_THETA_KD.get()),
             (ChassisSpeeds speeds) -> drive.runVelocity(speeds),
-            true,
+            () ->
+                DriverStation.getAlliance().isPresent()
+                    && DriverStation.getAlliance().get().equals(Alliance.Red),
             drive));
   }
 

@@ -124,17 +124,17 @@ public class Shooter extends SubsystemBase {
     isOpenLoop = false;
     if (spinDirection.equals(SpinDirection.COUNTERCLOCKWISE)) {
       leftProfile.setGoal(
-          (velocityRadPerSec + RobotState.getSpeakerFlywheelOffset())
+          (velocityRadPerSec + RobotState.getSpeakerFlywheelCompensation())
               * (ShooterConstants.RATIO.get()));
-      rightProfile.setGoal(velocityRadPerSec + RobotState.getSpeakerFlywheelOffset());
+      rightProfile.setGoal(velocityRadPerSec + RobotState.getSpeakerFlywheelCompensation());
     } else if (spinDirection.equals(SpinDirection.CLOCKWISE)) {
-      leftProfile.setGoal(velocityRadPerSec + RobotState.getSpeakerFlywheelOffset());
+      leftProfile.setGoal(velocityRadPerSec + RobotState.getSpeakerFlywheelCompensation());
       rightProfile.setGoal(
-          (velocityRadPerSec + RobotState.getSpeakerFlywheelOffset())
+          (velocityRadPerSec + RobotState.getSpeakerFlywheelCompensation())
               * (ShooterConstants.RATIO.get()));
     } else {
-      leftProfile.setGoal(velocityRadPerSec + RobotState.getSpeakerFlywheelOffset());
-      rightProfile.setGoal(velocityRadPerSec + RobotState.getSpeakerFlywheelOffset());
+      leftProfile.setGoal(velocityRadPerSec + RobotState.getSpeakerFlywheelCompensation());
+      rightProfile.setGoal(velocityRadPerSec + RobotState.getSpeakerFlywheelCompensation());
     }
   }
 

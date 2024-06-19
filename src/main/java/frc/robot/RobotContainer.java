@@ -229,11 +229,11 @@ public class RobotContainer {
         .withPosition(0, 0)
         .withSize(2, 2);
     Shuffleboard.getTab("Teleoperated")
-        .addNumber("Hood Offset", RobotState::getSpeakerAngleOffset)
+        .addNumber("Hood Offset", RobotState::getSpeakerAngleCompensation)
         .withPosition(0, 0)
         .withSize(1, 1);
     Shuffleboard.getTab("Teleoperated")
-        .addNumber("Flywheel Offset", RobotState::getSpeakerFlywheelOffset)
+        .addNumber("Flywheel Offset", RobotState::getSpeakerFlywheelCompensation)
         .withPosition(0, 1)
         .withSize(1, 1);
   }
@@ -247,7 +247,8 @@ public class RobotContainer {
     driver
         .a()
         .whileTrue(
-            CompositeCommands.getFeedCommand(intake, serializer, turret, feeder, hood, shooter));
+            CompositeCommands.getShootSpeakerCommand(
+                intake, serializer, turret, feeder, hood, shooter));
     driver
         .rightBumper()
         .whileTrue(
