@@ -18,14 +18,20 @@ import edu.wpi.first.wpilibj.RobotBase;
 public final class Constants {
   public static final boolean TUNING_MODE = true;
   public static final double LOOP_PERIOD_SECS = 0.02;
-  public static final RobotType ROBOT = RobotType.ROBOT_SIM_NEO;
+  public static final RobotType ROBOT = RobotType.ROBOT_SIM_KRAKEN_X60_FOC;
 
   public static Mode getMode() {
     switch (ROBOT) {
       case ROBOT_TALONFX:
+      case ROBOT_SPARK_FLEX:
         return RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
 
+      case ROBOT_SIM_NEO:
       case ROBOT_SIM_VORTEX:
+      case ROBOT_SIM_FALCON500:
+      case ROBOT_SIM_FALCON500_FOC:
+      case ROBOT_SIM_KRAKEN_X60:
+      case ROBOT_SIM_KRAKEN_X60_FOC:
         return Mode.SIM;
 
       default:

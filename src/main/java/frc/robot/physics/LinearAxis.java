@@ -1,4 +1,4 @@
-package frc.robot.util.physics;
+package frc.robot.physics;
 
 public enum LinearAxis {
   LINEAR_X,

@@ -1,4 +1,4 @@
-package frc.robot.util.physics;
+package frc.robot.physics;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -22,6 +22,22 @@ public class NoteState {
   private double noteAngularAccelerationYaw;
   private double noteAngularAccelerationPitch;
   private double noteAngularAccelerationRoll;
+
+  public NoteState(Pose3d notePose) {
+    this.notePose = notePose;
+    this.noteLinearVelocityX = 0.0;
+    this.noteLinearVelocityY = 0.0;
+    this.noteLinearVelocityZ = 0.0;
+    this.noteLinearAccelerationX = 0.0;
+    this.noteLinearAccelerationY = 0.0;
+    this.noteLinearAccelerationZ = 0.0;
+    this.noteAngularVelocityYaw = 0.0;
+    this.noteAngularVelocityPitch = 0.0;
+    this.noteAngularVelocityRoll = 0.0;
+    this.noteAngularAccelerationYaw = 0.0;
+    this.noteAngularAccelerationPitch = 0.0;
+    this.noteAngularAccelerationRoll = 0.0;
+  }
 
   public NoteState(
       Pose3d notePose,

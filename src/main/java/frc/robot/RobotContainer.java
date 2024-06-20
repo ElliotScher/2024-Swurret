@@ -25,10 +25,10 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.Mode;
-import frc.robot.Constants.RobotType;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.CompositeCommands;
 import frc.robot.commands.DriveCommands;
+import frc.robot.physics.SimulationManager;
 import frc.robot.subsystems.drive.drive.Drive;
 import frc.robot.subsystems.drive.drive.DriveConstants;
 import frc.robot.subsystems.drive.gyro.GyroIO;
@@ -68,7 +68,6 @@ import frc.robot.subsystems.vision.CameraIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.Mechanism3d;
-import frc.robot.util.physics.SimulationManager;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -218,10 +217,17 @@ public class RobotContainer {
         vision::getSecondaryPoseTimestamps,
         turret::atGoal,
         hood::atGoal,
-        shooter::atGoal);
+        shooter::atGoal,
+        intake::isIntaking);
 
     // Configure the button bindings
     configureButtonBindings();
+
+    if (!(Constants.ROBOT.equals(Constants.RobotType.ROBOT_TALONFX)
+        || Constants.ROBOT.equals(Constants.RobotType.ROBOT_SPARK_FLEX))) {
+      new SimulationManager();
+      configureSimulationButtonBindings();
+    }
 
     // Configure shuffleboard
     Shuffleboard.getTab("Autonomous")
@@ -245,16 +251,10 @@ public class RobotContainer {
     driver.y().onTrue(CompositeCommands.resetHeading(drive));
     driver.leftBumper().whileTrue(CompositeCommands.getCollectCommand(intake, serializer, feeder));
     driver
-        .a()
+        .rightBumper()
         .whileTrue(
             CompositeCommands.getShootSpeakerCommand(
                 intake, serializer, turret, feeder, hood, shooter));
-    driver
-        .rightBumper()
-        .whileTrue(
-            turret
-                .setShootPosition()
-                .alongWith(hood.setAmpPosition().alongWith(shooter.setDefaultSpeed())));
     driver
         .leftTrigger()
         .whileTrue(
@@ -264,12 +264,29 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(
             CompositeCommands.getFeedCommand(intake, serializer, turret, feeder, hood, shooter));
+  }
 
-    if (!(Constants.ROBOT.equals(RobotType.ROBOT_TALONFX)
-        || Constants.ROBOT.equals(RobotType.ROBOT_SPARK_FLEX))) {
-      driver.b().onTrue(SimulationManager.manualShootNote(turret, hood, shooter));
-      driver.x().onTrue(SimulationManager.clearNotes());
-    }
+  private void configureSimulationButtonBindings() {
+    driver
+        .a()
+        .whileTrue(
+            CompositeCommands.getShootSpeakerCommand(
+                    intake, serializer, turret, feeder, hood, shooter)
+                .alongWith(
+                    SimulationManager.shootNote(
+                        turret::getPosition,
+                        hood::getPosition,
+                        shooter::getLeftSpeed,
+                        shooter::getRightSpeed)));
+    driver
+        .b()
+        .onTrue(
+            SimulationManager.manualShootNote(
+                turret::getPosition,
+                hood::getPosition,
+                shooter::getLeftSpeed,
+                shooter::getRightSpeed));
+    driver.x().onTrue(SimulationManager.clearNotes());
   }
 
   public void updateMechanism3d() {

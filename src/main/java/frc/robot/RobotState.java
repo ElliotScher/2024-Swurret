@@ -8,13 +8,13 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.physics.SimulationManager;
 import frc.robot.subsystems.drive.drive.DriveConstants;
 import frc.robot.subsystems.vision.CameraType;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 import frc.robot.util.AllianceFlipUtil;
-import frc.robot.util.physics.SimulationManager;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import lombok.Getter;
@@ -45,7 +45,8 @@ public class RobotState {
           0.0,
           new Rotation2d(),
           0.0,
-          new Rotation2d());
+          new Rotation2d(),
+          false);
 
   @Getter @Setter private static double speakerFlywheelCompensation = 0.0;
   @Getter @Setter private static double speakerAngleCompensation = 0.0;
@@ -63,6 +64,7 @@ public class RobotState {
   private static BooleanSupplier turretShotReadySupplier;
   private static BooleanSupplier hoodShotReadySupplier;
   private static BooleanSupplier shooterShotReadySupplier;
+  private static BooleanSupplier isIntaking;
 
   static {
     // Units: radians per second
@@ -87,7 +89,7 @@ public class RobotState {
 
     // Units: radians
     feedShotAngleMap.put(0.0, 0.0);
-    feedShotAngleMap.put(0.0, 0.0);
+    feedShotAngleMap.put(10.0, 0.0);
 
     // Units: seconds
     timeOfFlightMap.put(0.0, 0.0);
@@ -104,7 +106,8 @@ public class RobotState {
       Supplier<double[]> visionSecondaryPoseTimestampsSupplier,
       BooleanSupplier turretShotReadySupplier,
       BooleanSupplier hoodShotReadySupplier,
-      BooleanSupplier shooterShotReadySupplier) {
+      BooleanSupplier shooterShotReadySupplier,
+      BooleanSupplier isIntaking) {
     RobotState.robotHeadingSupplier = robotHeadingSupplier;
     RobotState.robotFieldRelativeVelocitySupplier = robotFieldRelativeVelocitySupplier;
     RobotState.modulePositionSupplier = modulePositionSupplier;
@@ -116,6 +119,7 @@ public class RobotState {
     RobotState.turretShotReadySupplier = turretShotReadySupplier;
     RobotState.hoodShotReadySupplier = hoodShotReadySupplier;
     RobotState.shooterShotReadySupplier = shooterShotReadySupplier;
+    RobotState.isIntaking = isIntaking;
 
     poseEstimator =
         new SwerveDrivePoseEstimator(
@@ -125,12 +129,6 @@ public class RobotState {
             new Pose2d(),
             DriveConstants.ODOMETRY_STANDARD_DEVIATIONS,
             VisionConstants.DEFAULT_STANDARD_DEVIATIONS);
-
-    if (!(Constants.ROBOT.equals(Constants.RobotType.ROBOT_TALONFX)
-        || Constants.ROBOT.equals(Constants.RobotType.ROBOT_SPARK_FLEX))) {
-
-      new SimulationManager();
-    }
   }
 
   public static void periodic() {
@@ -158,6 +156,7 @@ public class RobotState {
 
     Translation2d speakerPose =
         AllianceFlipUtil.apply(FieldConstants.Speaker.centerSpeakerOpening.toTranslation2d());
+    Translation2d ampPose = AllianceFlipUtil.apply(FieldConstants.ampCenter);
     double distanceToSpeaker =
         poseEstimator.getEstimatedPosition().getTranslation().getDistance(speakerPose);
     Translation2d effectiveAimingPose =
@@ -169,18 +168,22 @@ public class RobotState {
                     .get()
                     .times(timeOfFlightMap.get(distanceToSpeaker)));
     double effectiveDistanceToSpeaker = effectiveAimingPose.getDistance(speakerPose);
+    double effectiveDistanceToAmp = effectiveAimingPose.getDistance(ampPose);
 
-    Rotation2d setpointAngle =
+    Rotation2d speakerTurretAngle =
         speakerPose.minus(effectiveAimingPose).getAngle().minus(robotHeadingSupplier.get());
+    Rotation2d feedAmpTurretAngle =
+        ampPose.minus(effectiveAimingPose).getAngle().minus(robotHeadingSupplier.get());
     stateCache =
         new StateCache(
-            setpointAngle,
-            new Pose2d().getRotation(),
-            new Pose2d().getRotation(),
+            speakerTurretAngle,
+            feedAmpTurretAngle,
+            feedAmpTurretAngle,
             speakerShotSpeedMap.get(effectiveDistanceToSpeaker),
             new Rotation2d(speakerShotAngleMap.get(effectiveDistanceToSpeaker)),
-            feedShotSpeedMap.get(0.0),
-            new Rotation2d(0.0));
+            feedShotSpeedMap.get(effectiveDistanceToAmp),
+            new Rotation2d(feedShotAngleMap.get(effectiveDistanceToAmp)),
+            isIntaking.getAsBoolean());
 
     SimulationManager.periodic();
 
@@ -227,5 +230,6 @@ public class RobotState {
       double speakerShotSpeed,
       Rotation2d speakerHoodAngle,
       double feedShotSpeed,
-      Rotation2d feedHoodAngle) {}
+      Rotation2d feedHoodAngle,
+      boolean isIntaking) {}
 }

@@ -1,4 +1,4 @@
-package frc.robot.util.physics;
+package frc.robot.physics;
 
 import edu.wpi.first.math.util.Units;
 
