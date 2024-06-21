@@ -17,13 +17,11 @@ public interface FeederIO {
     public double followerAppliedVolts = 0.0;
     public double followerCurrentAmps = 0.0;
     public double followerTempCelcius = 0.0;
+
+    public boolean hasNote = false;
   }
 
   public default void updateInputs(FeederIOInputs inputs) {}
 
   public default void setVoltage(double volts) {}
-
-  public default boolean getSensorReading() {
-    return false;
-  }
 }

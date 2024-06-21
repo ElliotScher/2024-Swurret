@@ -25,6 +25,8 @@ public class FeederIOSim implements FeederIO {
     inputs.leaderAppliedVolts = appliedVolts;
     inputs.leaderCurrentAmps = motorSim.getCurrentDrawAmps();
     inputs.leaderTempCelcius = 0.0;
+
+    inputs.hasNote = false;
   }
 
   @Override

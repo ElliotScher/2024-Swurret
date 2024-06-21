@@ -19,6 +19,7 @@ public class IntakeConstants {
   public static final int VELOCITY_MEASUREMENT_PERIOD;
   public static final int VELOCITY_AVERAGE_DEPTH;
   public static final Transform2d CENTER_TO_INTAKE_OUTER_EDGE_TRANSFORM;
+  public static final int SENSOR_CHANNEL;
 
   static {
     LENGTH = Units.inchesToMeters(4.075517);
@@ -32,7 +33,7 @@ public class IntakeConstants {
     VELOCITY_MEASUREMENT_PERIOD = 10;
     VELOCITY_AVERAGE_DEPTH = 2;
     CENTER_TO_INTAKE_OUTER_EDGE_TRANSFORM = new Transform2d(0.421018, 0.0, new Rotation2d());
-
+    SENSOR_CHANNEL = 0;
     switch (Constants.ROBOT) {
       case ROBOT_SPARK_FLEX:
         MOTOR_CONFIG = DCMotor.getNeoVortex(1);

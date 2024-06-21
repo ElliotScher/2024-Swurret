@@ -7,6 +7,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 
@@ -18,6 +19,8 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final StatusSignal<Double> appliedVolts;
   private final StatusSignal<Double> current;
   private final StatusSignal<Double> temperature;
+
+  private final DigitalInput sensor;
 
   private final Alert talonDisconnectedAlert;
 
@@ -40,6 +43,8 @@ public class IntakeIOTalonFX implements IntakeIO {
         50.0, position, velocity, appliedVolts, current, temperature);
     talon.optimizeBusUtilization();
 
+    sensor = new DigitalInput(IntakeConstants.SENSOR_CHANNEL);
+
     talonDisconnectedAlert =
         new Alert("Intake Talon is disconnected, check CAN bus", AlertType.ERROR);
   }
@@ -57,6 +62,8 @@ public class IntakeIOTalonFX implements IntakeIO {
     inputs.appliedVolts = appliedVolts.getValueAsDouble();
     inputs.currentAmps = current.getValueAsDouble();
     inputs.tempCelcius = temperature.getValueAsDouble();
+
+    inputs.hasNote = sensor.get();
   }
 
   @Override

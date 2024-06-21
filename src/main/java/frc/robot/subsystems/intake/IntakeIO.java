@@ -11,6 +11,8 @@ public interface IntakeIO {
     public double appliedVolts = 0.0;
     public double currentAmps = 0.0;
     public double tempCelcius = 0.0;
+
+    public boolean hasNote = false;
   }
 
   public default void updateInputs(IntakeIOInputs inputs) {}

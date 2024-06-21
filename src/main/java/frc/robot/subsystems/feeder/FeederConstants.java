@@ -14,6 +14,7 @@ public class FeederConstants {
   public static final double NOMINAL_VOLTAGE;
   public static final int VELOCITY_MEASUREMENT_PERIOD;
   public static final int VELOCITY_AVERAGE_DEPTH;
+  public static final int SENSOR_CHANNEL;
 
   static {
     GEAR_RATIO = 1.0;
@@ -25,6 +26,7 @@ public class FeederConstants {
     NOMINAL_VOLTAGE = 12.0;
     VELOCITY_MEASUREMENT_PERIOD = 10;
     VELOCITY_AVERAGE_DEPTH = 2;
+    SENSOR_CHANNEL = 1;
     switch (Constants.ROBOT) {
       case ROBOT_SPARK_FLEX:
         MOTOR_CONFIG = DCMotor.getNeoVortex(1);

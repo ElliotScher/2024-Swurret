@@ -5,10 +5,13 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 public class IntakeIOSparkFlex implements IntakeIO {
   private final CANSparkFlex sparkFlex;
   private final RelativeEncoder relativeEncoder;
+
+  private final DigitalInput sensor;
 
   public IntakeIOSparkFlex() {
     sparkFlex = new CANSparkFlex(IntakeConstants.DEVICE_ID, MotorType.kBrushless);
@@ -21,6 +24,8 @@ public class IntakeIOSparkFlex implements IntakeIO {
     relativeEncoder.setAverageDepth(IntakeConstants.VELOCITY_AVERAGE_DEPTH);
     sparkFlex.setCANTimeout(0);
     sparkFlex.burnFlash();
+
+    sensor = new DigitalInput(IntakeConstants.SENSOR_CHANNEL);
   }
 
   @Override
@@ -33,6 +38,8 @@ public class IntakeIOSparkFlex implements IntakeIO {
     inputs.appliedVolts = sparkFlex.getAppliedOutput() * sparkFlex.getBusVoltage();
     inputs.currentAmps = sparkFlex.getOutputCurrent();
     inputs.tempCelcius = sparkFlex.getMotorTemperature();
+
+    inputs.hasNote = sensor.get();
   }
 
   @Override

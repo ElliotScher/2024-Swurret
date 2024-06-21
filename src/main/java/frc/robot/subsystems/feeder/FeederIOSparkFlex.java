@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 public class FeederIOSparkFlex implements FeederIO {
   private final CANSparkFlex leaderSparkFlex;
@@ -12,6 +13,8 @@ public class FeederIOSparkFlex implements FeederIO {
 
   private final RelativeEncoder leaderRelativeEncoder;
   private final RelativeEncoder followerRelativeEncoder;
+
+  private final DigitalInput sensor;
 
   public FeederIOSparkFlex() {
     leaderSparkFlex = new CANSparkFlex(FeederConstants.LEADER_DEVICE_ID, MotorType.kBrushless);
@@ -45,6 +48,8 @@ public class FeederIOSparkFlex implements FeederIO {
 
     leaderSparkFlex.burnFlash();
     followerSparkFlex.burnFlash();
+
+    sensor = new DigitalInput(FeederConstants.SENSOR_CHANNEL);
   }
 
   @Override
@@ -58,6 +63,8 @@ public class FeederIOSparkFlex implements FeederIO {
         leaderSparkFlex.getAppliedOutput() * leaderSparkFlex.getBusVoltage();
     inputs.leaderCurrentAmps = leaderSparkFlex.getOutputCurrent();
     inputs.leaderTempCelcius = leaderSparkFlex.getMotorTemperature();
+
+    inputs.hasNote = sensor.get();
   }
 
   @Override

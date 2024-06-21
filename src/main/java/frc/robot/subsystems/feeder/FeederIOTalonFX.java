@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 
@@ -26,6 +27,8 @@ public class FeederIOTalonFX implements FeederIO {
   private final StatusSignal<Double> followerAppliedVolts;
   private final StatusSignal<Double> followerCurrent;
   private final StatusSignal<Double> followerTemperature;
+
+  private final DigitalInput sensor;
 
   private final Alert leaderTalonDisconnectedAlert;
   private final Alert followerTalonDisconnectedAlert;
@@ -70,6 +73,8 @@ public class FeederIOTalonFX implements FeederIO {
     leaderTalon.optimizeBusUtilization();
     followerTalon.optimizeBusUtilization();
 
+    sensor = new DigitalInput(FeederConstants.SENSOR_CHANNEL);
+
     leaderTalonDisconnectedAlert =
         new Alert("Leader Feeder Talon is disconnected, check CAN bus", AlertType.ERROR);
     followerTalonDisconnectedAlert =
@@ -113,6 +118,8 @@ public class FeederIOTalonFX implements FeederIO {
     inputs.followerAppliedVolts = followerAppliedVolts.getValueAsDouble();
     inputs.followerCurrentAmps = followerCurrent.getValueAsDouble();
     inputs.followerTempCelcius = followerTemperature.getValueAsDouble();
+
+    inputs.hasNote = sensor.get();
   }
 
   @Override

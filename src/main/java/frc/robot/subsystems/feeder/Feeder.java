@@ -1,6 +1,5 @@
 package frc.robot.subsystems.feeder;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -10,11 +9,8 @@ public class Feeder extends SubsystemBase {
   private final FeederIOInputsAutoLogged inputs = new FeederIOInputsAutoLogged();
   private final FeederIO io;
 
-  private final DigitalInput sensor;
-
   public Feeder(FeederIO io) {
     this.io = io;
-    sensor = new DigitalInput(0);
   }
 
   @Override
@@ -24,11 +20,11 @@ public class Feeder extends SubsystemBase {
   }
 
   public boolean hasNote() {
-    return sensor.get();
+    return inputs.hasNote;
   }
 
   public Command intake() {
-    return Commands.run(() -> io.setVoltage(12.0)).until(() -> sensor.get());
+    return Commands.run(() -> io.setVoltage(12.0)).until(() -> inputs.hasNote);
   }
 
   public Command eject() {

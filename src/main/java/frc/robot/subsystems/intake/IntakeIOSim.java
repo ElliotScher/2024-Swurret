@@ -22,6 +22,8 @@ public class IntakeIOSim implements IntakeIO {
     inputs.appliedVolts = appliedVolts;
     inputs.currentAmps = motorSim.getCurrentDrawAmps();
     inputs.tempCelcius = 0.0;
+
+    inputs.hasNote = false;
   }
 
   @Override
