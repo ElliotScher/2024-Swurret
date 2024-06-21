@@ -15,7 +15,6 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 import frc.robot.util.AllianceFlipUtil;
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,8 +44,7 @@ public class RobotState {
           0.0,
           new Rotation2d(),
           0.0,
-          new Rotation2d(),
-          false);
+          new Rotation2d());
 
   @Getter @Setter private static double speakerFlywheelCompensation = 0.0;
   @Getter @Setter private static double speakerAngleCompensation = 0.0;
@@ -61,10 +59,6 @@ public class RobotState {
   private static Supplier<Pose3d[]> visionSecondaryPosesSupplier;
   private static Supplier<double[]> visionPrimaryPoseTimestampsSupplier;
   private static Supplier<double[]> visionSecondaryPoseTimestampsSupplier;
-  private static BooleanSupplier turretShotReadySupplier;
-  private static BooleanSupplier hoodShotReadySupplier;
-  private static BooleanSupplier shooterShotReadySupplier;
-  private static BooleanSupplier isIntaking;
 
   static {
     // Units: radians per second
@@ -103,11 +97,7 @@ public class RobotState {
       Supplier<Pose3d[]> visionPrimaryPosesSupplier,
       Supplier<Pose3d[]> visionSecondaryPosesSupplier,
       Supplier<double[]> visionPrimaryPoseTimestampsSupplier,
-      Supplier<double[]> visionSecondaryPoseTimestampsSupplier,
-      BooleanSupplier turretShotReadySupplier,
-      BooleanSupplier hoodShotReadySupplier,
-      BooleanSupplier shooterShotReadySupplier,
-      BooleanSupplier isIntaking) {
+      Supplier<double[]> visionSecondaryPoseTimestampsSupplier) {
     RobotState.robotHeadingSupplier = robotHeadingSupplier;
     RobotState.robotFieldRelativeVelocitySupplier = robotFieldRelativeVelocitySupplier;
     RobotState.modulePositionSupplier = modulePositionSupplier;
@@ -116,10 +106,6 @@ public class RobotState {
     RobotState.visionSecondaryPosesSupplier = visionSecondaryPosesSupplier;
     RobotState.visionPrimaryPoseTimestampsSupplier = visionPrimaryPoseTimestampsSupplier;
     RobotState.visionSecondaryPoseTimestampsSupplier = visionSecondaryPoseTimestampsSupplier;
-    RobotState.turretShotReadySupplier = turretShotReadySupplier;
-    RobotState.hoodShotReadySupplier = hoodShotReadySupplier;
-    RobotState.shooterShotReadySupplier = shooterShotReadySupplier;
-    RobotState.isIntaking = isIntaking;
 
     poseEstimator =
         new SwerveDrivePoseEstimator(
@@ -182,8 +168,7 @@ public class RobotState {
             speakerShotSpeedMap.get(effectiveDistanceToSpeaker),
             new Rotation2d(speakerShotAngleMap.get(effectiveDistanceToSpeaker)),
             feedShotSpeedMap.get(effectiveDistanceToAmp),
-            new Rotation2d(feedShotAngleMap.get(effectiveDistanceToAmp)),
-            isIntaking.getAsBoolean());
+            new Rotation2d(feedShotAngleMap.get(effectiveDistanceToAmp)));
 
     SimulationManager.periodic();
 
@@ -217,12 +202,6 @@ public class RobotState {
             targetPose.getY() - getRobotPose().getY(), targetPose.getX() - getRobotPose().getX()));
   }
 
-  public static boolean shooterReady() {
-    return turretShotReadySupplier.getAsBoolean()
-        && hoodShotReadySupplier.getAsBoolean()
-        && shooterShotReadySupplier.getAsBoolean();
-  }
-
   public static record StateCache(
       Rotation2d speakerTurretAngle,
       Rotation2d feedTurretAngle,
@@ -230,6 +209,5 @@ public class RobotState {
       double speakerShotSpeed,
       Rotation2d speakerHoodAngle,
       double feedShotSpeed,
-      Rotation2d feedHoodAngle,
-      boolean isIntaking) {}
+      Rotation2d feedHoodAngle) {}
 }

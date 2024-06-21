@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.util.LinearProfile;
+import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -52,6 +53,8 @@ public class Shooter extends SubsystemBase {
 
   private boolean isOpenLoop = true;
   private double openLoopVoltage = 0.0;
+
+  @Getter private boolean isShooting = false;
 
   private final ShooterIO io;
 
@@ -184,9 +187,14 @@ public class Shooter extends SubsystemBase {
 
   public Command setSpeakerSpeed() {
     return Commands.run(
-        () -> {
-          setSpinVelocity(RobotState.getStateCache().speakerShotSpeed());
-        });
+            () -> {
+              isShooting = true;
+              setSpinVelocity(RobotState.getStateCache().speakerShotSpeed());
+            })
+        .finallyDo(
+            () -> {
+              isShooting = false;
+            });
   }
 
   public Command setFeedSpeed() {

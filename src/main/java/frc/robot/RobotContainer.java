@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.CompositeCommands;
@@ -214,11 +215,7 @@ public class RobotContainer {
         vision::getPrimaryVisionPoses,
         vision::getSecondaryVisionPoses,
         vision::getPrimaryPoseTimestamps,
-        vision::getSecondaryPoseTimestamps,
-        turret::atGoal,
-        hood::atGoal,
-        shooter::atGoal,
-        intake::isIntaking);
+        vision::getSecondaryPoseTimestamps);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -267,17 +264,20 @@ public class RobotContainer {
   }
 
   private void configureSimulationButtonBindings() {
+    Trigger shootingTrigger = new Trigger(shooter::isShooting);
+    Trigger intakingTrigger = new Trigger(intake::isIntaking);
     driver
         .a()
         .whileTrue(
             CompositeCommands.getShootSpeakerCommand(
-                    intake, serializer, turret, feeder, hood, shooter)
-                .alongWith(
-                    SimulationManager.shootNote(
-                        turret::getPosition,
-                        hood::getPosition,
-                        shooter::getLeftSpeed,
-                        shooter::getRightSpeed)));
+                intake, serializer, turret, feeder, hood, shooter));
+    shootingTrigger.whileTrue(
+        SimulationManager.shootNote(
+            turret::getPosition,
+            hood::getPosition,
+            shooter::getLeftSpeed,
+            shooter::getRightSpeed,
+            () -> turret.atGoal() && hood.atGoal() && shooter.atGoal()));
     driver
         .b()
         .onTrue(
@@ -286,7 +286,8 @@ public class RobotContainer {
                 hood::getPosition,
                 shooter::getLeftSpeed,
                 shooter::getRightSpeed));
-    driver.x().onTrue(SimulationManager.clearNotes());
+    driver.x().or(intakingTrigger).whileTrue(SimulationManager.intake());
+    driver.y().onTrue(SimulationManager.clearNotes());
   }
 
   public void updateMechanism3d() {

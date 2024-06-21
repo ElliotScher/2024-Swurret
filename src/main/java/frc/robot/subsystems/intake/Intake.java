@@ -30,12 +30,18 @@ public class Intake extends SubsystemBase {
 
   public Command intake(BooleanSupplier feederHasNote) {
     return Commands.sequence(
-            Commands.runOnce(() -> isIntaking = true),
+            Commands.runOnce(
+                () -> {
+                  isIntaking = true;
+                }),
             Commands.either(
                 Commands.run(() -> io.setVoltage(12.0)).until(() -> sensor.get()),
                 Commands.run(() -> io.setVoltage(12.0)),
                 feederHasNote))
-        .finallyDo(() -> isIntaking = false);
+        .finallyDo(
+            () -> {
+              isIntaking = false;
+            });
   }
 
   public Command eject() {

@@ -1,8 +1,6 @@
 package frc.robot.commands;
 
 import com.choreo.lib.Choreo;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,8 +21,6 @@ import frc.robot.subsystems.turret.Turret;
 import frc.robot.util.AllianceFlipUtil;
 
 public class CompositeCommands {
-  public static final PathConstraints DEFAULT_PATH_CONSTRAINTS =
-      new PathConstraints(5.0, 4.0, 540.0, 720.0);
 
   public static final Command resetHeading(Drive drive) {
     return Commands.runOnce(
@@ -72,7 +68,8 @@ public class CompositeCommands {
       Shooter shooter) {
     return Commands.parallel(
         runSpeakerTarget(turret, hood, shooter),
-        getShootCommand(intake, serializer, feeder).onlyIf(() -> RobotState.shooterReady()));
+        getShootCommand(intake, serializer, feeder)
+            .onlyIf(() -> turret.atGoal() && hood.atGoal() && shooter.atGoal()));
   }
 
   public static final Command getShootAmpCommand(
@@ -84,7 +81,8 @@ public class CompositeCommands {
       Shooter shooter) {
     return Commands.parallel(
         runAmpTarget(turret, hood, shooter),
-        getShootCommand(intake, serializer, feeder).onlyIf(() -> RobotState.shooterReady()));
+        getShootCommand(intake, serializer, feeder)
+            .onlyIf(() -> turret.atGoal() && hood.atGoal() && shooter.atGoal()));
   }
 
   public static final Command getFeedCommand(
@@ -96,7 +94,8 @@ public class CompositeCommands {
       Shooter shooter) {
     return Commands.parallel(
         runFeedTarget(turret, hood, shooter),
-        getShootCommand(intake, serializer, feeder).onlyIf(() -> RobotState.shooterReady()));
+        getShootCommand(intake, serializer, feeder)
+            .onlyIf(() -> turret.atGoal() && hood.atGoal() && shooter.atGoal()));
   }
 
   public static final Command getChoreoCommand(Drive drive, String trajectory) {
@@ -120,13 +119,5 @@ public class CompositeCommands {
                 DriverStation.getAlliance().isPresent()
                     && DriverStation.getAlliance().get().equals(Alliance.Red),
             drive));
-  }
-
-  public static final Command getPath(Pose2d endingPose) {
-    return AutoBuilder.pathfindToPose(AllianceFlipUtil.apply(endingPose), DEFAULT_PATH_CONSTRAINTS);
-  }
-
-  public static final Command getPath(Pose2d endingPose, PathConstraints pathConstraints) {
-    return AutoBuilder.pathfindToPose(AllianceFlipUtil.apply(endingPose), pathConstraints);
   }
 }
