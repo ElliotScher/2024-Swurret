@@ -92,16 +92,16 @@ public class Turret extends SubsystemBase {
 
   public Command setShootPosition() {
     return Commands.run(
-        () -> setPosition(RobotState.getShotCache().speakerTurretAngle().getRadians()));
+        () -> setPosition(RobotState.getControlData().speakerTurretAngle().getRadians()));
   }
 
   public Command setAmpPosition() {
     return Commands.run(
-        () -> setPosition(RobotState.getShotCache().ampTurretAngle().getRadians()));
+        () -> setPosition(RobotState.getControlData().ampTurretAngle().getRadians()));
   }
 
   public Command setFeedPosition() {
     return Commands.run(
-        () -> setPosition(RobotState.getShotCache().feedTurretAngle().getRadians()));
+        () -> setPosition(RobotState.getControlData().feedTurretAngle().getRadians()));
   }
 }

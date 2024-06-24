@@ -189,7 +189,7 @@ public class Shooter extends SubsystemBase {
     return Commands.run(
             () -> {
               isShooting = true;
-              setSpinVelocity(RobotState.getShotCache().speakerShotSpeed());
+              setSpinVelocity(RobotState.getControlData().speakerShotSpeed());
             })
         .finallyDo(
             () -> {
@@ -200,7 +200,7 @@ public class Shooter extends SubsystemBase {
   public Command setFeedSpeed() {
     return Commands.run(
         () -> {
-          setSpinVelocity(RobotState.getShotCache().feedShotSpeed());
+          setSpinVelocity(RobotState.getControlData().feedShotSpeed());
         });
   }
 
