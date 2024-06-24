@@ -64,47 +64,21 @@ public class Turret extends SubsystemBase {
     Logger.recordOutput("Turret/Cosine", inputs.position.getCos());
   }
 
-  // Normalize the angle to be within [-(2.0 * Math.PI), (2.0 * Math.PI))
-  private double normalizeAngle(double angle) {
-    angle = angle % (4.0 * Math.PI);
-    if (angle < -(2.0 * Math.PI)) {
-      angle += (4.0 * Math.PI);
-    } else if (angle >= (2.0 * Math.PI)) {
-      angle -= (4.0 * Math.PI);
-    }
-    return angle;
+  private void setPosition(double targetAngleRad) {
+    double currentAngleRad = inputs.position.getRadians();
+    double normalizedTargetAngleRad = normalizeAngle(targetAngleRad);
+    double shortestPathAngleRad = calculateShortestPath(currentAngleRad, normalizedTargetAngleRad);
+    profiledFeedback.setGoal(shortestPathAngleRad);
   }
 
-  // Calculate the shortest rotation direction and angle
-  private double calculateShortestRotation(double currentPosition, double targetPosition) {
-    currentPosition = normalizeAngle(currentPosition);
-    targetPosition = normalizeAngle(targetPosition);
-
-    // Direct difference
-    double directDiff = targetPosition - currentPosition;
-
-    // Calculate both possible rotations
-    double clockwiseRotation = directDiff >= 0 ? directDiff : directDiff + (4.0 * Math.PI);
-    double counterclockwiseRotation = directDiff <= 0 ? directDiff : directDiff - (4.0 * Math.PI);
-
-    // Choose the shortest path within [-(2.0 * Math.PI), (2.0 * Math.PI)]
-    return Math.abs(clockwiseRotation) <= Math.abs(counterclockwiseRotation)
-        ? clockwiseRotation
-        : counterclockwiseRotation;
+  private double normalizeAngle(double angleRad) {
+    return ((angleRad % (2.0 * Math.PI)) + (2.0 * Math.PI)) % (2.0 * Math.PI);
   }
 
-  // Calculate the final position ensuring movement within [-(2.0 * Math.PI), (2.0 * Math.PI)]
-  private double calculateFinalPosition(double currentPosition, double targetPosition) {
-    double rotation = calculateShortestRotation(currentPosition, targetPosition);
-    double finalPosition = currentPosition + rotation;
-    // Normalize the final position within [-(2.0 * Math.PI), (2.0 * Math.PI))
-    finalPosition = normalizeAngle(finalPosition);
-
-    return finalPosition;
-  }
-
-  private void setPosition(double positionRad) {
-    profiledFeedback.setGoal(calculateFinalPosition(inputs.position.getRadians(), positionRad));
+  private double calculateShortestPath(double currentAngleRad, double targetAngleRad) {
+    double deltaAngleRad = targetAngleRad - currentAngleRad;
+    deltaAngleRad = Math.atan2(Math.sin(deltaAngleRad), Math.cos(deltaAngleRad));
+    return currentAngleRad + deltaAngleRad;
   }
 
   public boolean atGoal() {
@@ -118,16 +92,16 @@ public class Turret extends SubsystemBase {
 
   public Command setShootPosition() {
     return Commands.run(
-        () -> setPosition(RobotState.getStateCache().speakerTurretAngle().getRadians()));
+        () -> setPosition(RobotState.getShotCache().speakerTurretAngle().getRadians()));
   }
 
   public Command setAmpPosition() {
     return Commands.run(
-        () -> setPosition(RobotState.getStateCache().ampTurretAngle().getRadians()));
+        () -> setPosition(RobotState.getShotCache().ampTurretAngle().getRadians()));
   }
 
   public Command setFeedPosition() {
     return Commands.run(
-        () -> setPosition(RobotState.getStateCache().feedTurretAngle().getRadians()));
+        () -> setPosition(RobotState.getShotCache().feedTurretAngle().getRadians()));
   }
 }

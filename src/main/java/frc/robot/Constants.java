@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 public final class Constants {
   public static final boolean TUNING_MODE = true;
   public static final double LOOP_PERIOD_SECS = 0.02;
-  public static final RobotType ROBOT = RobotType.ROBOT_SIM_KRAKEN_X60_FOC;
+  public static final RobotType ROBOT = RobotType.ROBOT_SIM_NEO;
 
   public static Mode getMode() {
     switch (ROBOT) {

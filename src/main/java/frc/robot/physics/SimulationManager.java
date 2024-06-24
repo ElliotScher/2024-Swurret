@@ -72,7 +72,12 @@ public class SimulationManager {
             IntakeConstants.WIDTH);
     for (int i = 0; i < notes.size(); i++) {
       notes.get(i).updateNoteState();
-      if (isIntaking && !hasNote && intakeBox.contains(notes.get(i).getNotePose().toPose2d())) {
+      if (isIntaking
+          && !hasNote
+          && intakeBox
+                  .closestPoint(notes.get(i).getNotePose().toPose2d())
+                  .getDistance(notes.get(i).getNotePose().toPose2d().getTranslation())
+              <= NoteConstants.NOTE_RADIUS) {
         notes.remove(i);
         hasNote = true;
         break;

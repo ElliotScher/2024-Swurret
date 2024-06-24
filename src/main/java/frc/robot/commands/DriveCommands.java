@@ -124,7 +124,9 @@ public final class DriveCommands {
                       && DriverStation.getAlliance().get().equals(Alliance.Red);
 
               // Convert to field relative speeds & send command
-              Rotation2d targetGyroOffset = RobotState.getTargetGyroOffset(targetPose);
+              Rotation2d targetGyroOffset = Rotation2d.fromRadians(
+        Math.atan2(
+            targetPose.getY() - RobotState.getRobotPose().getY(), targetPose.getX() - RobotState.getRobotPose().getX()));;
               double distanceT =
                   MathUtil.clamp(
                       Math.abs(RobotState.getRobotPose().getX() - targetXCoord.getAsDouble())

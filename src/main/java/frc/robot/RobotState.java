@@ -36,8 +36,8 @@ public class RobotState {
       new Alert("SECONDARY VISION POSES ARE NULL", AlertType.INFO);
 
   @Getter
-  private static StateCache stateCache =
-      new StateCache(
+  private static ShotCache shotCache =
+      new ShotCache(
           new Rotation2d(),
           new Rotation2d(),
           new Rotation2d(),
@@ -86,7 +86,12 @@ public class RobotState {
     feedShotAngleMap.put(10.0, 0.0);
 
     // Units: seconds
-    timeOfFlightMap.put(0.0, 0.0);
+    timeOfFlightMap.put(1.1389823269997401, 0.1);
+    timeOfFlightMap.put(2.5163366438541535, 0.14);
+    timeOfFlightMap.put(3.174748321223645, 0.155);
+    timeOfFlightMap.put(3.5880720870692264, 0.18);
+    timeOfFlightMap.put(4.96042522950525, 0.21);
+    timeOfFlightMap.put(5.973200881287628, 0.26);
   }
 
   public RobotState(
@@ -145,7 +150,9 @@ public class RobotState {
     Translation2d ampPose = AllianceFlipUtil.apply(FieldConstants.ampCenter);
     double distanceToSpeaker =
         poseEstimator.getEstimatedPosition().getTranslation().getDistance(speakerPose);
-    Translation2d effectiveAimingPose =
+    double distanceToAmp =
+        poseEstimator.getEstimatedPosition().getTranslation().getDistance(ampPose);
+    Translation2d effectiveSpeakerAimingPose =
         poseEstimator
             .getEstimatedPosition()
             .getTranslation()
@@ -153,15 +160,23 @@ public class RobotState {
                 robotFieldRelativeVelocitySupplier
                     .get()
                     .times(timeOfFlightMap.get(distanceToSpeaker)));
-    double effectiveDistanceToSpeaker = effectiveAimingPose.getDistance(speakerPose);
-    double effectiveDistanceToAmp = effectiveAimingPose.getDistance(ampPose);
+    Translation2d effectiveFeedAmpAimingPose =
+        poseEstimator
+            .getEstimatedPosition()
+            .getTranslation()
+            .plus(
+                robotFieldRelativeVelocitySupplier
+                    .get()
+                    .times(timeOfFlightMap.get(distanceToAmp)));
+    double effectiveDistanceToSpeaker = effectiveSpeakerAimingPose.getDistance(speakerPose);
+    double effectiveDistanceToAmp = effectiveFeedAmpAimingPose.getDistance(ampPose);
 
     Rotation2d speakerTurretAngle =
-        speakerPose.minus(effectiveAimingPose).getAngle().minus(robotHeadingSupplier.get());
+        speakerPose.minus(effectiveSpeakerAimingPose).getAngle().minus(robotHeadingSupplier.get());
     Rotation2d feedAmpTurretAngle =
-        ampPose.minus(effectiveAimingPose).getAngle().minus(robotHeadingSupplier.get());
-    stateCache =
-        new StateCache(
+        ampPose.minus(effectiveFeedAmpAimingPose).getAngle().minus(robotHeadingSupplier.get());
+    shotCache =
+        new ShotCache(
             speakerTurretAngle,
             feedAmpTurretAngle,
             feedAmpTurretAngle,
@@ -173,19 +188,21 @@ public class RobotState {
     SimulationManager.periodic();
 
     Logger.recordOutput("RobotState/Primary Poses", visionPrimaryPosesSupplier.get());
-    Logger.recordOutput("RobotState/Secondary Pose", visionSecondaryPosesSupplier.get());
+    Logger.recordOutput("RobotState/Secondary Poses", visionSecondaryPosesSupplier.get());
     Logger.recordOutput("RobotState/Estimated Pose", poseEstimator.getEstimatedPosition());
     Logger.recordOutput(
-        "RobotState/Effective Aiming Pose", new Pose2d(effectiveAimingPose, new Rotation2d()));
+        "RobotState/Effective Speaker Aiming Pose", new Pose2d(effectiveSpeakerAimingPose, new Rotation2d()));
+    Logger.recordOutput(
+        "RobotState/Effective Feed-Amp Aiming Pose", new Pose2d(effectiveFeedAmpAimingPose, new Rotation2d()));
     Logger.recordOutput("RobotState/Effective Distance To Speaker", effectiveDistanceToSpeaker);
     Logger.recordOutput(
-        "RobotState/StateCache/Speaker Turret Angle", stateCache.speakerTurretAngle());
-    Logger.recordOutput("RobotState/StateCache/Feed Turret Angle", stateCache.feedTurretAngle());
-    Logger.recordOutput("RobotState/StateCache/Amp Turret Angle", stateCache.ampTurretAngle());
-    Logger.recordOutput("RobotState/StateCache/Speaker Shot Speed", stateCache.speakerShotSpeed());
-    Logger.recordOutput("RobotState/StateCache/Speaker Hood Angle", stateCache.speakerHoodAngle());
-    Logger.recordOutput("RobotState/StateCache/Feed Shot Speed", stateCache.feedShotSpeed());
-    Logger.recordOutput("RobotState/StateCache/Feed Hood Angle", stateCache.feedHoodAngle());
+        "RobotState/ShotCache/Speaker Turret Angle", shotCache.speakerTurretAngle());
+    Logger.recordOutput("RobotState/ShotCache/Feed Turret Angle", shotCache.feedTurretAngle());
+    Logger.recordOutput("RobotState/ShotCache/Amp Turret Angle", shotCache.ampTurretAngle());
+    Logger.recordOutput("RobotState/ShotCache/Speaker Shot Speed", shotCache.speakerShotSpeed());
+    Logger.recordOutput("RobotState/ShotCache/Speaker Hood Angle", shotCache.speakerHoodAngle());
+    Logger.recordOutput("RobotState/ShotCache/Feed Shot Speed", shotCache.feedShotSpeed());
+    Logger.recordOutput("RobotState/ShotCache/Feed Hood Angle", shotCache.feedHoodAngle());
   }
 
   public static Pose2d getRobotPose() {
@@ -196,13 +213,7 @@ public class RobotState {
     poseEstimator.resetPosition(robotHeadingSupplier.get(), modulePositionSupplier.get(), pose);
   }
 
-  public static Rotation2d getTargetGyroOffset(Pose2d targetPose) {
-    return Rotation2d.fromRadians(
-        Math.atan2(
-            targetPose.getY() - getRobotPose().getY(), targetPose.getX() - getRobotPose().getX()));
-  }
-
-  public static record StateCache(
+  public static record ShotCache(
       Rotation2d speakerTurretAngle,
       Rotation2d feedTurretAngle,
       Rotation2d ampTurretAngle,

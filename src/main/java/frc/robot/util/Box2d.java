@@ -133,6 +133,86 @@ public class Box2d {
             center.getY() + (corner4.getX() * sinRotation + corner4.getY() * cosRotation));
   }
 
+  /** Calculates the closest point on the perimeter of the box to the given translation */
+  public Translation2d closestPoint(Translation2d point) {
+    Translation2d[] vertices = {corner1, corner2, corner3, corner4};
+    Translation2d closestPoint = null;
+    double minDistance = Double.MAX_VALUE;
+
+    for (int i = 0; i < vertices.length; i++) {
+      Translation2d edgeStart = vertices[i];
+      Translation2d edgeEnd = vertices[(i + 1) % vertices.length];
+      Translation2d closestPointOnEdge;
+      double x1 = edgeStart.getX();
+      double y1 = edgeStart.getY();
+      double x2 = edgeEnd.getX();
+      double y2 = edgeEnd.getY();
+      double px = point.getX();
+      double py = point.getY();
+
+      double dx = x2 - x1;
+      double dy = y2 - y1;
+      double lengthSquared = dx * dx + dy * dy;
+
+      if (lengthSquared == 0) {
+        closestPointOnEdge = edgeStart;
+      } else {
+
+        double t = ((px - x1) * dx + (py - y1) * dy) / lengthSquared;
+        t = Math.max(0, Math.min(1, t));
+
+        closestPointOnEdge = new Translation2d(x1 + t * dx, y1 + t * dy);
+      }
+      double distance = point.getDistance(closestPointOnEdge);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestPoint = closestPointOnEdge;
+      }
+    }
+
+    return closestPoint;
+  }
+
+  /** Calculates the closest point on the perimeter of the box to the given pose */
+  public Translation2d closestPoint(Pose2d point) {
+    Translation2d[] vertices = {corner1, corner2, corner3, corner4};
+    Translation2d closestPoint = null;
+    double minDistance = Double.MAX_VALUE;
+
+    for (int i = 0; i < vertices.length; i++) {
+      Translation2d edgeStart = vertices[i];
+      Translation2d edgeEnd = vertices[(i + 1) % vertices.length];
+      Translation2d closestPointOnEdge;
+      double x1 = edgeStart.getX();
+      double y1 = edgeStart.getY();
+      double x2 = edgeEnd.getX();
+      double y2 = edgeEnd.getY();
+      double px = point.getX();
+      double py = point.getY();
+
+      double dx = x2 - x1;
+      double dy = y2 - y1;
+      double lengthSquared = dx * dx + dy * dy;
+
+      if (lengthSquared == 0) {
+        closestPointOnEdge = edgeStart;
+      } else {
+
+        double t = ((px - x1) * dx + (py - y1) * dy) / lengthSquared;
+        t = Math.max(0, Math.min(1, t));
+
+        closestPointOnEdge = new Translation2d(x1 + t * dx, y1 + t * dy);
+      }
+      double distance = point.getTranslation().getDistance(closestPointOnEdge);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestPoint = closestPointOnEdge;
+      }
+    }
+
+    return closestPoint;
+  }
+
   /** Checks if a given Translation2d is inside the Box2d */
   public boolean contains(Translation2d translation) {
     Translation2d[] vertices = {corner1, corner2, corner4, corner3};

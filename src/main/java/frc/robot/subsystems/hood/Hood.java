@@ -74,11 +74,11 @@ public class Hood extends SubsystemBase {
 
   public Command setSpeakerPosition() {
     return Commands.run(
-        () -> setPosition(RobotState.getStateCache().speakerHoodAngle().getRadians()));
+        () -> setPosition(RobotState.getShotCache().speakerHoodAngle().getRadians()));
   }
 
   public Command setFeedPosition() {
-    return Commands.run(() -> setPosition(RobotState.getStateCache().feedHoodAngle().getRadians()));
+    return Commands.run(() -> setPosition(RobotState.getShotCache().feedHoodAngle().getRadians()));
   }
 
   public Command setAmpPosition() {
