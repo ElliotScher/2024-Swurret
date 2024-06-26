@@ -13,7 +13,7 @@ import frc.robot.FieldConstants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.shooter.ShooterConstants;
-import frc.robot.util.Box2d;
+import frc.robot.util.geometry.Box2d;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;

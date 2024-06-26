@@ -78,7 +78,8 @@ public class Hood extends SubsystemBase {
   }
 
   public Command setFeedPosition() {
-    return Commands.run(() -> setPosition(RobotState.getControlData().feedHoodAngle().getRadians()));
+    return Commands.run(
+        () -> setPosition(RobotState.getControlData().feedHoodAngle().getRadians()));
   }
 
   public Command setAmpPosition() {

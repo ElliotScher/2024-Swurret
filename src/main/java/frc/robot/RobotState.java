@@ -165,9 +165,7 @@ public class RobotState {
             .getEstimatedPosition()
             .getTranslation()
             .plus(
-                robotFieldRelativeVelocitySupplier
-                    .get()
-                    .times(timeOfFlightMap.get(distanceToAmp)));
+                robotFieldRelativeVelocitySupplier.get().times(timeOfFlightMap.get(distanceToAmp)));
     double effectiveDistanceToSpeaker = effectiveSpeakerAimingPose.getDistance(speakerPose);
     double effectiveDistanceToAmp = effectiveFeedAmpAimingPose.getDistance(ampPose);
 
@@ -191,18 +189,22 @@ public class RobotState {
     Logger.recordOutput("RobotState/Secondary Poses", visionSecondaryPosesSupplier.get());
     Logger.recordOutput("RobotState/Estimated Pose", poseEstimator.getEstimatedPosition());
     Logger.recordOutput(
-        "RobotState/Effective Speaker Aiming Pose", new Pose2d(effectiveSpeakerAimingPose, new Rotation2d()));
+        "RobotState/Effective Speaker Aiming Pose",
+        new Pose2d(effectiveSpeakerAimingPose, new Rotation2d()));
     Logger.recordOutput(
-        "RobotState/Effective Feed-Amp Aiming Pose", new Pose2d(effectiveFeedAmpAimingPose, new Rotation2d()));
+        "RobotState/Effective Feed-Amp Aiming Pose",
+        new Pose2d(effectiveFeedAmpAimingPose, new Rotation2d()));
     Logger.recordOutput("RobotState/Effective Distance To Speaker", effectiveDistanceToSpeaker);
-        Logger.recordOutput("RobotState/Effective Distance To Amp", effectiveDistanceToAmp);
+    Logger.recordOutput("RobotState/Effective Distance To Amp", effectiveDistanceToAmp);
 
     Logger.recordOutput(
         "RobotState/ControlData/Speaker Turret Angle", controlData.speakerTurretAngle());
     Logger.recordOutput("RobotState/ControlData/Feed Turret Angle", controlData.feedTurretAngle());
     Logger.recordOutput("RobotState/ControlData/Amp Turret Angle", controlData.ampTurretAngle());
-    Logger.recordOutput("RobotState/ControlData/Speaker Shot Speed", controlData.speakerShotSpeed());
-    Logger.recordOutput("RobotState/ControlData/Speaker Hood Angle", controlData.speakerHoodAngle());
+    Logger.recordOutput(
+        "RobotState/ControlData/Speaker Shot Speed", controlData.speakerShotSpeed());
+    Logger.recordOutput(
+        "RobotState/ControlData/Speaker Hood Angle", controlData.speakerHoodAngle());
     Logger.recordOutput("RobotState/ControlData/Feed Shot Speed", controlData.feedShotSpeed());
     Logger.recordOutput("RobotState/ControlData/Feed Hood Angle", controlData.feedHoodAngle());
   }

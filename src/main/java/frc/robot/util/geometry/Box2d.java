@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.util.geometry;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -133,6 +133,11 @@ public class Box2d {
             center.getY() + (corner4.getX() * sinRotation + corner4.getY() * cosRotation));
   }
 
+  /** Returns a Translation2d[] of the corners */
+  public Translation2d[] getCorners() {
+    return new Translation2d[] {corner1, corner2, corner3, corner4};
+  }
+
   /** Calculates the closest point on the perimeter of the box to the given translation */
   public Translation2d closestPoint(Translation2d point) {
     Translation2d[] vertices = {corner1, corner2, corner3, corner4};
@@ -215,7 +220,7 @@ public class Box2d {
 
   /** Checks if a given Translation2d is inside the Box2d */
   public boolean contains(Translation2d translation) {
-    Translation2d[] vertices = {corner1, corner2, corner4, corner3};
+    Translation2d[] vertices = {corner1, corner2, corner3, corner4};
     int n = vertices.length;
     boolean inside = false;
 
@@ -233,14 +238,9 @@ public class Box2d {
     return inside;
   }
 
-  /** Returns a Translation2d[] of the corners */
-  public Translation2d[] getCorners() {
-    return new Translation2d[] {corner1, corner2, corner3, corner4, corner1};
-  }
-
   /** Checks if a given Pose2d is inside the Box2d */
   public boolean contains(Pose2d pose) {
-    Translation2d[] vertices = {corner1, corner2, corner4, corner3};
+    Translation2d[] vertices = {corner1, corner2, corner3, corner4};
     int n = vertices.length;
     boolean inside = false;
 
