@@ -26,9 +26,13 @@ public class CompositeCommands {
     return Commands.runOnce(
             () -> {
               drive.setPose(
-                  new Pose2d(RobotState.getRobotPose().getTranslation(), AllianceFlipUtil.apply(new Rotation2d())));
+                  new Pose2d(
+                      RobotState.getRobotPose().getTranslation(),
+                      AllianceFlipUtil.apply(new Rotation2d())));
               RobotState.resetRobotPose(
-                  new Pose2d(RobotState.getRobotPose().getTranslation(), AllianceFlipUtil.apply(new Rotation2d())));
+                  new Pose2d(
+                      RobotState.getRobotPose().getTranslation(),
+                      AllianceFlipUtil.apply(new Rotation2d())));
             })
         .ignoringDisable(true);
   }

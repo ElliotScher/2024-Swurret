@@ -63,9 +63,7 @@ import frc.robot.subsystems.turret.Turret;
 import frc.robot.subsystems.turret.TurretIOSim;
 import frc.robot.subsystems.turret.TurretIOSparkFlex;
 import frc.robot.subsystems.turret.TurretIOTalonFX;
-import frc.robot.subsystems.vision.CameraIO;
-import frc.robot.subsystems.vision.CameraIOLimelight3G;
-import frc.robot.subsystems.vision.CameraIOSim;
+import frc.robot.subsystems.vision.CameraConstants.RobotCameras;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.Mechanism3d;
@@ -109,11 +107,8 @@ public class RobotContainer {
           hood = new Hood(new HoodIOSparkFlex());
           shooter = new Shooter(new ShooterIOSparkFlex());
           vision =
-              new Vision(
-                  new CameraIOLimelight3G(0),
-                  new CameraIOLimelight3G(1),
-                  new CameraIOLimelight3G(2),
-                  new CameraIOLimelight3G(3));
+              new Vision(RobotCameras.LIMELIGHT_LEFT_ARDUCAM, RobotCameras.LIMELIGHT_RIGHT_ARDUCAM);
+
           break;
         case ROBOT_TALONFX:
           // Snapback, instantiate hardware IO implementations
@@ -131,11 +126,8 @@ public class RobotContainer {
           hood = new Hood(new HoodIOTalonFX());
           shooter = new Shooter(new ShooterIOTalonFX());
           vision =
-              new Vision(
-                  new CameraIOLimelight3G(0),
-                  new CameraIOLimelight3G(1),
-                  new CameraIOLimelight3G(2),
-                  new CameraIOLimelight3G(3));
+              new Vision(RobotCameras.LIMELIGHT_LEFT_ARDUCAM, RobotCameras.LIMELIGHT_RIGHT_ARDUCAM);
+
           break;
         case ROBOT_SIM_NEO:
         case ROBOT_SIM_VORTEX:
@@ -156,9 +148,7 @@ public class RobotContainer {
           feeder = new Feeder(new FeederIOSim());
           hood = new Hood(new HoodIOSim());
           shooter = new Shooter(new ShooterIOSim());
-          vision =
-              new Vision(
-                  new CameraIOSim(0), new CameraIOSim(1), new CameraIOSim(2), new CameraIOSim(3));
+          vision = new Vision();
       }
     }
 
@@ -173,8 +163,7 @@ public class RobotContainer {
               new ModuleIO() {});
     }
     if (vision == null) {
-      vision =
-          new Vision(new CameraIO() {}, new CameraIO() {}, new CameraIO() {}, new CameraIO() {});
+      vision = new Vision();
     }
 
     // Configure autobuilder.
@@ -209,13 +198,14 @@ public class RobotContainer {
     // Configure RobotState
     new RobotState(
         drive::getRotation,
+        drive::getYawVelocity,
         drive::getFieldRelativeVelocity,
         drive::getModulePositions,
-        vision::getCameraTypes,
+        vision::getCameras,
+        vision::getValidTarget,
         vision::getPrimaryVisionPoses,
         vision::getSecondaryVisionPoses,
-        vision::getPrimaryPoseTimestamps,
-        vision::getSecondaryPoseTimestamps);
+        vision::getFrameTimestamps);
 
     // Configure the button bindings
     configureButtonBindings();

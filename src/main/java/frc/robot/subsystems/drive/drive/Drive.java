@@ -238,6 +238,11 @@ public class Drive extends SubsystemBase {
     return getPose().getRotation();
   }
 
+  /** Returns the current yaw velocity */
+  public double getYawVelocity() {
+    return gyroInputs.yawVelocityRadPerSec;
+  }
+
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
     odometry.resetPosition(rawGyroRotation, getModulePositions(), pose);
