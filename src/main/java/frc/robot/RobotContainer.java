@@ -286,6 +286,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return AutoRoutines.center_abc(drive, intake, serializer, turret, feeder, hood, shooter);
+    return AutoRoutines.ampSideSixPiece(drive, intake, serializer, turret, feeder, hood, shooter);
   }
 }

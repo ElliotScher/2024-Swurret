@@ -15,7 +15,7 @@ public final class AutoRoutines {
     return Commands.none();
   }
 
-  public static final Command center_abc(
+  public static final Command ampSideSixPiece(
       Drive drive,
       Intake intake,
       Serializer serializer,
